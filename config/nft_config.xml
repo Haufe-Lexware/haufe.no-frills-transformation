@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NftConfig>
+  <PluginAssemblies>
+    <PluginAssembly>CsvReader.dll</PluginAssembly>
+  </PluginAssemblies>
+</NftConfig>

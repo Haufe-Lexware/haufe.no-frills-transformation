@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Transformation>
+  <SourceFile>C:\Projects\no-frills-transformation\scratch\users.csv</SourceFile>
+  <TargetFile>Accounts.csv</TargetFile>
+  <LookupMaps>
+    <LookupMap key="id" name="Status">C:\Projects\no-frills-transformation\scratch\status_mapping.csv</LookupMap>
+  </LookupMaps>
+  <!--
+  <SourceFilters>
+    <SourceFilter fieldName="BPTyp" type="equals">account</SourceFilter>
+  </SourceFilters>
+  -->
+
+  <Mappings>
+    <Mapping>
+      <Fields>
+        <!-- no op field mapping 'name' to 'Name' -->
+        <Field name="SapUserId__c" expression="$SOBID"/>
+        <!-- status mapping from lookup "Status" (see definition above) -->
+        <Field name="Status" expression="Status($BOGUSTYPE, text)"/>
+      </Fields>
+    </Mapping>
+  </Mappings>
+</Transformation>
