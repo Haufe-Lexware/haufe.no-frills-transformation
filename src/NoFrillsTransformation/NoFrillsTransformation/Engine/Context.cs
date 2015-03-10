@@ -16,6 +16,7 @@ namespace NoFrillsTransformation.Engine
     }
     class Context
     {
+        public ISourceReader SourceReader { get; set; }
         public IList<LookupMap> LookupMaps { get; set; }
         public LookupMap GetLookupMap(string id)
         {

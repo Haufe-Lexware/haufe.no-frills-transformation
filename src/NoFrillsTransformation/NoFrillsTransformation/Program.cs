@@ -6,6 +6,7 @@ using System.Text;
 using System.Xml.Serialization;
 using LumenWorks.Framework.IO.Csv;
 using NoFrillsTransformation.Config;
+using NoFrillsTransformation.Engine;
 
 namespace NoFrillsTransformation
 {
@@ -34,7 +35,8 @@ namespace NoFrillsTransformation
                     Console.WriteLine("Something: " + csv["SOBID"] + "~");
                 }
             }
-        }
 
+            var expression = ExpressionParser.ParseExpression("concat(\"MB\", Status($Status, $Meep))", null);
+        }
     }
 }

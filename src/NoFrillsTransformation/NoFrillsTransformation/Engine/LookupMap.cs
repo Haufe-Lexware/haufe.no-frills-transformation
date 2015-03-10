@@ -22,5 +22,13 @@ namespace NoFrillsTransformation.Engine
         {
             return "dumm";
         }
+        public string GetValue(string key, int fieldIndex)
+        {
+            return "dumber";
+        }
+        public int GetFieldIndex(string fieldName)
+        {
+            return 1;
+        }
     }
 }
