@@ -4,27 +4,24 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6BA46494-CE03-4501-8E16-A0BF1C5A3314}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{BF8F3429-0C30-4398-9C68-C3F4A4602E27}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NoFrillsTransformation</RootNamespace>
-    <AssemblyName>NoFrillsTransformation</AssemblyName>
+    <RootNamespace>NoFrillsTransformation.Interfaces</RootNamespace>
+    <AssemblyName>NoFrillsTransformation.Interfaces</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\bin\Debug\</OutputPath>
+    <OutputPath>..\bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\..\bin\Release\</OutputPath>
@@ -34,7 +31,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -43,25 +39,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\ConfigFile.cs" />
-    <Compile Include="Config\NftConfigXml.cs" />
-    <Compile Include="Engine\Context.cs" />
-    <Compile Include="Engine\ExpressionParser.cs" />
-    <Compile Include="Engine\LookupMap.cs" />
-    <Compile Include="Engine\Mapping.cs" />
-    <Compile Include="Engine\ReaderFactory.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="IRecord.cs" />
+    <Compile Include="ISourceReader.cs" />
+    <Compile Include="ISourceReaderFactory.cs" />
+    <Compile Include="ITargetWriter.cs" />
+    <Compile Include="ITargetWriterFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\3rdParty\LumenWorks.Framework.IO\LumenWorks.Framework.IO.csproj">
-      <Project>{e3b83d68-c90c-4874-8e5f-dec8d038bc7c}</Project>
-      <Name>LumenWorks.Framework.IO</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NoFrillsTransformation.Interfaces\NoFrillsTransformation.Interfaces.csproj">
-      <Project>{bf8f3429-0c30-4398-9c68-c3f4a4602e27}</Project>
-      <Name>NoFrillsTransformation.Interfaces</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

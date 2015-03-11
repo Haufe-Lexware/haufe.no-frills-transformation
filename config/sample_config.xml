@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Transformation>
-  <SourceFile>C:\Projects\no-frills-transformation\scratch\users.csv</SourceFile>
-  <TargetFile>Accounts.csv</TargetFile>
+  <Source config="delim=','">file://C:\Projects\no-frills-transformation\scratch\users.csv</Source>
+  <Target config="delim=','">file://C:\Projects\no-frills-transformation\scratch\Accounts.csv</Target>
   <LookupMaps>
-    <LookupMap key="id" name="Status">C:\Projects\no-frills-transformation\scratch\status_mapping.csv</LookupMap>
+    <LookupMap key="id" name="Status">file://C:\Projects\no-frills-transformation\scratch\status_mapping.csv</LookupMap>
   </LookupMaps>
   <!--
   <SourceFilters>
@@ -15,9 +15,9 @@
     <Mapping>
       <Fields>
         <!-- no op field mapping 'name' to 'Name' -->
-        <Field name="SapUserId__c" expression="$SOBID"/>
+        <Field name="SapUserId__c" expression="$SOBID" maxSize="16"/>
         <!-- status mapping from lookup "Status" (see definition above) -->
-        <Field name="Status" expression="Status($BOGUSTYPE, text)"/>
+        <Field name="Status" expression="Status($BOGUSTYPE, text)" maxSize="40"/>
       </Fields>
     </Mapping>
   </Mappings>

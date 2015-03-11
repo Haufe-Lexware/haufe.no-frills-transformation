@@ -17,6 +17,7 @@ namespace NoFrillsTransformation.Engine
     class Context
     {
         public ISourceReader SourceReader { get; set; }
+        public ITargetWriter TargetWriter { get; set; }
         public IList<LookupMap> LookupMaps { get; set; }
         public LookupMap GetLookupMap(string id)
         {
@@ -26,5 +27,9 @@ namespace NoFrillsTransformation.Engine
         public IList<Mapping> Mappings { get; set; }
 
         public IRecord CurrentRecord { get; set; }
+        public int SourceRecordsRead { get; set; }
+        public int SourceRecordsFiltered { get; set; }
+        public int SourceRecordsProcessed { get; set; }
+        public int TargetRecordsWritten { get; set; }
     }
 }

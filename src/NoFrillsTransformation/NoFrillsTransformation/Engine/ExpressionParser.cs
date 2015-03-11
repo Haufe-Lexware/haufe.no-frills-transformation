@@ -33,31 +33,49 @@ namespace NoFrillsTransformation.Engine
                     throw new ArgumentException("After token '" + token + "' expected '(', got '" + nextChar + "'.");
                 SkipWhitespace(t, ref pos);
                 pos++;
-                // All operations have two arguments. How convenient.
-                int commaPos = FindDelimiterPosition(t, pos, ',');
-                int endParenPos = FindDelimiterPosition(t, commaPos + 1, ')');
-
-                string firstArg = t.Substring(pos, commaPos - pos);
-                string secondArg = t.Substring(commaPos + 1, endParenPos - commaPos - 1);
-
-                bool isConcat = token.Equals("concat", StringComparison.InvariantCultureIgnoreCase);
-
-                var ex = new Expression
+                // RowNum token?
+                string tokenLow = token.ToLowerInvariant();
+                switch (tokenLow)
                 {
-                    Type = isConcat ? ExpressionType.Concatenation : ExpressionType.Lookup,
-                    Content = token,
-                    FirstArgument = ParseExpression(firstArg, context),
-                    SecondArgument = ParseExpression(secondArg, context)
-                };
-                if (!isConcat)
-                {
-                    // Some sanity checks, not all lookup arguments are allowed
-                    if (ex.FirstArgument.Type != ExpressionType.FieldName)
-                        throw new ArgumentException("First argument of lookup '" + token + "' must be a field name.");
-                    if (ex.SecondArgument.Type != ExpressionType.FieldName)
-                        throw new ArgumentException("Second argument of lookup '" + token + "' must be a field name.");
+                    case "targetrownum":
+                    case "sourcerownum":
+                        // These two have no arguments.
+                        SkipWhitespace(t, ref pos);
+                        if (t[pos] != ')')
+                            throw new ArgumentException("Token '" + token + "' does not accept any arguments (expected ')').");
+                        return new Expression
+                        {
+                            Type = tokenLow.StartsWith("source") ? ExpressionType.SourceRowNum : ExpressionType.TargetRowNum
+                        };
+
+                    default:
+                        // All other operations have two arguments. How convenient.
+                        int commaPos = FindDelimiterPosition(t, pos, ',');
+                        int endParenPos = FindDelimiterPosition(t, commaPos + 1, ')');
+
+                        string firstArg = t.Substring(pos, commaPos - pos);
+                        string secondArg = t.Substring(commaPos + 1, endParenPos - commaPos - 1);
+
+                        bool isConcat = token.Equals("concat", StringComparison.InvariantCultureIgnoreCase);
+
+                        var ex = new Expression
+                        {
+                            Type = isConcat ? ExpressionType.Concatenation : ExpressionType.Lookup,
+                            Content = token,
+                            FirstArgument = ParseExpression(firstArg, context),
+                            SecondArgument = ParseExpression(secondArg, context)
+                        };
+                        if (!isConcat)
+                        {
+                            // Some sanity checks, not all lookup arguments are allowed
+                            //if (ex.FirstArgument.Type != ExpressionType.FieldName)
+                            //    throw new ArgumentException("First argument of lookup '" + token + "' must be a field name.");
+                            if (ex.SecondArgument.Type != ExpressionType.FieldName)
+                                throw new ArgumentException("Second argument of lookup '" + token + "' must be a field name.");
+                        }
+                        return ex;
                 }
-                return ex;
+
             }
             catch (IndexOutOfRangeException)
             {
@@ -78,6 +96,12 @@ namespace NoFrillsTransformation.Engine
                     return EvaluateExpression(expression.FirstArgument, context) +
                         EvaluateExpression(expression.SecondArgument, context);
 
+                case ExpressionType.SourceRowNum:
+                    return context.SourceRecordsRead.ToString();
+
+                case ExpressionType.TargetRowNum:
+                    return (context.TargetRecordsWritten + 1).ToString();
+
                 // Evaluates to a source field
                 case ExpressionType.FieldName:
                     if (expression.CachedFieldIndex < 0)
@@ -95,7 +119,9 @@ namespace NoFrillsTransformation.Engine
 
                 // The most intricate case: Lookup evaluation.
                 case ExpressionType.Lookup:
-                    // Both arguments are of FieldName type (as enforced in the parser)
+                    // Second argument is of FieldName type (as enforced in the parser),
+                    // first argument may be any expression (the evaluation of which will
+                    // be used to look up the field in the lookup table).
                     var lookupKey = EvaluateExpression(expression.FirstArgument, context);
                     if (null == expression.CachedLookupMap)
                     {
@@ -233,6 +259,8 @@ namespace NoFrillsTransformation.Engine
 
     enum ExpressionType
     {
+        SourceRowNum,
+        TargetRowNum,
         FieldName,
         StringLiteral,
         Concatenation,
@@ -241,11 +269,14 @@ namespace NoFrillsTransformation.Engine
 
     class Expression
     {
+        #region Properties
         public ExpressionType Type { get; set; }
         public string Content { get; set; }
         public Expression FirstArgument { get; set; }
         public Expression SecondArgument { get; set; }
+        #endregion
 
+        #region Caching
         private int _fieldIndex = -1;
         public int CachedFieldIndex
         {
@@ -258,5 +289,6 @@ namespace NoFrillsTransformation.Engine
             get { return _lookupMap; }
             set { _lookupMap = value; }
         }
+        #endregion
     }
 }

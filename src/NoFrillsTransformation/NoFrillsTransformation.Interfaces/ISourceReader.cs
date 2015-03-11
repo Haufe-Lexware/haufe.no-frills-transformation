@@ -5,17 +5,18 @@ using System.Text;
 
 namespace NoFrillsTransformation.Interfaces
 {
-    interface ISourceReader
+
+    public interface ISourceReader : IDisposable
     {
-        bool CanReadFormat(string fileSuffix);
-        void Initialize(string sourceFile, string config);
+//        void Initialize(string sourceFile, string config);
         bool HasMoreData { get; }
-        bool ReadNextRecord();
+        IRecord NextRecord();
         IRecord CurrentRecord { get; }
         int FieldCount { get; }
         string[] FieldNames { get; }
         int GetFieldIndex(string fieldName);
-        string GetFieldValue(string fieldName);
-        string GetFieldValue(int index);
+        IRecord Query(string key);
+        //string GetFieldValue(string fieldName);
+        //string GetFieldValue(int index);
     }
 }

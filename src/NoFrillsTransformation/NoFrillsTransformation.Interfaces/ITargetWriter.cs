@@ -5,9 +5,9 @@ using System.Text;
 
 namespace NoFrillsTransformation.Interfaces
 {
-    interface IRecord
+    public interface ITargetWriter
     {
-        string this[int index] { get; }
-        string this[string fieldName] { get; }
+        void WriteRecord(string[] fieldValues);
+        int RecordsWritten { get; }
     }
 }

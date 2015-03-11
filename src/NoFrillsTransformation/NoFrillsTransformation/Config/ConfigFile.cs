@@ -9,8 +9,8 @@ namespace NoFrillsTransformation.Config
     [XmlRoot("Transformation")]
     public class ConfigFileXml
     {
-        public string SourceFile { get; set; }
-        public string TargetFile { get; set; }
+        public SourceTargetXml Source { get; set; }
+        public SourceTargetXml Target { get; set; }
         [XmlArray("SourceFilters")]
         [XmlArrayItem("SourceFilters")]
         public SourceFilterXml[] SourceFilters { get; set; }
@@ -20,6 +20,14 @@ namespace NoFrillsTransformation.Config
         [XmlArray("Mappings")]
         [XmlArrayItem("Mapping")]
         public MappingXml[] Mappings { get; set; }
+    }
+
+    public class SourceTargetXml
+    {
+        [XmlText]
+        public string Uri { get; set; }
+        [XmlAttribute("config")]
+        public string Config { get; set; }
     }
 
     public class SourceFilterXml
@@ -55,5 +63,7 @@ namespace NoFrillsTransformation.Config
         public string Name { get; set; }
         [XmlAttribute("expression")]
         public string Expression { get; set; }
+        [XmlAttribute("maxSize")]
+        public int MaxSize { get; set; }
     }
 }

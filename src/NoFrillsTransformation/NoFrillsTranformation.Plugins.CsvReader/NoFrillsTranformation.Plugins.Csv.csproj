@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6BA46494-CE03-4501-8E16-A0BF1C5A3314}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{94D2E8EB-FE71-4625-B425-F2DC61B3586C}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NoFrillsTransformation</RootNamespace>
-    <AssemblyName>NoFrillsTransformation</AssemblyName>
+    <RootNamespace>NoFrillsTranformation.Plugins.Csv</RootNamespace>
+    <AssemblyName>NoFrillsTranformation.Plugins.Csv</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -21,13 +20,11 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\bin\Release\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -43,14 +40,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\ConfigFile.cs" />
-    <Compile Include="Config\NftConfigXml.cs" />
-    <Compile Include="Engine\Context.cs" />
-    <Compile Include="Engine\ExpressionParser.cs" />
-    <Compile Include="Engine\LookupMap.cs" />
-    <Compile Include="Engine\Mapping.cs" />
-    <Compile Include="Engine\ReaderFactory.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="CsvReaderFactory.cs" />
+    <Compile Include="CsvReaderPlugin.cs" />
+    <Compile Include="CsvWriterFactory.cs" />
+    <Compile Include="CsvWriterPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
