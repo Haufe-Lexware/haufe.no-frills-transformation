@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NoFrillsTransformation.Interfaces
 {
-    public interface ITargetWriter
+    public interface ITargetWriter : IDisposable
     {
         void WriteRecord(string[] fieldValues);
         int RecordsWritten { get; }

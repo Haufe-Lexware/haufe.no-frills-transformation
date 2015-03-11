@@ -46,8 +46,7 @@ namespace NoFrillsTransformation.Config
         public string Key { get; set; }
         [XmlAttribute("name")]
         public string Name { get; set; }
-        [XmlText]
-        public string FileName { get; set; }
+        public SourceTargetXml Source { get; set; }
     }
 
     public class MappingXml

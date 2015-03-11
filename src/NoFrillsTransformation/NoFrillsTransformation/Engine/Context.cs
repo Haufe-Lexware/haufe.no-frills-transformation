@@ -18,14 +18,23 @@ namespace NoFrillsTransformation.Engine
     {
         public ISourceReader SourceReader { get; set; }
         public ITargetWriter TargetWriter { get; set; }
-        public IList<LookupMap> LookupMaps { get; set; }
+        private Dictionary<string, LookupMap> _lookupMaps = new Dictionary<string, LookupMap>();
+        public Dictionary<string, LookupMap> LookupMaps
+        {
+            get
+            {
+                return _lookupMaps;
+            }
+        }
         public LookupMap GetLookupMap(string id)
         {
-            return null;
+            return LookupMaps[id];
         }
 
         public IList<Mapping> Mappings { get; set; }
 
+        public string[] TargetFieldNames { get; set; }
+        public int[] TargetFieldSizes { get; set; }
         public IRecord CurrentRecord { get; set; }
         public int SourceRecordsRead { get; set; }
         public int SourceRecordsFiltered { get; set; }

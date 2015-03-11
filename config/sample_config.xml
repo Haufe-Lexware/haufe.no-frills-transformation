@@ -3,7 +3,9 @@
   <Source config="delim=','">file://C:\Projects\no-frills-transformation\scratch\users.csv</Source>
   <Target config="delim=','">file://C:\Projects\no-frills-transformation\scratch\Accounts.csv</Target>
   <LookupMaps>
-    <LookupMap key="id" name="Status">file://C:\Projects\no-frills-transformation\scratch\status_mapping.csv</LookupMap>
+    <LookupMap key="id" name="Status">
+      <Source config="delim=','">file://C:\Projects\no-frills-transformation\scratch\status_mapping.csv</Source>
+    </LookupMap>
   </LookupMaps>
   <!--
   <SourceFilters>
