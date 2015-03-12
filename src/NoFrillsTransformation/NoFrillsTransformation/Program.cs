@@ -63,7 +63,7 @@ namespace NoFrillsTransformation
             using (var reader = readerFactory.CreateReader(configFile.Source.Uri, configFile.Source.Config))
             {
                 context.SourceReader = reader;
-                using (var writer = writerFactory.CreateWriter(configFile.Target.Uri, context.TargetFieldNames, context.TargetFieldSizes, configFile.Target.Config))
+                using (var writer = writerFactory.CreateWriter(configFile.Target.Uri, context.TargetFields, configFile.Target.Config))
                 {
                     context.TargetWriter = writer;
 
@@ -71,15 +71,49 @@ namespace NoFrillsTransformation
                 }
             }
 
-
-            //var expression = ExpressionParser.ParseExpression("OpptRecTypes(OpptMap($BELEGART, $DeveloperName), $Id)", null);
-            //var more = ExpressionParser.ParseExpression("\"This is a fixed text.\"", null);
-            //var wupf = ExpressionParser.ParseExpression("Concat(TargetRowNum(), Concat(\"-\", Lookilook(SourceRowNum(), $Whatever)))", null);
+            //var expression = ExpressionParser.ParseExpression("OpptRecTypes(OpptMap($BELEGART, $DeveloperName), $Id)");
+            //var more = ExpressionParser.ParseExpression("\"This is a fixed text.\"");
+            //var wupf = ExpressionParser.ParseExpression("Concat(TargetRowNum(), Concat(\"-\", Lookilook(SourceRowNum(), $Whatever)))");
+            //var meep = ExpressionParser.ParseExpression("Status($BOGUSTYPE, $text)");
         }
 
         private void Process(Context context)
         {
+            try
+            {
+                string[] outValues = new string[context.TargetFields.Length];
 
+                while (!context.SourceReader.IsEndOfStream)
+                {
+                    context.SourceReader.NextRecord();
+                    context.SourceRecordsRead++;
+
+                    if (!RecordMatchesFilter(context))
+                    {
+                        context.SourceRecordsFiltered++;
+                        continue;
+                    }
+                    context.SourceRecordsProcessed++;
+
+                    for (int i=0; i<outValues.Length; ++i)
+                    {
+                        outValues[i] = ExpressionParser.EvaluateExpression(context.TargetFields[i].Expression, context);
+                    }
+
+                    context.TargetWriter.WriteRecord(outValues);
+                    context.TargetRecordsWritten++;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException("A processing error occurred in source row " + context.SourceRecordsRead + ": " + e.Message);
+            }
+        }
+
+        private bool RecordMatchesFilter(Context context)
+        {
+            // Filtering not supported yet.
+            return true;
         }
 
         private void InitLookupMaps(ConfigFileXml configFile, ReaderFactory readerFactory, Context context)
@@ -94,8 +128,38 @@ namespace NoFrillsTransformation
 
         private void ReadMappings(ConfigFileXml configFile, Context context)
         {
-            context.TargetFieldNames = new string[] { };
-            context.TargetFieldSizes = new int[] { }; 
+            if (null == configFile.Mappings)
+                throw new ArgumentException("Configuration file misses Mappings section.");
+            if (configFile.Mappings.Length == 0)
+                throw new ArgumentException("Configuration file does not have a valid Mapping (<Mapping> tag missing).");
+            if (configFile.Mappings.Length > 1)
+                throw new ArgumentException("Multiple Mapping tags are not allowed currently.");
+            var map = configFile.Mappings[0]; // Pick first mapping; it might be extended later on.
+            if (null == map.Fields)
+                throw new ArgumentException("Missing field definitions in mapping.");
+            int fieldCount = map.Fields.Length;
+
+            //context.TargetFieldNames = new string[] { };
+            //context.TargetFieldSizes = new int[] { }; 
+            context.TargetFields = new TargetFieldDef[fieldCount];
+
+            for (int i=0; i<fieldCount; ++i)
+            {
+                var field = map.Fields[i];
+                try
+                {
+                    var tfd = new TargetFieldDef();
+                    tfd.FieldName = field.Name;
+                    tfd.FieldSize = field.MaxSize;
+                    tfd.Expression = ExpressionParser.ParseExpression(field.Expression);
+
+                    context.TargetFields[i] = tfd;
+                }
+                catch (Exception e)
+                {
+                    throw new ArgumentException("An error occurred while parsing field '" + field.Name + "': " + e.Message);
+                }
+            }
         }
     }
 }

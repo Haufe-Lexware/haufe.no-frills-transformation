@@ -33,9 +33,8 @@ namespace NoFrillsTransformation.Engine
 
         public IList<Mapping> Mappings { get; set; }
 
-        public string[] TargetFieldNames { get; set; }
-        public int[] TargetFieldSizes { get; set; }
-        public IRecord CurrentRecord { get; set; }
+        public TargetFieldDef[] TargetFields { get; set; }
+
         public int SourceRecordsRead { get; set; }
         public int SourceRecordsFiltered { get; set; }
         public int SourceRecordsProcessed { get; set; }

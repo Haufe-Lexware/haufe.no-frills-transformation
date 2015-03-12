@@ -9,7 +9,7 @@ namespace NoFrillsTransformation.Engine
     // parser generator. Instead I'm rolling my own. So sue me.
     class ExpressionParser
     {
-        public static Expression ParseExpression(string expressionString, Context context)
+        public static Expression ParseExpression(string expressionString)
         {
             if (string.IsNullOrWhiteSpace(expressionString))
                 throw new ArgumentException("The string '" + expressionString + "' is not a valid expression.");
@@ -62,8 +62,8 @@ namespace NoFrillsTransformation.Engine
                         {
                             Type = isConcat ? ExpressionType.Concatenation : ExpressionType.Lookup,
                             Content = token,
-                            FirstArgument = ParseExpression(firstArg, context),
-                            SecondArgument = ParseExpression(secondArg, context)
+                            FirstArgument = ParseExpression(firstArg),
+                            SecondArgument = ParseExpression(secondArg)
                         };
                         if (!isConcat)
                         {
@@ -71,7 +71,7 @@ namespace NoFrillsTransformation.Engine
                             //if (ex.FirstArgument.Type != ExpressionType.FieldName)
                             //    throw new ArgumentException("First argument of lookup '" + token + "' must be a field name.");
                             if (ex.SecondArgument.Type != ExpressionType.FieldName)
-                                throw new ArgumentException("Second argument of lookup '" + token + "' must be a field name.");
+                                throw new ArgumentException("Second argument of lookup '" + token + "' must be a lookup source field name ($<field>).");
                         }
                         return ex;
                 }
@@ -83,7 +83,7 @@ namespace NoFrillsTransformation.Engine
             }
         }
 
-        public string EvaluateExpression(Expression expression, Context context)
+        public static string EvaluateExpression(Expression expression, Context context)
         {
             switch (expression.Type)
             {
@@ -115,7 +115,7 @@ namespace NoFrillsTransformation.Engine
                             throw new ArgumentException("Runtime expression evaluation error: Unknown field name '" + expression.Content + "'.");
                         }
                     }
-                    return context.CurrentRecord[expression.CachedFieldIndex];
+                    return context.SourceReader.CurrentRecord[expression.CachedFieldIndex];
 
                 // The most intricate case: Lookup evaluation.
                 case ExpressionType.Lookup:

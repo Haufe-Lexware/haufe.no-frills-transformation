@@ -42,7 +42,7 @@ namespace NoFrillsTransformation.Config
 
     public class LookupMapXml
     {
-        [XmlAttribute("key")]
+        [XmlAttribute("keyField")]
         public string Key { get; set; }
         [XmlAttribute("name")]
         public string Name { get; set; }

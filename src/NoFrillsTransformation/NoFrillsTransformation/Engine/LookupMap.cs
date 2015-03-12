@@ -29,7 +29,20 @@ namespace NoFrillsTransformation.Engine
                         throw new Exception("Cannot find key field '" + config.Key + "' in lookup source '" + config.Source.Uri + "'.");
                     }
 
+                    int fieldCount = reader.FieldCount;
+
                     // Read data and store in memory.
+                    while (!reader.IsEndOfStream)
+                    {
+                        reader.NextRecord(); 
+                        var record = reader.CurrentRecord;
+                        var values = new string[fieldCount];
+                        for (int i = 0; i < fieldCount; ++i)
+                        {
+                            values[i] = record[i];
+                        }
+                        lm.Rows[values[keyIndex]] = values;
+                    }
 
                     return lm;
                 }

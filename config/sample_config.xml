@@ -3,7 +3,7 @@
   <Source config="delim=','">file://C:\Projects\no-frills-transformation\scratch\users.csv</Source>
   <Target config="delim=','">file://C:\Projects\no-frills-transformation\scratch\Accounts.csv</Target>
   <LookupMaps>
-    <LookupMap key="id" name="Status">
+    <LookupMap keyField="id" name="Status">
       <Source config="delim=','">file://C:\Projects\no-frills-transformation\scratch\status_mapping.csv</Source>
     </LookupMap>
   </LookupMaps>
@@ -17,9 +17,11 @@
     <Mapping>
       <Fields>
         <!-- no op field mapping 'name' to 'Name' -->
+        <Field name="RowNo" expression="SourceRowNum()" maxSize="10" />
         <Field name="SapUserId__c" expression="$SOBID" maxSize="16"/>
+        <Field name="Whatever" expression="Concat($OTYPE, $OBJID)" maxSize="50"/>
         <!-- status mapping from lookup "Status" (see definition above) -->
-        <Field name="Status" expression="Status($BOGUSTYPE, text)" maxSize="40"/>
+        <Field name="Status" expression="Status($BOGUSTYPE, $salesforce_status)" maxSize="40"/>
       </Fields>
     </Mapping>
   </Mappings>

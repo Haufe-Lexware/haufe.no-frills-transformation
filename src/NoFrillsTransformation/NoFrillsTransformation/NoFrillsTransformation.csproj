@@ -50,6 +50,7 @@
     <Compile Include="Engine\LookupMap.cs" />
     <Compile Include="Engine\Mapping.cs" />
     <Compile Include="Engine\ReaderFactory.cs" />
+    <Compile Include="Engine\TargetFieldDef.cs" />
     <Compile Include="Engine\WriterFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

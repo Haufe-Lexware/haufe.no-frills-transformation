@@ -82,8 +82,10 @@ namespace NoFrillsTranformation.Plugins.Csv
                 return "";
             bool containsDelimiter = value.Contains(_delimiter);
             bool containsQuote = value.Contains('"');
+            bool containsNewline = value.Contains('\n');
             if (containsDelimiter
-                || containsQuote)
+                || containsQuote
+                || containsNewline)
             {
                 var t = value;
                 if (containsQuote)

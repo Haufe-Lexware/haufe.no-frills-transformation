@@ -15,13 +15,12 @@ namespace NoFrillsTranformation.Plugins.CsvReader
         {
             _fileName = source.Substring(7); // Strip file://
 
-            Configure(config);
-
             TextReader textReader = null;
             try
             {
                 textReader = new StreamReader(new FileStream(_fileName, FileMode.Open));
                 _csvReader = new LumenWorks.Framework.IO.Csv.CsvReader(textReader, true, _delimiter);
+                Configure(config);
             }
             catch (Exception)
             {
@@ -42,25 +41,25 @@ namespace NoFrillsTranformation.Plugins.CsvReader
         {
             if (string.IsNullOrWhiteSpace(config))
                 return;
+
+            _csvReader.SupportsMultiline = true;
         }
         #endregion
 
         #region ISourceReader
-        public bool HasMoreData
+        public bool IsEndOfStream
         {
             get
             {
-                return false;
+                return _csvReader.EndOfStream;
             }
         }
 
-        public IRecord NextRecord()
+        public void NextRecord()
         {
-            if (_csvReader.EndOfStream)
-                return null;
-            if (_csvReader.ReadNextRecord())
-                return this;
-            return null;
+            if (IsEndOfStream)
+                return;
+            _csvReader.ReadNextRecord();
         }
 
         public IRecord CurrentRecord
