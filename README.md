@@ -22,6 +22,16 @@ But that quickly and efficiently, supporting the basic transformation stuff you 
 
 Feel free to contribute and create pull requests. I'll check them out and merge them if they make sense.
 
+## Binary Downloads
+
+There are no binary downloads just yet.
+
+This project has to settle down a little first, then I'll release something.
+
+I'd say that NFT may already be used in production, or for serious things, like migrations and stuff,
+but there's still too many parts moving. Check back in a while, or, if you can't get it to compile, 
+get back to me.
+
 ## Acknowledgements
 
 NFT (the CSV plugin to be more precise) is using parts of the brilliant CSV reader library written by
