@@ -249,7 +249,7 @@ Transforms a string into upper case.
 
 ## Extension points
 
-NFT is leveraging MEF ([Microsoft Extension Framework][https://msdn.microsoft.com/en-us/en-en/library/dd460648(v=vs.110).aspx])
+NFT is leveraging MEF ([Microsoft Extension Framework](https://msdn.microsoft.com/en-us/en-en/library/dd460648(v=vs.110).aspx))
 for dependency injection (inversion of control). There are two interfaces which may be used to hook into NFT:
 
 ```csharp
