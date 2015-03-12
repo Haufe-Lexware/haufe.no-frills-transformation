@@ -277,11 +277,9 @@ As an example, the CSV Plugin returns true for URIs starting with `file://` and 
 
 Writing a plugin consists of following these steps:
 
-* Create a new assembly for .NET 4.0 and reference 
-** `NoFrillsTransformation.Interfaces` and
-** `System.ComponentModel.Composition` (this is the MEF framework)
+* Create a new assembly for .NET 4.0 and reference `NoFrillsTransformation.Interfaces` and `System.ComponentModel.Composition` (this is the MEF framework)
 * Implement `ISourceReaderFactory` and/or `ITargetWriterFactory`
-** Mark the classes as `[Export(typeof(ISourceReaderFactory))]` or `[Export(typeof(ITargetWriterFactory))]`, respectively (see below)
+* Mark the classes as `[Export(typeof(ISourceReaderFactory))]` or `[Export(typeof(ITargetWriterFactory))]`, respectively (see below)
 * Implement the `ISourceReader` and `IRecord` interfaces for reading sources
 * And/or implement the `ITargetWriter` interface for writing to targets
 
