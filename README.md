@@ -121,11 +121,11 @@ two different return types (currently), bool and string.
 
 #### Concat
 
-Example     | `Concat($firstName, Concat(" ", $lastName))`
----------------------
-Parameter 1 | string
-Parameter 2 | string
-Return type | string
+| Example     | `Concat($firstName, Concat(" ", $lastName))` |
+| ----------- | -------- |
+| Parameter 1 | string |
+| Parameter 2 | string |
+| Return type | string |
 
 #### 
 
