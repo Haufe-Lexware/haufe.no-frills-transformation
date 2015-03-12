@@ -62,21 +62,26 @@ A typical simple XML configuration may look like this:
       <Source config="delim=','">file://C:\temp\status_mapping.csv</Source>
     </LookupMap>
   </LookupMaps>
-  <!--
+
+  <FilterMode>AND</FilterMode>
   <SourceFilters>
-    <SourceFilter fieldName="BPTyp" type="equals">account</SourceFilter>
+    <!-- In shorter, this is just Contains($SOBID, "A") -->
+    <SourceFilter>EqualsIgnoreCase(If(Contains($SOBID, "A"), "hooray", "boo"), "HooRay")</SourceFilter>
   </SourceFilters>
-  -->
 
   <Mappings>
     <Mapping>
       <Fields>
-        <!-- no op field mapping 'name' to 'Name' -->
-        <Field name="RowNo" expression="SourceRowNum()" maxSize="10" />
-        <Field name="SapUserId__c" expression="$SOBID" maxSize="16"/>
-        <Field name="Whatever" expression="Concat($OTYPE, $OBJID)" maxSize="50"/>
+        <!-- The target row number -->
+        <Field name="RowNo" maxSize="10">TargetRowNum()</Field>
+        <!-- The source row number -->
+        <Field name="SourceRowNo" maxSize="10">SourceRowNum()</Field>
+        <!-- Plain copy of field content -->
+        <Field name="SapUserId__c" maxSize="16">LowerCase($SOBID)</Field>
+        <!-- Concatenation of two source fields -->
+        <Field name="Whatever" maxSize="50">Concat($OTYPE, $OBJID)</Field>
         <!-- status mapping from lookup "Status" (see definition above) -->
-        <Field name="Status" expression="Status($BOGUSTYPE, $salesforce_status)" maxSize="40"/>
+        <Field name="Status" maxSize="40">Status($BOGUSTYPE, $salesforce_status)</Field>
       </Fields>
     </Mapping>
   </Mappings>
@@ -101,7 +106,28 @@ A typical simple XML configuration may look like this:
 
 (...)
 
-### Field Expression syntax
+### Field definitions
+
+(...)
+
+### Expression syntax
+
+Expressions can be freely combined, as long as the return types are correct. There are only
+two different return types (currently), bool and string.
+
+#### And
+
+
+
+#### Concat
+
+Example     | `Concat($firstName, Concat(" ", $lastName))`
+---------------------
+Parameter 1 | string
+Parameter 2 | string
+Return type | string
+
+#### 
 
 (...)
 

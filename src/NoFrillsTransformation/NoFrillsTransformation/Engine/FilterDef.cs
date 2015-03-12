@@ -5,7 +5,8 @@ using System.Text;
 
 namespace NoFrillsTransformation.Engine
 {
-    class Mapping
+    class FilterDef
     {
+        public Expression Expression { get; set; }
     }
 }

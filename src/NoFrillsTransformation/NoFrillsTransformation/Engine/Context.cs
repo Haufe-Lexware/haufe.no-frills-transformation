@@ -14,6 +14,13 @@ namespace NoFrillsTransformation.Engine
             return new Context();
         }
     }
+
+    enum FilterMode
+    {
+        And,
+        Or
+    }
+
     class Context
     {
         public ISourceReader SourceReader { get; set; }
@@ -30,9 +37,8 @@ namespace NoFrillsTransformation.Engine
         {
             return LookupMaps[id];
         }
-
-        public IList<Mapping> Mappings { get; set; }
-
+        public FilterMode FilterMode { get; set; }
+        public FilterDef[] Filters { get; set; }
         public TargetFieldDef[] TargetFields { get; set; }
 
         public int SourceRecordsRead { get; set; }

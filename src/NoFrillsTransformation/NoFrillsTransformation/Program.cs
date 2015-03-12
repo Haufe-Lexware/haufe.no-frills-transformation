@@ -15,49 +15,40 @@ namespace NoFrillsTransformation
     {
         static void Main(string[] args)
         {
-            (new Program()).Run();
+            try
+            {
+                (new Program()).Run();
+                Console.WriteLine("Operation finished successfully.");
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine("Operation failed: " + e.Message);
+            }
         }
 
         private void Run()
         {
-            /*
-            Console.WriteLine("Hello, world.");
-
-            XmlSerializer xmlSerializer = new XmlSerializer(typeof(ConfigFileXml));
             ConfigFileXml configFile = null;
-            using (var fs = new FileStream(@"C:\Projects\no-frills-transformation\config\sample_config.xml", FileMode.Open))
+            try
             {
-                configFile = xmlSerializer.Deserialize(fs) as ConfigFileXml;
-            }
-
-            using (var tr = new StreamReader(new FileStream(configFile.Source.Uri, FileMode.Open)))
-            {
-                var csv = new CsvReader(tr, true, ',');
-                Console.WriteLine("Number of fields:" + csv.FieldCount);
-                while (!csv.EndOfStream)
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(ConfigFileXml));
+                using (var fs = new FileStream(@"C:\Projects\no-frills-transformation\config\sample_config.xml", FileMode.Open))
                 {
-                    if (!csv.ReadNextRecord())
-                        continue;
-
-                    Console.WriteLine("Something: " + csv["SOBID"] + "~");
+                    configFile = xmlSerializer.Deserialize(fs) as ConfigFileXml;
                 }
             }
-
-            var expression = ExpressionParser.ParseExpression("concat(\"MB\", Status($Status, $Meep))", null);
-            */
-
-            XmlSerializer xmlSerializer = new XmlSerializer(typeof(ConfigFileXml));
-            ConfigFileXml configFile = null;
-            using (var fs = new FileStream(@"C:\Projects\no-frills-transformation\config\sample_config.xml", FileMode.Open))
+            catch (Exception e)
             {
-                configFile = xmlSerializer.Deserialize(fs) as ConfigFileXml;
+                throw new ArgumentException("Could not read XML config file: " + e.Message);
             }
 
             var readerFactory = new ReaderFactory();
             var writerFactory = new WriterFactory();
 
             Context context = new Context();
+
             InitLookupMaps(configFile, readerFactory, context);
+            ReadFilters(configFile, context);
             ReadMappings(configFile, context);
 
             using (var reader = readerFactory.CreateReader(configFile.Source.Uri, configFile.Source.Config))
@@ -70,11 +61,6 @@ namespace NoFrillsTransformation
                     Process(context);
                 }
             }
-
-            //var expression = ExpressionParser.ParseExpression("OpptRecTypes(OpptMap($BELEGART, $DeveloperName), $Id)");
-            //var more = ExpressionParser.ParseExpression("\"This is a fixed text.\"");
-            //var wupf = ExpressionParser.ParseExpression("Concat(TargetRowNum(), Concat(\"-\", Lookilook(SourceRowNum(), $Whatever)))");
-            //var meep = ExpressionParser.ParseExpression("Status($BOGUSTYPE, $text)");
         }
 
         private void Process(Context context)
@@ -95,7 +81,7 @@ namespace NoFrillsTransformation
                     }
                     context.SourceRecordsProcessed++;
 
-                    for (int i=0; i<outValues.Length; ++i)
+                    for (int i = 0; i < outValues.Length; ++i)
                     {
                         outValues[i] = ExpressionParser.EvaluateExpression(context.TargetFields[i].Expression, context);
                     }
@@ -112,8 +98,17 @@ namespace NoFrillsTransformation
 
         private bool RecordMatchesFilter(Context context)
         {
-            // Filtering not supported yet.
-            return true;
+            foreach (var filter in context.Filters)
+            {
+                bool val = ExpressionParser.StringToBool(ExpressionParser.EvaluateExpression(filter.Expression, context));
+                if (FilterMode.And == context.FilterMode
+                    && !val)
+                    return false;
+                if (FilterMode.Or == context.FilterMode
+                    && val)
+                    return true;
+            }
+            return (FilterMode.And == context.FilterMode);
         }
 
         private void InitLookupMaps(ConfigFileXml configFile, ReaderFactory readerFactory, Context context)
@@ -123,6 +118,37 @@ namespace NoFrillsTransformation
             foreach (var lookupMap in configFile.LookupMaps)
             {
                 context.LookupMaps.Add(lookupMap.Name, LookupMapFactory.CreateLookupMap(lookupMap, readerFactory));
+            }
+        }
+
+        private void ReadFilters(ConfigFileXml configFile, Context context)
+        {
+            try
+            {
+                context.FilterMode = FilterMode.And; // Default to and
+                if (!string.IsNullOrWhiteSpace(configFile.FilterMode))
+                {
+                    string mode = configFile.FilterMode.ToLower();
+                    if (mode.Equals("or"))
+                        context.FilterMode = FilterMode.Or;
+                }
+                if (null == configFile.SourceFilters
+                    || configFile.SourceFilters.Length == 0)
+                    return; // No filters
+                int filterCount = configFile.SourceFilters.Length;
+                context.Filters = new FilterDef[filterCount];
+                for (int i = 0; i < filterCount; ++i)
+                {
+                    var filterXml = configFile.SourceFilters[i];
+                    context.Filters[i] = new FilterDef { Expression = ExpressionParser.ParseExpression(filterXml.Expression) };
+                    if (!ExpressionParser.IsBoolExpression(context.Filters[i].Expression))
+                        throw new InvalidOperationException("Source filter expression mismatch: Expression '" + 
+                            filterXml.Expression + "' does not evaluate to a boolean value.");
+                }
+            }
+            catch (Exception e)
+            {
+                throw new ArgumentException("Could not read/parse filter definitions: " + e.Message);
             }
         }
 
@@ -143,7 +169,7 @@ namespace NoFrillsTransformation
             //context.TargetFieldSizes = new int[] { }; 
             context.TargetFields = new TargetFieldDef[fieldCount];
 
-            for (int i=0; i<fieldCount; ++i)
+            for (int i = 0; i < fieldCount; ++i)
             {
                 var field = map.Fields[i];
                 try

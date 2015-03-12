@@ -11,8 +11,9 @@ namespace NoFrillsTransformation.Config
     {
         public SourceTargetXml Source { get; set; }
         public SourceTargetXml Target { get; set; }
+        public string FilterMode { get; set; }
         [XmlArray("SourceFilters")]
-        [XmlArrayItem("SourceFilters")]
+        [XmlArrayItem("SourceFilter")]
         public SourceFilterXml[] SourceFilters { get; set; }
         [XmlArray("LookupMaps")]
         [XmlArrayItem("LookupMap")]
@@ -32,12 +33,8 @@ namespace NoFrillsTransformation.Config
 
     public class SourceFilterXml
     {
-        [XmlAttribute("field")]
-        public string FieldName { get; set; }
-        [XmlAttribute("type")]
-        public string TypeName { get; set; }
         [XmlText]
-        public string MatchString { get; set; }
+        public string Expression { get; set; }
     }
 
     public class LookupMapXml
@@ -60,7 +57,7 @@ namespace NoFrillsTransformation.Config
     {
         [XmlAttribute("name")]
         public string Name { get; set; }
-        [XmlAttribute("expression")]
+        [XmlText]
         public string Expression { get; set; }
         [XmlAttribute("maxSize")]
         public int MaxSize { get; set; }

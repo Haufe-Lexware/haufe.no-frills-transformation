@@ -46,9 +46,10 @@
     <Compile Include="Config\ConfigFile.cs" />
     <Compile Include="Config\NftConfigXml.cs" />
     <Compile Include="Engine\Context.cs" />
+    <Compile Include="Engine\Expression.cs" />
     <Compile Include="Engine\ExpressionParser.cs" />
+    <Compile Include="Engine\FilterDef.cs" />
     <Compile Include="Engine\LookupMap.cs" />
-    <Compile Include="Engine\Mapping.cs" />
     <Compile Include="Engine\ReaderFactory.cs" />
     <Compile Include="Engine\TargetFieldDef.cs" />
     <Compile Include="Engine\WriterFactory.cs" />
