@@ -91,6 +91,8 @@ A typical simple XML configuration may look like this:
 
 ### Filtering
 
+(...)
+
 ### Lookup map definitions
 
 (...)
@@ -102,3 +104,75 @@ A typical simple XML configuration may look like this:
 ### Field Expression syntax
 
 (...)
+
+## Extension points
+
+NFT is leveraging MEF ([Microsoft Extension Framework][https://msdn.microsoft.com/en-us/en-en/library/dd460648(v=vs.110).aspx])
+for dependency injection (inversion of control). There are two interfaces which may be used to hook into NFT:
+
+```csharp
+public interface ISourceReaderFactory
+{
+    bool CanReadSource(string source);
+
+    ISourceReader CreateReader(string source, string config);
+    bool SupportsQuery { get; }
+}
+
+public interface ITargetWriterFactory
+{
+    bool CanWriteTarget(string target);
+    ITargetWriter CreateWriter(string target, string[] fieldNames, int[] fieldSizes, string config);
+}
+```
+
+Both interfaces make use of methods to find out whether the reader/writer can read/write the source/target, based on
+the format of the source/target string.
+
+As an example, the CSV Plugin returns true for URIs starting with `file://` and ending with `.csv`.
+
+### Writing plugins
+
+Writing a plugin consists of following these steps:
+
+* Create a new assembly for .NET 4.0 and reference 
+** `NoFrillsTransformation.Interfaces` and
+** `System.ComponentModel.Composition` (this is the MEF framework)
+* Implement `ISourceReaderFactory` and/or `ITargetWriterFactory`
+** Mark the classes as `[Export(typeof(ISourceReaderFactory))]` or `[Export(typeof(ITargetWriterFactory))]`, respectively (see below)
+* Implement the `ISourceReader` and `IRecord` interfaces for reading sources
+* And/or implement the `ITargetWriter` interface for writing to targets
+
+Make sure that the assembly resides in the same directory as the EXE file; NFT should now automatically
+pick up the plugin and start reading and/or writing from/to the new source/target.
+
+Snippet from the `CsvWriterFactory`:
+
+```csharp
+[Export(typeof(NoFrillsTransformation.Interfaces.ITargetWriterFactory))]
+public class CsvWriterFactory : ITargetWriterFactory
+{
+    public bool CanWriteTarget(string target)
+    {
+        if (string.IsNullOrWhiteSpace(target))
+            return false;
+        string temp = target.ToLowerInvariant();
+        if (!temp.StartsWith("file://"))
+            return false;
+        if (!temp.EndsWith(".csv") && !temp.EndsWith(".txt"))
+            return false;
+        return true;
+    }
+
+    public ITargetWriter CreateWriter(string target, string[] fieldNames, int[] fieldSizes, string config)
+    {
+        return new CsvWriterPlugin(target, fieldNames, fieldSizes, config);
+    }
+}
+```
+
+Possible extension plugins could be stuff like:
+* ODBC reader/writer
+* SQLite reader/writer
+* XML reader/writer
+* Salesforce SOQL reader (that would be cool), Salesforce writer
