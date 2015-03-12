@@ -118,13 +118,13 @@ two different return types (currently), bool and string.
 In addition to the operators below, there are two special expressions: Field names, and string
 literals. Both can be used anywhere a string expression can be used (with one exception, see Lookup).
 
-A field name is given by using the dollar ($) operator: `$title`, or `$firstName`.
+A field name is given by using the dollar ($) operator: e.g. `$title`, or `$firstName`.
 
-A string literal is defined by putting a string within double quotes, e.g. "this is a text".
+A string literal is defined by putting a string within double quotes, e.g. `"this is a text"`.
 
 #### And
 
-And operator. Returns true if both parameters return true.
+And operator. Returns `true` if both parameters return true.
 
 | Example     | `And(Contains($title, "Lord"), Contains($author, "Tolkie"))` |
 | ----------- | -------- |
@@ -176,14 +176,15 @@ Checks whether to strings are equal. Comes in two flavors, `Equals` and `EqualsI
 
 #### If
 
-Evaluates the first argument; if it evaluates to true, returns the second argument, otherwise
+Evaluates the first argument; if it evaluates to `true`, returns the second argument, otherwise
 the third.
 
 | Example     | `If(Contains($firstName, "Martin"), "good", "bad")` |
 | ----------- | -------- |
-| Parameter 1 | string |
+| Parameter 1 | bool |
 | Parameter 2 | string |
-| Return type | bool |
+| Parameter 3 | string |
+| Return type | string |
 
 #### Lookups
 
@@ -217,7 +218,7 @@ Transforms a string into lower case.
 
 #### Or
 
-Or operator. Returns true if one of the parameters return true.
+Or operator. Returns `true` if one of the parameters return true.
 
 | Example     | `Or(Contains($title, "Lord"), Contains($title, "Ring"))` |
 | ----------- | -------- |
