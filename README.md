@@ -115,11 +115,26 @@ A typical simple XML configuration may look like this:
 Expressions can be freely combined, as long as the return types are correct. There are only
 two different return types (currently), bool and string.
 
+In addition to the operators below, there are two special expressions: Field names, and string
+literals. Both can be used anywhere a string expression can be used (with one exception, see Lookup).
+
+A field name is given by using the dollar ($) operator: `$title`, or `$firstName`.
+
+A string literal is defined by putting a string within double quotes, e.g. "this is a text".
+
 #### And
 
+And operator. Returns true if both parameters return true.
 
+| Example     | `And(Contains($title, "Lord"), Contains($author, "Tolkie"))` |
+| ----------- | -------- |
+| Parameter 1 | bool |
+| Parameter 2 | bool |
+| Return type | bool |
 
 #### Concat
+
+Concatenates two strings.
 
 | Example     | `Concat($firstName, Concat(" ", $lastName))` |
 | ----------- | -------- |
@@ -127,9 +142,109 @@ two different return types (currently), bool and string.
 | Parameter 2 | string |
 | Return type | string |
 
-#### 
+#### Contains, ContainsIgnoreCase
 
-(...)
+Checks whether parameter 1 contains parameter 2. Comes in two flavors, `Contains` which takes
+casing into account, and `ContainsIgnoreCase` which doesn't.
+
+| Example     | `ContainsIgnoreCase($companyName, "Ltd.")` |
+| ----------- | -------- |
+| Parameter 1 | string |
+| Parameter 2 | string |
+| Return type | bool |
+
+#### EndsWith
+
+Checks whether parameter 1 ends with parameters, returns a boolean value.
+This operator ignores the case.
+
+| Example     | `EndsWith($companyName, "Ltd.")` |
+| ----------- | -------- |
+| Parameter 1 | string |
+| Parameter 2 | string |
+| Return type | bool |
+
+#### Equals, EqualsIgnoreCase
+
+Checks whether to strings are equal. Comes in two flavors, `Equals` and `EqualsIgnoreCase`.
+
+| Example     | `Equals($firstName, "Martin")` |
+| ----------- | -------- |
+| Parameter 1 | string |
+| Parameter 2 | string |
+| Return type | bool |
+
+#### If
+
+Evaluates the first argument; if it evaluates to true, returns the second argument, otherwise
+the third.
+
+| Example     | `If(Contains($firstName, "Martin"), "good", "bad")` |
+| ----------- | -------- |
+| Parameter 1 | string |
+| Parameter 2 | string |
+| Return type | bool |
+
+#### Lookups
+
+Lookups must be defined in the LookupMaps described above. After that, the name of the lookup
+map can be used as a binary operator which returns a string value.
+
+*Example*:
+```xml
+<LookupMaps>
+<LookupMap keyField="id" name="StatusLookup">
+    <Source config="delim=','">file://C:\Temp\status_mapping.csv</Source>
+</LookupMap>
+</LookupMaps>
+```
+
+| Example     | `StatusLookup($sourceStatus, $newStatus)` |
+| ----------- | -------- |
+| Parameter 1 | string |
+| Parameter 2 | string |
+| Return type | string |
+
+
+#### LowerCase
+
+Transforms a string into lower case.
+
+| Example     | `LowerCase($emailAddress)` |
+| ----------- | -------- |
+| Parameter 1 | string |
+| Return type | string |
+
+#### Or
+
+Or operator. Returns true if one of the parameters return true.
+
+| Example     | `Or(Contains($title, "Lord"), Contains($title, "Ring"))` |
+| ----------- | -------- |
+| Parameter 1 | bool |
+| Parameter 2 | bool |
+| Return type | bool |
+
+#### StartsWith
+
+Checks whether parameter 1 starts with parameters, returns a boolean value.
+This operator ignores the case.
+
+| Example     | `StartsWith($lastName, "M")` |
+| ----------- | -------- |
+| Parameter 1 | string |
+| Parameter 2 | string |
+| Return type | bool |
+
+#### UpperCase
+
+Transforms a string into upper case.
+
+| Example     | `UpperCase($city)` |
+| ----------- | -------- |
+| Parameter 1 | string |
+| Return type | string |
+
 
 ## Extension points
 
