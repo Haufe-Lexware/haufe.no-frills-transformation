@@ -194,9 +194,9 @@ map can be used as a binary operator which returns a string value.
 *Example*:
 ```xml
 <LookupMaps>
-<LookupMap keyField="id" name="StatusLookup">
+  <LookupMap keyField="id" name="StatusLookup">
     <Source config="delim=','">file://C:\Temp\status_mapping.csv</Source>
-</LookupMap>
+  </LookupMap>
 </LookupMaps>
 ```
 
