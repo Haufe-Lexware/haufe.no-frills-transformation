@@ -17,7 +17,8 @@ namespace NoFrillsTransformation
         {
             try
             {
-                (new Program()).Run();
+                if (VerifyArguments(args))
+                    (new Program()).Run(args[0]);
                 Console.WriteLine("Operation finished successfully.");
             }
             catch (Exception e)
@@ -26,13 +27,26 @@ namespace NoFrillsTransformation
             }
         }
 
-        private void Run()
+        private static bool VerifyArguments(string[] args)
+        {
+            if (args.Length == 0)
+                throw new ArgumentException("Missing argument. Use -help for instructions.");
+            if (args[0].Equals("-help"))
+            {
+                Console.WriteLine("Usage:");
+                Console.WriteLine("  NoFrillsTransformation.exe <config file>");
+                return false;
+            }
+            return true;
+        }
+
+        private void Run(string configFileName)
         {
             ConfigFileXml configFile = null;
             try
             {
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(ConfigFileXml));
-                using (var fs = new FileStream(@"C:\Projects\no-frills-transformation\config\sample_config.xml", FileMode.Open))
+                using (var fs = new FileStream(configFileName, FileMode.Open))
                 {
                     configFile = xmlSerializer.Deserialize(fs) as ConfigFileXml;
                 }
