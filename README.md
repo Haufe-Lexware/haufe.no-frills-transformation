@@ -108,6 +108,24 @@ So, what does this do?
 
 Please confer with the later sections for a more detailed specification of the options.
 
+
+### Running the application
+
+Just call the executable with the full path to the XML configuration file.
+
+```
+C:\Temp> NoFrillsTransformation.exe sample_config.xml
+Operation completed successfully.
+C:\Temp> 
+```
+If the operation completes without error, the executable with exit with the exit code 0 (Success).
+Otherwise, an error message will be output to `stderr` and the exit code unequal 0 (for now, 1).
+
+
+#### Logging output
+
+Not implemented yet. I will come up with something here.
+
 ## XML specification
 
 ### Source and Target tags

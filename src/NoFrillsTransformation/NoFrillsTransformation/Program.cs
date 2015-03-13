@@ -13,17 +13,26 @@ namespace NoFrillsTransformation
 {
     class Program
     {
-        static void Main(string[] args)
+        enum ExitCodes
+        {
+            Success = 0,
+            Failure = 1,
+        }
+
+        static int Main(string[] args)
         {
             try
             {
                 if (VerifyArguments(args))
                     (new Program()).Run(args[0]);
                 Console.WriteLine("Operation finished successfully.");
+
+                return (int)ExitCodes.Success;
             }
             catch (Exception e)
             {
                 Console.Error.WriteLine("Operation failed: " + e.Message);
+                return (int)ExitCodes.Failure;
             }
         }
 
