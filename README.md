@@ -152,7 +152,7 @@ option1=value1 option2=value2
 | ------ | --------------- |
 | `delim`  | Delimiter character; defaults to `','`. Other normal option is `';'` |
 
-### Lookup map definitions
+### <a name="lookupTag"></a>Lookup map definitions
 
 _Optional tags_
 
@@ -172,7 +172,7 @@ The tag `LookupMap` may be defined multiply. The tag `LookupMaps` (the container
 | `LookupMaps`	| Container tag for the lookup maps |
 | `LookupMap`	| Tag for defining a lookup map |
 | `keyField`	| This attribute defines which field in the source is used for indexing. This is the field which will serve as the key for the lookup map. |
-| `name`		| The name of the lookup map. This name can be used in expressions to look up values when transforming to output fields. See section on lookups below (Expression syntax) |
+| `name`		| The name of the lookup map. This name can be used in expressions to look up values when transforming to output fields. [See section on lookups](#lookup) below (Expression syntax) |
 | `Source`		| Tag used for the data source of the lookup map |
 | `config`		| Configuration string for the reader. The format of this string is depending on the plugin selected for reading from the URI |
 
@@ -192,7 +192,7 @@ The filtering definition section of the configuration file consists of the follo
 | ------------- | ----------- |
 | `FilterMode`	| This tag decides on the filtering mode; possible values are `AND` and `OR`. In `AND` mode, all filter criteria must be met. In `OR` mode, one or more criteria must be met. |
 | `SourceFilters` | Container tag for source filters. |
-| `SourceFilter` | Definition of a filter; any number of this tag may exist. Content of this tag must be an Expression which evaluates to a boolean value. The expression may contain all operators available within NFT, even including lookups (see above) |
+| `SourceFilter` | Definition of a filter; any number of this tag may exist. Content of this tag must be an Expression which evaluates to a boolean value. The expression may contain all operators available within NFT, [even including lookups](#lookup) |
 
 **Example:**
 
@@ -226,7 +226,7 @@ Within the `Mappings` tags, the output fields are defined using expressions.
 | `Mappings`    | Container tag for mappings |
 | `Mapping`     | Container tag for a single mapping. Currently, NFT only supports a single mapping, this might change in the future, though |
 | `Fields`      | Container tag for field definitions. |
-| `Field`       | Field definition. Must contain a field expression evaluating to a string (or bool, which is converted to `true` or `false`). See below for possible expression operators. |
+| `Field`       | Field definition. Must contain a field expression evaluating to a string (or bool, which is converted to `true` or `false`). See below for [possible expression operators](#expressionSyntax). |
 | `name`        | The name of the output field; this is the field name as it will be passed to the writer, e.g. for writing a header row (in case of CSV) |
 | `maxSize`     | The maximum size of the output field (in characters). This is currently not used by the CSV reader or writer, but may be useful for future plugins, such as database writers. |
 
@@ -255,13 +255,13 @@ Concatenates the source fields `FNAM` and `LNAM` and a space (as a string litera
 Looks up the `Description` field from a defined lookup with the name `StatusLookup`, using the key in the source field `STATUS`.
 This requires the lookup having been defined using a `<LookupMap>` tag (see example code).
 
-### Expression syntax
+### <a name="expressionSyntax"></a>Expression syntax
 
 Expressions can be freely combined, as long as the return types are correct. There are only
 two different return types (currently), bool and string.
 
 In addition to the operators below, there are two special expressions: Field names, and string
-literals. Both can be used anywhere a string expression can be used (with one exception, see Lookup).
+literals. Both can be used anywhere a string expression can be used (with one exception, see [Lookup](#lookup)).
 
 A field name is given by using the dollar ($) operator: e.g. `$title`, or `$firstName`.
 
@@ -271,8 +271,6 @@ A string literal is defined by putting a string within double quotes, e.g. `"thi
 
 And operator. Returns `true` if both parameters return true.
 
-**Example:** `And(Contains($title, "Lord"), Contains($author, "Tolkien"))`
-
 | What       | Type |
 | ----------- | -------- |
 | Syntax | `And(param1, param2)` |
@@ -280,12 +278,12 @@ And operator. Returns `true` if both parameters return true.
 | Parameter 2 | bool |
 | Return type | bool |
 
+**Example:** `And(Contains($title, "Lord"), Contains($author, "Tolkien"))`
+
 #### Concat
 
 Concatenates two strings.
 
-**Example**: `Concat($firstName, Concat(" ", $lastName))`
- 
 | What       | Type |
 | ----------- | -------- |
 | Syntax | `Concat(param1, param2)` |
@@ -293,12 +291,13 @@ Concatenates two strings.
 | Parameter 2 | string |
 | Return type | string |
 
+**Example**: `Concat($firstName, Concat(" ", $lastName))`
+ 
+
 #### Contains, ContainsIgnoreCase
 
 Checks whether parameter 1 contains parameter 2. Comes in two flavors, `Contains` which takes
 casing into account, and `ContainsIgnoreCase` which doesn't.
-
-**Example**: `ContainsIgnoreCase($companyName, "Ltd.")`
 
 | What       | Type |
 | ----------- | -------- |
@@ -307,12 +306,13 @@ casing into account, and `ContainsIgnoreCase` which doesn't.
 | Parameter 2 | string |
 | Return type | bool |
 
+**Example**: `ContainsIgnoreCase($companyName, "Ltd.")`
+
+
 #### EndsWith
 
 Checks whether parameter 1 ends with parameters, returns a boolean value.
 This operator ignores the case.
-
-**Example**: `EndsWith($companyName, "Ltd.")`
 
 | What       | Type |
 | ----------- | -------- |
@@ -321,11 +321,12 @@ This operator ignores the case.
 | Parameter 2 | string |
 | Return type | bool |
 
+**Example**: `EndsWith($companyName, "Ltd.")`
+
+
 #### Equals, EqualsIgnoreCase
 
 Checks whether to strings are equal. Comes in two flavors, `Equals` and `EqualsIgnoreCase`.
-
-**Example**: `Equals($firstName, "Martin")`
 
 | What       | Type |
 | ----------- | -------- |
@@ -334,12 +335,13 @@ Checks whether to strings are equal. Comes in two flavors, `Equals` and `EqualsI
 | Parameter 2 | string |
 | Return type | bool |
 
+**Example**: `Equals($firstName, "Martin")`
+
+
 #### If
 
 Evaluates the first argument; if it evaluates to `true`, returns the second argument, otherwise
 the third.
-
-**Example**: `If(Contains($firstName, "Martin"), "good", "bad")`
 
 | What       | Type |
 | ----------- | -------- |
@@ -349,12 +351,22 @@ the third.
 | Parameter 2 | string |
 | Return type | string |
 
-#### Lookups
+**Example**: `If(Contains($firstName, "Martin"), "good", "bad")`
+
+
+#### <a name="lookup"></a>Lookups
 
 Lookups must be defined in the LookupMaps described above. After that, the name of the lookup
 map can be used as a binary operator which returns a string value.
 
-*Example*:
+| What       | Type |
+| ----------- | -------- |
+| Syntax | `[LookupName](param1, param2)`, `[LookupName]` is defined with the `name` [attribute of the `LookupMap` tag](#lookupTag). |
+| Parameter 1 | string |
+| Parameter 2 | string |
+| Return type | string |
+
+**Example**:
 ```xml
 <LookupMaps>
   <LookupMap keyField="id" name="StatusLookup">
@@ -363,20 +375,9 @@ map can be used as a binary operator which returns a string value.
 </LookupMaps>
 ```
 
-
-| What       | Type |
-| ----------- | -------- |
-| Syntax | `[LookupName](param1, param2)` |
-| Parameter 1 | string |
-| Parameter 2 | string |
-| Return type | string |
-
-
 #### LowerCase
 
 Transforms a string into lower case.
-
-**Example**: `LowerCase($emailAddress)`
 
 | What       | Type |
 | ----------- | -------- |
@@ -384,11 +385,12 @@ Transforms a string into lower case.
 | Parameter 1 | string |
 | Return type | string |
 
+**Example**: `LowerCase($emailAddress)`
+
+
 #### Or
 
 Or operator. Returns `true` if one of the parameters return true.
-
-**Example**: `Or(Contains($title, "Lord"), Contains($title, "Ring"))`
 
 | What       | Type |
 | ----------- | -------- |
@@ -397,12 +399,13 @@ Or operator. Returns `true` if one of the parameters return true.
 | Parameter 2 | bool |
 | Return type | bool |
 
+**Example**: `Or(Contains($title, "Lord"), Contains($title, "Ring"))`
+
+
 #### StartsWith
 
 Checks whether parameter 1 starts with parameters, returns a boolean value.
 This operator ignores the case.
-
-**Example**: `StartsWith($lastName, "M")`
 
 | What       | Type |
 | ----------- | -------- |
@@ -411,17 +414,20 @@ This operator ignores the case.
 | Parameter 2 | string |
 | Return type | bool |
 
+**Example**: `StartsWith($lastName, "M")`
+
+
 #### UpperCase
 
 Transforms a string into upper case.
-
-**Example**: `UpperCase($city)`
 
 | What       | Type |
 | ----------- | -------- |
 | Syntax | `UpperCase(param1)` |
 | Parameter 1 | string |
 | Return type | string |
+
+**Example**: `UpperCase($city)`
 
 
 ## Extension points
