@@ -112,6 +112,8 @@ Please confer with the later sections for a more detailed specification of the o
 
 ### Source and Target tags
 
+_Mandatory tags_
+
 The syntax for source and target tags is as follows:
 ```xml
 <Source config="config string">source URI</Source>
@@ -120,9 +122,9 @@ The syntax for source and target tags is as follows:
 
 | Tag/Attribute | Description|
 | ------------- | ----------- |
-| Source		| Tag used for the data source of the transformation; must only be present once in the configuration |
-| Target		| Tag used for the target of the transformation; must only be present once in the configuration |
-| config		| Configuration string for the reader/writer. The format of this string is depending on the plugin selected for reading/writing to the URI |
+| `Source`		| Tag used for the data source of the transformation; must only be present once in the configuration |
+| `Target`		| Tag used for the target of the transformation; must only be present once in the configuration |
+| `config`		| Configuration string for the reader/writer. The format of this string is depending on the plugin selected for reading/writing to the URI |
 
 ##### CSV Reader Configuration Syntax
 
@@ -150,21 +152,87 @@ option1=value1 option2=value2
 | ------ | --------------- |
 | `delim`  | Delimiter character; defaults to `','`. Other normal option is `';'` |
 
-### Filtering
-
-(...)
-
 ### Lookup map definitions
 
-(...)
+_Optional tags_
 
-### Mapping definitions
+The syntax for defining lookup maps is as follows:
+```xml
+<LookupMaps>
+	<LookupMap keyField="key field" name="operator name">
+		<Source config="config string">source URI</Source>
+	</LookupMap>
+</LookupMaps>
+```
 
-(...)
+The tag `LookupMap` may be defined multiply. The tag `LookupMaps` (the container) must only exist once (or not at all, if not needed).
+
+| Tag/Attribute | Description|
+| ------------- | ----------- |
+| `LookupMaps`	| Container tag for the lookup maps |
+| `LookupMap`	| Tag for defining a lookup map |
+| `keyField`	| This attribute defines which field in the source is used for indexing. This is the field which will serve as the key for the lookup map. |
+| `name`		| The name of the lookup map. This name can be used in expressions to look up values when transforming to output fields. See section on lookups below (Expression syntax) |
+| `Source`		| Tag used for the data source of the lookup map |
+| `config`		| Configuration string for the reader. The format of this string is depending on the plugin selected for reading from the URI |
+
+### Filtering
+
+_Optional tags_
+
+The filtering definition section of the configuration file consists of the following parts:
+```xml
+<FilterMode>filter mode</FilterMode>
+<SourceFilters>
+	<SourceFilter>boolean filter expression</SourceFilter>
+</SourceFilters>
+```
+
+| Tag/Attribute | Description|
+| ------------- | ----------- |
+| `FilterMode`	| This tag decides on the filtering mode; possible values are `AND` and `OR`. In `AND` mode, all filter criteria must be met. In `OR` mode, one or more criteria must be met. |
+| `SourceFilters` | Container tag for source filters. |
+| `SourceFilter` | Definition of a filter; any number of this tag may exist. Content of this tag must be an Expression which evaluates to a boolean value. The expression may contain all operators available within NFT, even including lookups (see above) |
+
+_Example:_
+
+```xml
+<FilterMode>OR</FilterMode>
+<SourceFilters>
+	<SourceFilter>StartsWith($LastName, "A")</SourceFilter>
+	<SourceFilter>StartsWith($LastName, "B")</SourceFilter>
+</SourceFilters>
+```
+This filter definition will take all source rows in which the field `LastName` starts with either A or B.
 
 ### Field definitions
 
-(...)
+Within the `Mappings` tags, the output fields are defined using expressions.
+```xml
+<Mappings>
+  <Mapping>
+    <Fields>
+	  <!-- Multiple occurance -->
+      <Field name="field name" maxSize="max size">field expression</Field>
+    </Fields>
+  </Mapping>
+</Mappings>
+```
+
+| Tag/Attribute | Description|
+| ------------- | ----------- |
+| `Mappings`    | Container tag for mappings |
+| `Mapping`     | Container tag for a single mapping. Currently, NFT only supports a single mapping, this might change in the future, though |
+| `Fields`      | Container tag for field definitions. |
+| `Field`       | Field definition. Must contain a field expression evaluating to a string (or bool, which is converted to `true` or `false`). See below for possible expression operators. |
+| `name`        | The name of the output field; this is the field name as it will be passed to the writer, e.g. for writing a header row (in case of CSV) |
+| `maxSize`     | The maximum size of the output field (in characters). This is currently not used by the CSV reader or writer, but may be useful for future plugins, such as database writers. |
+
+*Examples:*
+
+* `<Field name="FirstName">$FNAM</Field>`: Copies (no transformation) the content of the source field `FNAM` into a target field called `FirstName`
+* `<Field name="FullName">Concat($FNAM, Concat(" ", $LNAM))</Field>`: Concatenates the source fields `FNAM` and `LNAM` and a space (as a string literal `" "`) and outputs that into a target field `FullName`
+* `<Field name="Status">StatusLookup($STATUS, $Description)</Field>`: Looks up the `Description` field from a defined lookup with the name `StatusLookup`, using the key in the source field `STATUS`. This requires the lookup having been defined using a `<LookupMap>` tag (see above).
 
 ### Expression syntax
 
