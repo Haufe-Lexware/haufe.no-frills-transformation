@@ -98,11 +98,57 @@ A typical simple XML configuration may look like this:
 </Transformation>
 ```
 
+So, what does this do?
+* Reads data from `C:\temp\users.csv`
+* Writes data to `C:\temp\Accounts.csv`
+* Loads a lookup map into the operator `Status` from `C:\temp\status_mapping.csv`
+* Sets the filter mode to `AND` (all filter criteria must be met)
+* Specifies a filter by using an expression which evaluates to a boolean
+* Specifies a mapping with five output fields, each with a name, max size and an expression
+
+Please confer with the later sections for a more detailed specification of the options.
+
 ## XML specification
 
 ### Source and Target tags
 
-(...)
+The syntax for source and target tags is as follows:
+```xml
+<Source config="config string">source URI</Source>
+<Target config="config string">target URI</Source>
+```
+
+| Tag/Attribute | Description|
+| ------------- | ----------- |
+| Source		| Tag used for the data source of the transformation; must only be present once in the configuration |
+| Target		| Tag used for the target of the transformation; must only be present once in the configuration |
+| config		| Configuration string for the reader/writer. The format of this string is depending on the plugin selected for reading/writing to the URI |
+
+##### CSV Reader Configuration Syntax
+
+The CSV Reader which is supplied with NFT out of the box supports the following configuration settings, supplied in this format:
+
+´´´
+option1=value1 option2=value2
+´´´
+
+| Option | Possible values |
+| ------ | --------------- |
+| delim  | Delimiter character; defaults to `','`. Other normal option is `';'` |
+| multiline | Switches support for multiline CSV records on or off; possible values are `false` or `true`. Defaults to `true` |
+
+
+##### CSV Writer Configuration Syntax
+
+The CSV Writer which is supplied with NFT out of the box supports the following configuration settings, supplied in this format:
+
+´´´
+option1=value1 option2=value2
+´´´
+
+| Option | Possible values |
+| ------ | --------------- |
+| delim  | Delimiter character; defaults to `','`. Other normal option is `';'` |
 
 ### Filtering
 
