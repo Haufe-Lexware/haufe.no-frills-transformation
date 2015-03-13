@@ -205,7 +205,7 @@ The filtering definition section of the configuration file consists of the follo
 ```
 This filter definition will take all source rows in which the field `LastName` starts with either A or B.
 
-### Field definitions
+### <a name="fields"></a>Field definitions
 
 **Mandatory tags**
 
@@ -374,6 +374,8 @@ map can be used as a binary operator which returns a string value.
   </LookupMap>
 </LookupMaps>
 ```
+
+In the [section on the field definitions](#fields) there is a further example on how to use lookup maps in expressions.
 
 #### LowerCase
 
