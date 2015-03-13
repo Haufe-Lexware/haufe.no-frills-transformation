@@ -128,27 +128,27 @@ The syntax for source and target tags is as follows:
 
 The CSV Reader which is supplied with NFT out of the box supports the following configuration settings, supplied in this format:
 
-´´´
+```
 option1=value1 option2=value2
-´´´
+```
 
 | Option | Possible values |
 | ------ | --------------- |
-| delim  | Delimiter character; defaults to `','`. Other normal option is `';'` |
-| multiline | Switches support for multiline CSV records on or off; possible values are `false` or `true`. Defaults to `true` |
+| `delim`  | Delimiter character; defaults to `','`. Other normal option is `';'` |
+| `multiline` | Switches support for multiline CSV records on or off; possible values are `false` or `true`. Defaults to `true` |
 
 
 ##### CSV Writer Configuration Syntax
 
 The CSV Writer which is supplied with NFT out of the box supports the following configuration settings, supplied in this format:
 
-´´´
+```
 option1=value1 option2=value2
-´´´
+```
 
 | Option | Possible values |
 | ------ | --------------- |
-| delim  | Delimiter character; defaults to `','`. Other normal option is `';'` |
+| `delim`  | Delimiter character; defaults to `','`. Other normal option is `';'` |
 
 ### Filtering
 
