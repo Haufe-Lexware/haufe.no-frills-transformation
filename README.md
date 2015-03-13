@@ -375,7 +375,20 @@ map can be used as a binary operator which returns a string value.
 </LookupMaps>
 ```
 
-In the [section on the field definitions](#fields) there is a further example on how to use lookup maps in expressions.
+In the [section on the field definitions](#fields) there is a further simple example on how to use lookup maps in expressions.
+
+**Pro tip:** Nested lookups are also allowed. Typical use cases would be string to string mappings, where the source field
+and desired outcome may not be strings, but rather indexes. Example:
+```xml
+<Field name="Status">TargetStatus(SourceStatus($StatusId, $StatusText), $TargetText)</Field>
+```
+This expression first looks up a `StatusText` from the `SourceStatus` lookup map, then maps that text using the `TargetStatus`
+lookup map, and subsequently outputs the `TargetText` of that map into a target field called `Status`. The transformation is thus
+the following:
+
+```
+Source.StatusId --> SourceStatus.StatusText --> TargetStatus.TargetText --> Target.Status
+```
 
 #### LowerCase
 
