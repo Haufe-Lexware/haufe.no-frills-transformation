@@ -112,7 +112,7 @@ Please confer with the later sections for a more detailed specification of the o
 
 ### Source and Target tags
 
-_Mandatory tags_
+**Mandatory tags**
 
 The syntax for source and target tags is as follows:
 ```xml
@@ -194,7 +194,7 @@ The filtering definition section of the configuration file consists of the follo
 | `SourceFilters` | Container tag for source filters. |
 | `SourceFilter` | Definition of a filter; any number of this tag may exist. Content of this tag must be an Expression which evaluates to a boolean value. The expression may contain all operators available within NFT, even including lookups (see above) |
 
-_Example:_
+**Example:**
 
 ```xml
 <FilterMode>OR</FilterMode>
@@ -206,6 +206,8 @@ _Example:_
 This filter definition will take all source rows in which the field `LastName` starts with either A or B.
 
 ### Field definitions
+
+**Mandatory tags**
 
 Within the `Mappings` tags, the output fields are defined using expressions.
 ```xml
@@ -228,11 +230,30 @@ Within the `Mappings` tags, the output fields are defined using expressions.
 | `name`        | The name of the output field; this is the field name as it will be passed to the writer, e.g. for writing a header row (in case of CSV) |
 | `maxSize`     | The maximum size of the output field (in characters). This is currently not used by the CSV reader or writer, but may be useful for future plugins, such as database writers. |
 
-*Examples:*
+**Examples:**
 
-* `<Field name="FirstName">$FNAM</Field>`: Copies (no transformation) the content of the source field `FNAM` into a target field called `FirstName`
-* `<Field name="FullName">Concat($FNAM, Concat(" ", $LNAM))</Field>`: Concatenates the source fields `FNAM` and `LNAM` and a space (as a string literal `" "`) and outputs that into a target field `FullName`
-* `<Field name="Status">StatusLookup($STATUS, $Description)</Field>`: Looks up the `Description` field from a defined lookup with the name `StatusLookup`, using the key in the source field `STATUS`. This requires the lookup having been defined using a `<LookupMap>` tag (see above).
+```xml
+<Field name="FirstName">$FNAM</Field>
+```
+Copies (no transformation) the content of the source field `FNAM` into a target field called `FirstName`
+
+```xml
+<Field name="FullName">Concat($FNAM, Concat(" ", $LNAM))</Field>
+```
+Concatenates the source fields `FNAM` and `LNAM` and a space (as a string literal `" "`) and outputs that into a target field `FullName`
+
+```xml
+<LookupMaps>
+	<LookupMap keyField="statusId" name="StatusLookup">
+		<Source config="delim=','">file://C:\Temp\StatusMap.csv</Source>
+	</LookupMap>
+</LookupMaps>
+...
+<Field name="Status">StatusLookup($STATUS, $Description)</Field>
+...
+```
+Looks up the `Description` field from a defined lookup with the name `StatusLookup`, using the key in the source field `STATUS`.
+This requires the lookup having been defined using a `<LookupMap>` tag (see example code).
 
 ### Expression syntax
 
@@ -250,7 +271,9 @@ A string literal is defined by putting a string within double quotes, e.g. `"thi
 
 And operator. Returns `true` if both parameters return true.
 
-| Example     | `And(Contains($title, "Lord"), Contains($author, "Tolkie"))` |
+**Example:** `And(Contains($title, "Lord"), Contains($author, "Tolkien"))`
+
+| What       | Type |
 | ----------- | -------- |
 | Parameter 1 | bool |
 | Parameter 2 | bool |
@@ -260,7 +283,9 @@ And operator. Returns `true` if both parameters return true.
 
 Concatenates two strings.
 
-| Example     | `Concat($firstName, Concat(" ", $lastName))` |
+**Example**: `Concat($firstName, Concat(" ", $lastName))`
+ 
+| What       | Type |
 | ----------- | -------- |
 | Parameter 1 | string |
 | Parameter 2 | string |
@@ -271,7 +296,9 @@ Concatenates two strings.
 Checks whether parameter 1 contains parameter 2. Comes in two flavors, `Contains` which takes
 casing into account, and `ContainsIgnoreCase` which doesn't.
 
-| Example     | `ContainsIgnoreCase($companyName, "Ltd.")` |
+**Example**: `ContainsIgnoreCase($companyName, "Ltd.")`
+
+| What       | Type |
 | ----------- | -------- |
 | Parameter 1 | string |
 | Parameter 2 | string |
@@ -282,7 +309,9 @@ casing into account, and `ContainsIgnoreCase` which doesn't.
 Checks whether parameter 1 ends with parameters, returns a boolean value.
 This operator ignores the case.
 
-| Example     | `EndsWith($companyName, "Ltd.")` |
+**Example**: `EndsWith($companyName, "Ltd.")`
+
+| What       | Type |
 | ----------- | -------- |
 | Parameter 1 | string |
 | Parameter 2 | string |
@@ -292,7 +321,9 @@ This operator ignores the case.
 
 Checks whether to strings are equal. Comes in two flavors, `Equals` and `EqualsIgnoreCase`.
 
-| Example     | `Equals($firstName, "Martin")` |
+**Example**: `Equals($firstName, "Martin")`
+
+| What       | Type |
 | ----------- | -------- |
 | Parameter 1 | string |
 | Parameter 2 | string |
@@ -303,7 +334,9 @@ Checks whether to strings are equal. Comes in two flavors, `Equals` and `EqualsI
 Evaluates the first argument; if it evaluates to `true`, returns the second argument, otherwise
 the third.
 
-| Example     | `If(Contains($firstName, "Martin"), "good", "bad")` |
+**Example**: `If(Contains($firstName, "Martin"), "good", "bad")`
+
+| What       | Type |
 | ----------- | -------- |
 | Parameter 1 | bool |
 | Parameter 2 | string |
@@ -324,7 +357,8 @@ map can be used as a binary operator which returns a string value.
 </LookupMaps>
 ```
 
-| Example     | `StatusLookup($sourceStatus, $newStatus)` |
+
+| What       | Type |
 | ----------- | -------- |
 | Parameter 1 | string |
 | Parameter 2 | string |
@@ -335,7 +369,9 @@ map can be used as a binary operator which returns a string value.
 
 Transforms a string into lower case.
 
-| Example     | `LowerCase($emailAddress)` |
+**Example**: `LowerCase($emailAddress)`
+
+| What       | Type |
 | ----------- | -------- |
 | Parameter 1 | string |
 | Return type | string |
@@ -344,7 +380,9 @@ Transforms a string into lower case.
 
 Or operator. Returns `true` if one of the parameters return true.
 
-| Example     | `Or(Contains($title, "Lord"), Contains($title, "Ring"))` |
+**Example**: `Or(Contains($title, "Lord"), Contains($title, "Ring"))`
+
+| What       | Type |
 | ----------- | -------- |
 | Parameter 1 | bool |
 | Parameter 2 | bool |
@@ -355,7 +393,9 @@ Or operator. Returns `true` if one of the parameters return true.
 Checks whether parameter 1 starts with parameters, returns a boolean value.
 This operator ignores the case.
 
-| Example     | `StartsWith($lastName, "M")` |
+**Example**: `StartsWith($lastName, "M")`
+
+| What       | Type |
 | ----------- | -------- |
 | Parameter 1 | string |
 | Parameter 2 | string |
@@ -365,7 +405,9 @@ This operator ignores the case.
 
 Transforms a string into upper case.
 
-| Example     | `UpperCase($city)` |
+**Example**: `UpperCase($city)`
+
+| What       | Type |
 | ----------- | -------- |
 | Parameter 1 | string |
 | Return type | string |
