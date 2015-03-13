@@ -275,6 +275,7 @@ And operator. Returns `true` if both parameters return true.
 
 | What       | Type |
 | ----------- | -------- |
+| Syntax | `And(param1, param2)` |
 | Parameter 1 | bool |
 | Parameter 2 | bool |
 | Return type | bool |
@@ -287,6 +288,7 @@ Concatenates two strings.
  
 | What       | Type |
 | ----------- | -------- |
+| Syntax | `Concat(param1, param2)` |
 | Parameter 1 | string |
 | Parameter 2 | string |
 | Return type | string |
@@ -300,6 +302,7 @@ casing into account, and `ContainsIgnoreCase` which doesn't.
 
 | What       | Type |
 | ----------- | -------- |
+| Syntax | `Contains[IgnoreCase](param1, param2)` |
 | Parameter 1 | string |
 | Parameter 2 | string |
 | Return type | bool |
@@ -313,6 +316,7 @@ This operator ignores the case.
 
 | What       | Type |
 | ----------- | -------- |
+| Syntax | `EndsWith(param1, param2)` |
 | Parameter 1 | string |
 | Parameter 2 | string |
 | Return type | bool |
@@ -325,6 +329,7 @@ Checks whether to strings are equal. Comes in two flavors, `Equals` and `EqualsI
 
 | What       | Type |
 | ----------- | -------- |
+| Syntax | `Equals[IgnoreCase](param1, param2)` |
 | Parameter 1 | string |
 | Parameter 2 | string |
 | Return type | bool |
@@ -338,9 +343,10 @@ the third.
 
 | What       | Type |
 | ----------- | -------- |
-| Parameter 1 | bool |
+| Syntax | `If(condition, param1, param2)` |
+| Condition | bool |
+| Parameter 1 | string |
 | Parameter 2 | string |
-| Parameter 3 | string |
 | Return type | string |
 
 #### Lookups
@@ -360,6 +366,7 @@ map can be used as a binary operator which returns a string value.
 
 | What       | Type |
 | ----------- | -------- |
+| Syntax | `[LookupName](param1, param2)` |
 | Parameter 1 | string |
 | Parameter 2 | string |
 | Return type | string |
@@ -373,6 +380,7 @@ Transforms a string into lower case.
 
 | What       | Type |
 | ----------- | -------- |
+| Syntax | `LowerCase(param1)` |
 | Parameter 1 | string |
 | Return type | string |
 
@@ -384,6 +392,7 @@ Or operator. Returns `true` if one of the parameters return true.
 
 | What       | Type |
 | ----------- | -------- |
+| Syntax | `Or(param1, param2)` |
 | Parameter 1 | bool |
 | Parameter 2 | bool |
 | Return type | bool |
@@ -397,6 +406,7 @@ This operator ignores the case.
 
 | What       | Type |
 | ----------- | -------- |
+| Syntax | `StartsWith(param1, param2)` |
 | Parameter 1 | string |
 | Parameter 2 | string |
 | Return type | bool |
@@ -409,6 +419,7 @@ Transforms a string into upper case.
 
 | What       | Type |
 | ----------- | -------- |
+| Syntax | `UpperCase(param1)` |
 | Parameter 1 | string |
 | Return type | string |
 
