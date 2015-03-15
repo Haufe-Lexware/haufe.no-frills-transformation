@@ -21,6 +21,9 @@ namespace NoFrillsTransformation.Config
         [XmlArray("Mappings")]
         [XmlArrayItem("Mapping")]
         public MappingXml[] Mappings { get; set; }
+        [XmlArray("OperatorConfigs")]
+        [XmlArrayItem("OperatorConfig")]
+        public OperatorConfigXml[] OperatorConfigs { get; set; }
     }
 
     public class SourceTargetXml
@@ -61,5 +64,13 @@ namespace NoFrillsTransformation.Config
         public string Expression { get; set; }
         [XmlAttribute("maxSize")]
         public int MaxSize { get; set; }
+    }
+
+    public class OperatorConfigXml
+    {
+        [XmlAttribute("name")]
+        public string Name { get; set; }
+        [XmlText]
+        public string Config { get; set; }
     }
 }

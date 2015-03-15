@@ -7,21 +7,13 @@ using NoFrillsTransformation.Interfaces;
 
 namespace NoFrillsTransformation.Engine
 {
-    class ContextFactory
-    {
-        public static Context CreateContext(ConfigFileXml config, NftConfigXml nftConfig)
-        {
-            return new Context();
-        }
-    }
-
     enum FilterMode
     {
         And,
         Or
     }
 
-    class Context
+    class Context : IContext
     {
         public ISourceReader SourceReader { get; set; }
         public ITargetWriter TargetWriter { get; set; }
@@ -33,9 +25,26 @@ namespace NoFrillsTransformation.Engine
                 return _lookupMaps;
             }
         }
-        public LookupMap GetLookupMap(string id)
+        public ILookupMap GetLookupMap(string id)
         {
             return LookupMaps[id];
+        }
+
+        private Dictionary<string, IOperator> _operators = new Dictionary<string, IOperator>();
+        public Dictionary<string, IOperator> Operators
+        {
+            get
+            {
+                return _operators;
+            }
+        }
+        public bool HasOperator(string name)
+        {
+            return _operators.ContainsKey(name);
+        }
+        public IOperator GetOperator(string name)
+        {
+            return _operators[name];
         }
         public FilterMode FilterMode { get; set; }
         public FilterDef[] Filters { get; set; }

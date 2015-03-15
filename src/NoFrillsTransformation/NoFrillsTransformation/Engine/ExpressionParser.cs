@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NoFrillsTransformation.Engine.Operators;
+using NoFrillsTransformation.Interfaces;
 
 namespace NoFrillsTransformation.Engine
 {
     // OK, I admit it. I am too lazy to actually learn how to use a proper
     // parser generator. Instead I'm rolling my own. So sue me.
-    class ExpressionParser
+    class ExpressionParser : IEvaluator
     {
-        public static Expression ParseExpression(string expressionString)
+        public static Expression ParseExpression(string expressionString, IContext context)
         {
             if (string.IsNullOrWhiteSpace(expressionString))
                 throw new ArgumentException("The string '" + expressionString + "' is not a valid expression.");
@@ -25,6 +27,10 @@ namespace NoFrillsTransformation.Engine
                 throw new ArgumentException("Illegal first character in expression: '" + firstChar + "'. Expected letter, digit, _, -, \" or $.");
 
             string token = ReadNextToken(t, ref pos);
+            string tokenLow = token.ToLowerInvariant();
+            if (!context.HasOperator(tokenLow))
+                throw new ArgumentException("Unknown operator '" + token + "'. Typo, or missing lookup definition?");
+            IOperator op = context.GetOperator(tokenLow); 
             try
             {
                 SkipWhitespace(t, ref pos);
@@ -34,29 +40,10 @@ namespace NoFrillsTransformation.Engine
                 SkipWhitespace(t, ref pos);
                 pos++;
 
-                string tokenLow = token.ToLowerInvariant();
-                var expressionType = GetExpressionType(tokenLow);
-
                 Expression ex = null;
 
                 // Most operators have 2 parameters; check the others:
-                int paramCount = 2;
-                switch (expressionType)
-                {
-                    case ExpressionType.TargetRowNum:
-                    case ExpressionType.SourceRowNum:
-                        paramCount = 0;
-                        break;
-
-                    case ExpressionType.LowerCase:
-                    case ExpressionType.UpperCase:
-                        paramCount = 1;
-                        break;
-
-                    case ExpressionType.If:
-                        paramCount = 3;
-                        break;
-                }
+                int paramCount = op.ParamCount;
 
                 if (0 == paramCount)
                 {
@@ -66,7 +53,7 @@ namespace NoFrillsTransformation.Engine
                     ex = new Expression
                     {
                         Content = token,
-                        Type = expressionType
+                        Operator = op
                     };
                 }
                 else
@@ -84,9 +71,9 @@ namespace NoFrillsTransformation.Engine
 
                     ex = new Expression
                     {
-                        Type = expressionType,
+                        Operator = op,
                         Content = token,
-                        Arguments = args.Select(a => ParseExpression(a)).ToArray()
+                        Arguments = args.Select(a => ParseExpression(a, context)).ToArray()
                     };
                 }
 
@@ -99,213 +86,63 @@ namespace NoFrillsTransformation.Engine
             }
         }
 
-        private static ExpressionType GetExpressionType(string tokenLow)
-        {
-            switch (tokenLow)
-            {
-                case "sourcerownum": return ExpressionType.SourceRowNum;
-                case "targetrownum": return ExpressionType.TargetRowNum;
-                case "concat": return ExpressionType.Concat;
-                case "or": return ExpressionType.Or;
-                case "and": return ExpressionType.And;
-                case "equals": return ExpressionType.Equals;
-                case "equalsignorecase": return ExpressionType.EqualsIgnoreCase;
-                case "lowercase": return ExpressionType.LowerCase;
-                case "uppercase": return ExpressionType.UpperCase;
-                case "contains": return ExpressionType.Contains;
-                case "containsignorecase": return ExpressionType.ContainsIgnoreCase;
-                case "startswith": return ExpressionType.StartsWith;
-                case "endswith": return ExpressionType.EndsWith;
-                case "if": return ExpressionType.If;
-                default: return ExpressionType.Lookup;
-            }
-        }
-
         private static void SanityCheckExpression(Expression ex)
         {
-            switch (ex.Type)
+            for (int i=0; i<ex.Operator.ParamCount; ++i)
             {
-                case ExpressionType.SourceRowNum:
-                case ExpressionType.TargetRowNum:
-                case ExpressionType.StringLiteral:
-                    // Nothing to check here, always sane
-                    break;
+                var paramType = ex.Operator.ParamTypes[i];
+                var returnType = ex.Arguments[i].Operator.ReturnType;
 
-                case ExpressionType.Concat:
-                case ExpressionType.Contains:
-                case ExpressionType.ContainsIgnoreCase:
-                case ExpressionType.Equals:
-                case ExpressionType.EqualsIgnoreCase:
-                case ExpressionType.StartsWith:
-                case ExpressionType.EndsWith:
-                    SanityCheckBothArgumentsAreStrings(ex);
-                    break;
+                if (paramType == ParamType.Any)
+                    continue;
 
-                case ExpressionType.If:
-                    SanityCheckIfArguments(ex);
-                    break;
-
-                case ExpressionType.Lookup:
-                    SanityCheckBothArgumentsAreStrings(ex);
-                    SanityCheckSecondArgumentIsField(ex);
-                    break;
-
-                case ExpressionType.LowerCase:
-                case ExpressionType.UpperCase:
-                    SanityCheckFirstArgumentIsString(ex);
-                    break;
-
-                case ExpressionType.Or:
-                case ExpressionType.And:
-                    SanityCheckBothArgumentsAreBool(ex);
-                    break;
+                if (paramType != returnType)
+                    throw new ArgumentException("Parameter type mismatch in operator '" + ex.Content + "', argument " + (i+1) + ".");
             }
-        }
 
-        internal static bool IsStringExpression(Expression ex)
-        {
-            switch (ex.Type)
+            // Extra sausage for the Lookup operator
+            if (ex.Operator.Type == ExpressionType.Lookup)
             {
-                case ExpressionType.StringLiteral:
-                case ExpressionType.FieldName:
-                case ExpressionType.SourceRowNum:
-                case ExpressionType.TargetRowNum:
-                case ExpressionType.Concat:
-                case ExpressionType.Lookup:
-                case ExpressionType.LowerCase:
-                case ExpressionType.UpperCase:
-                case ExpressionType.If:
-                    return true;
+                SanityCheckSecondArgumentIsField(ex);
             }
-            return false;
+
         }
 
-        internal static bool IsBoolExpression(Expression ex)
+        private static void SanityCheckSecondArgumentIsField(IExpression ex)
         {
-            switch (ex.Type)
-            {
-                case ExpressionType.Contains:
-                case ExpressionType.ContainsIgnoreCase:
-                case ExpressionType.Equals:
-                case ExpressionType.EqualsIgnoreCase:
-                case ExpressionType.StartsWith:
-                case ExpressionType.EndsWith:
-                case ExpressionType.Or:
-                case ExpressionType.And:
-                    return true;
-            }
-            return false;
-        }
-
-        private static void SanityCheckBothArgumentsAreStrings(Expression ex)
-        {
-            if (IsStringExpression(ex.Arguments[0])
-                && IsStringExpression(ex.Arguments[1]))
-                return;
-            throw new ArgumentException("Operator '" + ex.Content + "' needs two string arguments (one or both are bool).");
-        }
-
-        private static void SanityCheckFirstArgumentIsString(Expression ex)
-        {
-            if (IsStringExpression(ex.Arguments[0]))
-                return;
-            throw new ArgumentException("Operator '" + ex.Content + "' needs a string argument (is bool).");
-        }
-
-        private static void SanityCheckBothArgumentsAreBool(Expression ex)
-        {
-            if (IsBoolExpression(ex.Arguments[0])
-                && IsBoolExpression(ex.Arguments[1]))
-                return;
-            throw new ArgumentException("Operator '" + ex.Content + "' needs two boolean arguments (one or both are strings).");
-        }
-
-        private static void SanityCheckSecondArgumentIsField(Expression ex)
-        {
-            if (ex.Arguments[1].Type == ExpressionType.FieldName)
+            if (ex.Arguments[1].Operator.Type == ExpressionType.FieldName)
                 return;
             throw new ArgumentException("Second argument of operator '" + ex.Content + "' must be a field name ($<field>).");
         }
 
-        private static void SanityCheckIfArguments(Expression ex)
+        public string Evaluate(IEvaluator eval, IExpression expression, IContext context)
         {
-            if (IsBoolExpression(ex.Arguments[0])
-                && IsStringExpression(ex.Arguments[1])
-                && IsStringExpression(ex.Arguments[2]))
-                return;
-            throw new ArgumentException("Argument mismatch: If operator arguments must be boolean, string, string (condition, if true, else).");
-        }
-
-        public static string EvaluateExpression(Expression expression, Context context)
-        {
-            switch (expression.Type)
+            switch (expression.Operator.Type)
             {
                 // First things first, the simple case.
                 case ExpressionType.StringLiteral:
                     return expression.Content;
 
-                // This one's also fairly simple: Concatenation
-                case ExpressionType.Concat:
-                    return HandleConcat(expression, context);
-
-                case ExpressionType.SourceRowNum:
-                    return HandleSourceRowNum(context);
-
-                case ExpressionType.TargetRowNum:
-                    return HandleTargetRowNum(context);
-
                 // Evaluates to a source field
                 case ExpressionType.FieldName:
-                    return HandleFieldName(expression, context);
+                    return HandleFieldName((Expression)expression, context);
 
                 // The most intricate case: Lookup evaluation.
                 case ExpressionType.Lookup:
-                    return HandleLookup(expression, context);
-
-                case ExpressionType.LowerCase:
-                    return HandleLowerCase(expression, context);
-
-                case ExpressionType.UpperCase:
-                    return HandleUpperCase(expression, context);
-
-                case ExpressionType.Equals:
-                    return HandleEquals(expression, context, false);
-
-                case ExpressionType.EqualsIgnoreCase:
-                    return HandleEquals(expression, context, true);
-
-                case ExpressionType.Contains:
-                    return HandleContains(expression, context, false);
-
-                case ExpressionType.ContainsIgnoreCase:
-                    return HandleContains(expression, context, true);
-
-                case ExpressionType.StartsWith:
-                    return HandleStartsWith(expression, context);
-
-                case ExpressionType.EndsWith:
-                    return HandleEndsWith(expression, context);
-
-                case ExpressionType.If:
-                    return HandleIf(expression, context);
-
-                case ExpressionType.And:
-                    return HandleAnd(expression, context);
-
-                case ExpressionType.Or:
-                    return HandleOr(expression, context);
+                    return HandleLookup(eval, (Expression)expression, context);
 
                 default:
-                    throw new ArgumentException("Runtime expression error: Unknown expression type.");
+                    // All other operators are called using their own implementations
+                    return expression.Operator.Evaluate(eval, expression, context);
             }
         }
 
-        private static string HandleLookup(Expression expression, Context context)
+        private static string HandleLookup(IEvaluator eval, Expression expression, IContext context)
         {
             // Second argument is of FieldName type (as enforced in the parser),
             // first argument may be any expression (the evaluation of which will
             // be used to look up the field in the lookup table).
-            var lookupKey = EvaluateExpression(expression.Arguments[0], context);
+            var lookupKey = eval.Evaluate(eval, expression.Arguments[0], context);
             if (null == expression.CachedLookupMap)
             {
                 try
@@ -319,7 +156,7 @@ namespace NoFrillsTransformation.Engine
                     throw new ArgumentException("Runtime expresion evaluation error: Unknown lookup map '" + expression.Content + "'.");
                 }
             }
-            var secondArg = expression.Arguments[1];
+            var secondArg = (Expression)expression.Arguments[1];
             if (secondArg.CachedFieldIndex < 0)
             {
                 // And now let's cache the index of the lookup field.
@@ -348,7 +185,7 @@ namespace NoFrillsTransformation.Engine
             }
         }
 
-        private static string HandleFieldName(Expression expression, Context context)
+        private static string HandleFieldName(Expression expression, IContext context)
         {
             if (expression.CachedFieldIndex < 0)
             {
@@ -362,87 +199,6 @@ namespace NoFrillsTransformation.Engine
                 }
             }
             return context.SourceReader.CurrentRecord[expression.CachedFieldIndex];
-        }
-
-        private static string HandleTargetRowNum(Context context)
-        {
-            return (context.TargetRecordsWritten + 1).ToString();
-        }
-
-        private static string HandleSourceRowNum(Context context)
-        {
-            return context.SourceRecordsRead.ToString();
-        }
-
-        private static string HandleConcat(Expression expression, Context context)
-        {
-            return EvaluateExpression(expression.Arguments[0], context) +
-                                    EvaluateExpression(expression.Arguments[1], context);
-        }
-
-        private static string HandleLowerCase(Expression expression, Context context)
-        {
-            return EvaluateExpression(expression.Arguments[0], context).ToLowerInvariant();
-        }
-
-        private static string HandleUpperCase(Expression expression, Context context)
-        {
-            return EvaluateExpression(expression.Arguments[0], context).ToUpperInvariant();
-        }
-
-        private static string HandleEquals(Expression expression, Context context, bool ignoreCase)
-        {
-            var compType = ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture;
-            return BoolToString(EvaluateExpression(expression.Arguments[0], context).
-                        Equals(EvaluateExpression(expression.Arguments[1], context),
-                        compType));
-        }
-
-        private static string HandleContains(Expression expression, Context context, bool ignoreCase)
-        {
-            string a = EvaluateExpression(expression.Arguments[0], context);
-            string b = EvaluateExpression(expression.Arguments[1], context);
-            if (ignoreCase)
-            {
-                a = a.ToUpper();
-                b = b.ToUpper();
-            }
-            return BoolToString(a.Contains(b));
-        }
-
-        private static string HandleStartsWith(Expression expression, Context context)
-        {
-            string a = EvaluateExpression(expression.Arguments[0], context);
-            string b = EvaluateExpression(expression.Arguments[1], context);
-            return BoolToString(a.StartsWith(b, StringComparison.InvariantCultureIgnoreCase));
-        }
-
-        private static string HandleEndsWith(Expression expression, Context context)
-        {
-            string a = EvaluateExpression(expression.Arguments[0], context);
-            string b = EvaluateExpression(expression.Arguments[1], context);
-            return BoolToString(a.EndsWith(b, StringComparison.InvariantCultureIgnoreCase));
-        }
-
-        private static string HandleIf(Expression expression, Context context)
-        {
-            bool cond = StringToBool(EvaluateExpression(expression.Arguments[0], context));
-            if (cond)
-                return EvaluateExpression(expression.Arguments[1], context);
-            return EvaluateExpression(expression.Arguments[2], context);
-        }
-
-        private static string HandleAnd(Expression expression, Context context)
-        {
-            bool a = StringToBool(EvaluateExpression(expression.Arguments[0], context));
-            bool b = StringToBool(EvaluateExpression(expression.Arguments[1], context));
-            return BoolToString(a && b);
-        }
-        private static string HandleOr(Expression expression, Context context)
-        {
-            bool a = StringToBool(EvaluateExpression(expression.Arguments[0], context));
-            bool b = StringToBool(EvaluateExpression(expression.Arguments[1], context));
-            return BoolToString(a || b);
         }
 
         internal static bool StringToBool(string s)
@@ -529,7 +285,7 @@ namespace NoFrillsTransformation.Engine
         {
             return new Expression
             {
-                Type = ExpressionType.FieldName,
+                Operator = new FieldNameOperator(),
                 Content = expression.Substring(1)
             };
         }
@@ -540,7 +296,7 @@ namespace NoFrillsTransformation.Engine
                 throw new ArgumentException("Ill-terminated literal expression: '" + expression + "'.");
             return new Expression
             {
-                Type = ExpressionType.StringLiteral,
+                Operator = new StringLiteralOperator(),
                 Content = expression.Substring(1, expression.Length - 2)
             };
         }

@@ -54,23 +54,37 @@ namespace NoFrillsTransformation.Engine
         }
     }
 
-    class LookupMap
+    class LookupMap : ILookupMap
     {
         internal LookupMap(string[] fieldNames)
         {
             _fieldNames = fieldNames;
         }
+
+        private string[] _fieldNames;
+
         public string Id { get; set; }
         public string KeyField { get; set; }
+
+        private Dictionary<string, string[]> _rows = new Dictionary<string, string[]>();
+        internal Dictionary<string, string[]> Rows
+        {
+            get
+            {
+                return _rows;
+            }
+        }
+
         public string GetValue(string key, string fieldName)
         {
             return GetValue(key, GetFieldIndex(fieldName));
         }
+
         public string GetValue(string key, int fieldIndex)
         {
             return Rows[key][fieldIndex];
         }
-        private string[] _fieldNames;
+
         public int GetFieldIndex(string fieldName)
         {
             for (int i=0; i<_fieldNames.Length; ++i)
@@ -79,14 +93,6 @@ namespace NoFrillsTransformation.Engine
                     return i;
             }
             return -1;
-        }
-        private Dictionary<string, string[]> _rows = new Dictionary<string, string[]>();
-        internal Dictionary<string, string[]> Rows
-        { 
-            get 
-            {
-                return _rows;
-            } 
         }
     }
 }

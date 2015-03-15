@@ -39,11 +39,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExpressionType.cs" />
+    <Compile Include="IContext.cs" />
+    <Compile Include="IEvaluator.cs" />
+    <Compile Include="IExpression.cs" />
+    <Compile Include="ILookupMap.cs" />
+    <Compile Include="IOperator.cs" />
     <Compile Include="IRecord.cs" />
     <Compile Include="ISourceReader.cs" />
     <Compile Include="ISourceReaderFactory.cs" />
     <Compile Include="ITargetWriter.cs" />
     <Compile Include="ITargetWriterFactory.cs" />
+    <Compile Include="ParamType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

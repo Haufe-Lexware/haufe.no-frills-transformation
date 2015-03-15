@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6BA46494-CE03-4501-8E16-A0BF1C5A3314}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{EE679D88-2FDC-43C1-BA46-B675DDF50875}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NoFrillsTransformation</RootNamespace>
-    <AssemblyName>NoFrillsTransformation</AssemblyName>
+    <RootNamespace>NoFrillsTransformation.Operators</RootNamespace>
+    <AssemblyName>NoFrillsTransformation.Operators</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -21,10 +20,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\..\bin\Release\</OutputPath>
@@ -43,27 +40,24 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\ConfigFile.cs" />
-    <Compile Include="Engine\Context.cs" />
-    <Compile Include="Engine\Expression.cs" />
-    <Compile Include="Engine\ExpressionParser.cs" />
-    <Compile Include="Engine\FilterDef.cs" />
-    <Compile Include="Engine\LookupMap.cs" />
-    <Compile Include="Engine\Operators\FieldNameOperator.cs" />
-    <Compile Include="Engine\Operators\LookupOperator.cs" />
-    <Compile Include="Engine\Operators\StringLiteralOperator.cs" />
-    <Compile Include="Engine\ReaderFactory.cs" />
-    <Compile Include="Engine\TargetFieldDef.cs" />
-    <Compile Include="Engine\WriterFactory.cs" />
-    <Compile Include="Engine\OperatorFactory.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="AbstractOperator.cs" />
+    <Compile Include="AndOperator.cs" />
+    <Compile Include="ConcatOperator.cs" />
+    <Compile Include="ContainsIgnoreCaseOperator.cs" />
+    <Compile Include="ContainsOperator.cs" />
+    <Compile Include="EndsWithOperator.cs" />
+    <Compile Include="EqualsIgnoreCaseOperator.cs" />
+    <Compile Include="EqualsOperator.cs" />
+    <Compile Include="IfOperator.cs" />
+    <Compile Include="LowerCaseOperator.cs" />
+    <Compile Include="OrOperator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SourceRowNumOperator.cs" />
+    <Compile Include="StartsWithOperator.cs" />
+    <Compile Include="TargetRowNumOperator.cs" />
+    <Compile Include="UpperCaseOperator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\3rdParty\LumenWorks.Framework.IO\LumenWorks.Framework.IO.csproj">
-      <Project>{e3b83d68-c90c-4874-8e5f-dec8d038bc7c}</Project>
-      <Name>LumenWorks.Framework.IO</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NoFrillsTransformation.Interfaces\NoFrillsTransformation.Interfaces.csproj">
       <Project>{bf8f3429-0c30-4398-9c68-c3f4a4602e27}</Project>
       <Name>NoFrillsTransformation.Interfaces</Name>

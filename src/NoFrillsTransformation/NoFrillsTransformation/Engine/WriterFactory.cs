@@ -10,10 +10,8 @@ namespace NoFrillsTransformation.Engine
 {
     class WriterFactory
     {
-        public WriterFactory()
+        public WriterFactory(CompositionContainer container)
         {
-            var catalog = new DirectoryCatalog(".");
-            var container = new CompositionContainer(catalog);
             container.ComposeParts(this);
         }
 

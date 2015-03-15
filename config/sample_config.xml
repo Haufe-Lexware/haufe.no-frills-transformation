@@ -29,4 +29,8 @@
       </Fields>
     </Mapping>
   </Mappings>
+
+  <OperatorConfigs>
+    <OperatorConfig name="equals">This is a test.</OperatorConfig>"
+  </OperatorConfigs>
 </Transformation>

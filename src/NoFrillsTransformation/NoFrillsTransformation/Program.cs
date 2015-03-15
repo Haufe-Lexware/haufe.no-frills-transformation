@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 using LumenWorks.Framework.IO.Csv;
 using NoFrillsTransformation.Config;
 using NoFrillsTransformation.Engine;
+using NoFrillsTransformation.Interfaces;
 
 namespace NoFrillsTransformation
 {
@@ -51,26 +52,20 @@ namespace NoFrillsTransformation
 
         private void Run(string configFileName)
         {
-            ConfigFileXml configFile = null;
-            try
-            {
-                XmlSerializer xmlSerializer = new XmlSerializer(typeof(ConfigFileXml));
-                using (var fs = new FileStream(configFileName, FileMode.Open))
-                {
-                    configFile = xmlSerializer.Deserialize(fs) as ConfigFileXml;
-                }
-            }
-            catch (Exception e)
-            {
-                throw new ArgumentException("Could not read XML config file: " + e.Message);
-            }
+            var configFile = ReadConfigFile(configFileName);
 
-            var readerFactory = new ReaderFactory();
-            var writerFactory = new WriterFactory();
+            // Set up MEF
+            var catalog = new DirectoryCatalog(".");
+            var container = new CompositionContainer(catalog);
+
+            var readerFactory = new ReaderFactory(container);
+            var writerFactory = new WriterFactory(container);
+            var operatorFactory = new OperatorFactory(container);
 
             Context context = new Context();
-
+            InitOperators(configFile, context, operatorFactory);
             InitLookupMaps(configFile, readerFactory, context);
+
             ReadFilters(configFile, context);
             ReadMappings(configFile, context);
 
@@ -86,18 +81,60 @@ namespace NoFrillsTransformation
             }
         }
 
+        private void InitOperators(ConfigFileXml config, Context context, OperatorFactory operatorFactory)
+        {
+            //var opFactory = new OperatorFactory(container);
+            foreach (var op in operatorFactory.Operators)
+            {
+                if (context.Operators.ContainsKey(op.Name))
+                    throw new InvalidOperationException("An operator with the name '" + op.Name + "' is already defined. Operators' names must be unique.");
+                context.Operators[op.Name] = op;
+            }
+
+            // Do we have operator configurations?
+            if (null != config.OperatorConfigs)
+            {
+                foreach (var opConfig in config.OperatorConfigs)
+                {
+                    if (!context.Operators.ContainsKey(opConfig.Name))
+                        throw new InvalidOperationException("Configuration was passed in config XML for unknown operator '" + opConfig.Name + ". Are your plugins in the same folder as the executable?");
+                    context.Operators[opConfig.Name].Configure(opConfig.Config);
+                }
+            }
+        }
+
+        private static ConfigFileXml ReadConfigFile(string configFileName)
+        {
+            ConfigFileXml configFile = null;
+            try
+            {
+                XmlSerializer xmlSerializer = new XmlSerializer(typeof(ConfigFileXml));
+                using (var fs = new FileStream(configFileName, FileMode.Open))
+                {
+                    configFile = xmlSerializer.Deserialize(fs) as ConfigFileXml;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new ArgumentException("Could not read XML config file: " + e.Message);
+            }
+            return configFile;
+        }
+
         private void Process(Context context)
         {
             try
             {
                 string[] outValues = new string[context.TargetFields.Length];
 
+                var evaluator = new ExpressionParser();
+
                 while (!context.SourceReader.IsEndOfStream)
                 {
                     context.SourceReader.NextRecord();
                     context.SourceRecordsRead++;
 
-                    if (!RecordMatchesFilter(context))
+                    if (!RecordMatchesFilter(evaluator, context))
                     {
                         context.SourceRecordsFiltered++;
                         continue;
@@ -106,7 +143,7 @@ namespace NoFrillsTransformation
 
                     for (int i = 0; i < outValues.Length; ++i)
                     {
-                        outValues[i] = ExpressionParser.EvaluateExpression(context.TargetFields[i].Expression, context);
+                        outValues[i] = evaluator.Evaluate(evaluator, context.TargetFields[i].Expression, context);
                     }
 
                     context.TargetWriter.WriteRecord(outValues);
@@ -119,11 +156,11 @@ namespace NoFrillsTransformation
             }
         }
 
-        private bool RecordMatchesFilter(Context context)
+        private bool RecordMatchesFilter(IEvaluator eval, Context context)
         {
             foreach (var filter in context.Filters)
             {
-                bool val = ExpressionParser.StringToBool(ExpressionParser.EvaluateExpression(filter.Expression, context));
+                bool val = ExpressionParser.StringToBool(eval.Evaluate(eval, filter.Expression, context));
                 if (FilterMode.And == context.FilterMode
                     && !val)
                     return false;
@@ -141,6 +178,10 @@ namespace NoFrillsTransformation
             foreach (var lookupMap in configFile.LookupMaps)
             {
                 context.LookupMaps.Add(lookupMap.Name, LookupMapFactory.CreateLookupMap(lookupMap, readerFactory));
+                string nameLow = lookupMap.Name.ToLowerInvariant();
+                if (context.Operators.ContainsKey(nameLow))
+                    throw new InvalidOperationException("Duplicate use of operator '" + lookupMap.Name + "' for lookup maps; please rename the lookup map.");
+                context.Operators[nameLow] = new NoFrillsTransformation.Engine.Operators.LookupOperator(nameLow);
             }
         }
 
@@ -163,8 +204,8 @@ namespace NoFrillsTransformation
                 for (int i = 0; i < filterCount; ++i)
                 {
                     var filterXml = configFile.SourceFilters[i];
-                    context.Filters[i] = new FilterDef { Expression = ExpressionParser.ParseExpression(filterXml.Expression) };
-                    if (!ExpressionParser.IsBoolExpression(context.Filters[i].Expression))
+                    context.Filters[i] = new FilterDef { Expression = ExpressionParser.ParseExpression(filterXml.Expression, context) };
+                    if (context.Filters[i].Expression.Operator.ReturnType != ParamType.Bool)
                         throw new InvalidOperationException("Source filter expression mismatch: Expression '" + 
                             filterXml.Expression + "' does not evaluate to a boolean value.");
                 }
@@ -200,7 +241,7 @@ namespace NoFrillsTransformation
                     var tfd = new TargetFieldDef();
                     tfd.FieldName = field.Name;
                     tfd.FieldSize = field.MaxSize;
-                    tfd.Expression = ExpressionParser.ParseExpression(field.Expression);
+                    tfd.Expression = ExpressionParser.ParseExpression(field.Expression, context);
 
                     context.TargetFields[i] = tfd;
                 }
