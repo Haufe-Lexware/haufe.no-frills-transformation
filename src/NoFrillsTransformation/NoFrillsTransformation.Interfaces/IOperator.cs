@@ -14,7 +14,5 @@ namespace NoFrillsTransformation.Interfaces
         ParamType ReturnType { get; }
 
         void Configure(string config);
-
-        //string Evaluate(IEvaluator eval, IExpression expression, IContext context);
     }
 }

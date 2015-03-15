@@ -466,7 +466,7 @@ Transforms a string into upper case.
 ## Extension points
 
 NFT is leveraging MEF ([Microsoft Extension Framework](https://msdn.microsoft.com/en-us/en-en/library/dd460648(v=vs.110).aspx))
-for dependency injection (inversion of control). There are two interfaces which may be used to hook into NFT:
+for dependency injection (inversion of control). There are three interfaces which may be used to hook into NFT:
 
 ```csharp
 public interface ISourceReaderFactory
@@ -482,12 +482,34 @@ public interface ITargetWriterFactory
     bool CanWriteTarget(string target);
     ITargetWriter CreateWriter(string target, string[] fieldNames, int[] fieldSizes, string config);
 }
+
+public interface IOperator : IEvaluator
+{
+    ExpressionType Type { get; }
+    string Name { get; }
+    int ParamCount { get; }
+    ParamType[] ParamTypes { get; }
+    ParamType ReturnType { get; }
+
+    void Configure(string config);
+}
+
+// Derived from
+public interface IEvaluator
+{
+    string Evaluate(IEvaluator eval, IExpression expression, IContext context);
+}
 ```
 
-Both interfaces make use of methods to find out whether the reader/writer can read/write the source/target, based on
+As to connectivity, i.e. reading and writing, both interfaces make use of methods to find out whether the reader/writer can read/write the source/target, based on
 the format of the source/target string.
 
 As an example, the CSV Plugin returns true for URIs starting with `file://` and ending with `.csv`.
+
+For operators, things are even simpler. All you need to do is to implement the `IOperator` interface, using the `ExpressionType.Custom` expression type,
+have it exported as `IOperator` via MEF, and the new operator will be picked up automatically by NFT. [See below](#operators) for more information
+on writing operators.
+
 
 ### Writing plugins
 
@@ -532,3 +554,83 @@ Possible extension plugins could be stuff like:
 * SQLite reader/writer
 * XML reader/writer
 * Salesforce SOQL reader (that would be cool), Salesforce writer
+
+### <a name="operators"></a>Writing Plugin operators
+
+Writing custom operators isn't difficult, actually. You have two possibilities how to get started:
+
+ * Forking the repository and adding the operators directly to `NoFrillsTransformation.Operators`
+ * Writing your own assembly containing operators which adher to the `IOperator` interface.
+
+If you go for the second method (which enables you to use the latest NFT releases and hook into that), you need to
+follow these steps:
+
+* Create a new assembly for .NET 4.0 and reference `NoFrillsTransformation.Interfaces` and `System.ComponentModel.Composition` (this is the MEF framework)
+* Implement `IOperator`
+* Mark the class as `[Export(typeof(IOperator))]`
+* Make sure your assembly is located side by side with `NoFrillsTransformation.exe`
+
+#### Example operator implementation
+
+The following code shows a sample implementation of an operator. Obviously all `using` statements and namespace definitions
+have been left out. Another place to check for the code is inside the `NoFrillsTransformation.Operators` assembly.
+
+```csharp
+public class ReverseOperator
+{
+	public ReverseOperator()
+	{
+		_paramTypes = new ParamType[] { ParamType.Any };
+	}
+
+	private ParamType[] _paramTypes;
+
+	public ExpressionType Type { get { return ExpressionType.Custom; } }
+	public string Name { get { return "reverse"; } }
+	public string ParamCount { get { return 1; } }
+	public ParamType[] ParamTypes { get { return _paramTypes; } }
+	public ParamType ReturnType { get { return ParamType.String; } }
+
+	public string Evaluate(IEvaluator eval, IExpression expression, IContext context)
+	{
+		string parameter = eval.Evaluate(eval, expression.Arguments[0], context);
+		char[] charArray = parameter.ToCharArray();
+		Array.Reverse(charArray);
+		return new string(charArray);
+	}
+
+	public void Configure(string config)
+	{
+		// This operator does not need configuring
+	}
+}
+```
+
+This operator implements a reverse operator. Please note the use of the `IEvaluator` in the `Evaluate` method of the
+operator. You will get passed the parameter into your `Evaluate` method; this has not yet been evaluated, thus you
+need to call that method recursively first, before you actually perform your operator on the output.
+
+This gives you full flexibility in implementing custom operators. In fact, only the three "special" operators are not
+implemented in the `Operators` assembly, in the way shown above, and those are the "field name", the "string literal" 
+and the "lookup" operators, as these require sepcial functionality. All others rely on this pattern, some taking
+information from the passed `IContext` parameter (e.g. the `TargetRowNow` and `SourceRowNum` operators).
+
+#### Operator Configuration
+
+NFT offers a way to configure operators. The built in operators do not support any kind of configuration, but it is
+fairly simple to imagine operators which might need configuration. For example operators for encryption or decryption.
+
+Configuration on operator level can be passed from the configuration XML file, in this way:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<Transformation>
+  <!-- left out the rest -->
+  <OperatorConfigs>
+    <OperatorConfig name="equals">This is a test.</OperatorConfig>"
+  </OperatorConfigs>
+</Transformation>
+```
+
+The string in the `OperatorConfig` tags will be passed on to the operator's `Configure` method, as shown in the
+`IOperator` interface above.
