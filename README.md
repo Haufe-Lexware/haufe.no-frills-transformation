@@ -24,13 +24,9 @@ Feel free to contribute and create pull requests. I'll check them out and merge 
 
 ## Binary Downloads
 
-There are no binary downloads just yet.
+Check out the [releases](https://github.com/DonMartin76/no-frills-transformation/releases) section for binary
+packages of NFT.
 
-This project has to settle down a little first, then I'll release something.
-
-I'd say that NFT may already be used in production, or for serious things, like migrations and stuff,
-but there's still too many parts moving. Check back in a while, or, if you can't get it to compile, 
-get back to me.
 
 ## Acknowledgements
 
