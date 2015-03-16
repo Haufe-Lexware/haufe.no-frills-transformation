@@ -7,14 +7,14 @@ using NoFrillsTransformation.Interfaces;
 
 namespace NoFrillsTranformation.Plugins.Csv
 {
-    class CsvWriterPlugin : ITargetWriter
+    class CsvWriterPlugin : ConfigurableBase, ITargetWriter
     {
         internal CsvWriterPlugin(string target, string[] fieldNames, int[] fieldSizes, string config)
         {
             if (null == fieldNames)
                 throw new ArgumentException("Cannot create CsvWriterPlugin without field names.");
 
-            Configure(config);
+            ReadConfig(config);
             _fileName = target.Substring(7); // Strip file://
             _fieldNames = fieldNames;
             _fieldSizes = fieldSizes;
@@ -29,17 +29,29 @@ namespace NoFrillsTranformation.Plugins.Csv
         private StreamWriter _writer;
 
         #region Configuration
-        private char _delimiter;
-        private string _encodingString;
-        private Encoding _encoding;
+        private char _delimiter = ',';
+        private string _encodingString = "UTF-8";
+        private Encoding _encoding = Encoding.GetEncoding("UTF-8");
 
-        private void Configure(string config)
+        protected override void SetConfig(string parameter, string configuration)
         {
-            // Set defaults
-            _delimiter = ',';
-            _encodingString = "UTF-8";
+            switch (parameter)
+            {
+                case "delim":
+                    if (configuration.Length != 1)
+                        throw new ArgumentException("Invalid delim setting: Delimiter must be a single character (got: '" + configuration + "')");
+                    _delimiter = configuration[0];
+                    break;
 
-            _encoding = Encoding.GetEncoding(_encodingString);
+                case "encoding":
+                    _encodingString = configuration;
+                    _encoding = Encoding.GetEncoding(_encodingString);
+                    break;
+
+                default:
+                    // Do nothing with unknown parameters
+                    break;
+            }
         }
         #endregion
 

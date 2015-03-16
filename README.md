@@ -95,6 +95,10 @@ A typical simple XML configuration may look like this:
       </Fields>
     </Mapping>
   </Mappings>
+
+  <OperatorConfigs>
+    <OperatorConfig name="equals">This is a test. It doesn't do anything.</OperatorConfig>"
+  </OperatorConfigs>
 </Transformation>
 ```
 
@@ -105,6 +109,7 @@ So, what does this do?
 * Sets the filter mode to `AND` (all filter criteria must be met)
 * Specifies a filter by using an expression which evaluates to a boolean
 * Specifies a mapping with five output fields, each with a name, max size and an expression
+* Passes on a configuration string to the `Equals` operator (see [Operator Configuration](#opconfig) for more information)
 
 Please confer with the later sections for a more detailed specification of the options.
 
@@ -121,6 +126,20 @@ C:\Temp>
 If the operation completes without error, the executable with exit with the exit code 0 (Success).
 Otherwise, an error message will be output to `stderr` and the exit code unequal 0 (for now, 1).
 
+##### Running on Mac OS X and Linux
+
+If you want to run NFT on Mac OS X, you need the Mono framework, which is the .NET implementation
+for non-Windows platforms (such as Linux or Mac OS X).
+
+Download and install Mono prior to running `NoFrillsTransformation.exe`, then proceed as follows:
+
+```bash
+$ mono NoFrillsTransformation.exe configFile.xml
+Operation finished successfully.
+$
+```
+
+More information will follow as soon as I put up a proper release (with precompiled binaries).
 
 #### Logging output
 
@@ -169,6 +188,7 @@ option1=value1 option2=value2
 | Option | Possible values |
 | ------ | --------------- |
 | `delim`  | Delimiter character; defaults to `','`. Other normal option is `';'` |
+| `encoding` | Defines the output encoding of the CSV; defaults to `UTF-8` |
 
 ### <a name="lookupTag"></a>Lookup map definitions
 
@@ -615,7 +635,7 @@ implemented in the `Operators` assembly, in the way shown above, and those are t
 and the "lookup" operators, as these require sepcial functionality. All others rely on this pattern, some taking
 information from the passed `IContext` parameter (e.g. the `TargetRowNow` and `SourceRowNum` operators).
 
-#### Operator Configuration
+#### <a name="opconfig"></a>Operator Configuration
 
 NFT offers a way to configure operators. The built in operators do not support any kind of configuration, but it is
 fairly simple to imagine operators which might need configuration. For example operators for encryption or decryption.

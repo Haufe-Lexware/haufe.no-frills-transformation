@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Transformation>
   <Source config="delim=','">file://C:\Projects\no-frills-transformation\scratch\users.csv</Source>
-  <Target config="delim=','">file://C:\Projects\no-frills-transformation\scratch\Accounts.csv</Target>
+  <Target config="delim=',' encoding='UTF-16'">file://C:\Projects\no-frills-transformation\scratch\Accounts.csv</Target>
   <LookupMaps>
     <LookupMap keyField="id" name="Status">
       <Source config="delim=','">file://C:\Projects\no-frills-transformation\scratch\status_mapping.csv</Source>
@@ -31,6 +31,6 @@
   </Mappings>
 
   <OperatorConfigs>
-    <OperatorConfig name="equals">This is a test.</OperatorConfig>"
+    <OperatorConfig name="equals">This is a test. It doesn't do anything.</OperatorConfig>"
   </OperatorConfigs>
 </Transformation>

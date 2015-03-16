@@ -7,9 +7,9 @@ using NoFrillsTransformation.Interfaces;
 using LumenWorks.Framework.IO;
 using System.IO;
 
-namespace NoFrillsTranformation.Plugins.CsvReader
+namespace NoFrillsTranformation.Plugins.Csv
 {
-    class CsvReaderPlugin : ISourceReader, IRecord
+    class CsvReaderPlugin : ConfigurableBase, ISourceReader, IRecord
     {
         internal CsvReaderPlugin(string source, string config)
         {
@@ -18,9 +18,10 @@ namespace NoFrillsTranformation.Plugins.CsvReader
             TextReader textReader = null;
             try
             {
+                ReadConfig(config);
                 textReader = new StreamReader(new FileStream(_fileName, FileMode.Open));
                 _csvReader = new LumenWorks.Framework.IO.Csv.CsvReader(textReader, true, _delimiter);
-                Configure(config);
+                ConfigureReader();
             }
             catch (Exception)
             {
@@ -36,13 +37,42 @@ namespace NoFrillsTranformation.Plugins.CsvReader
 
         #region Configuration
         protected char _delimiter = ',';
+        protected bool _multiline = true;
 
-        protected void Configure(string config)
+        protected override void SetConfig(string parameter, string configuration)
         {
-            if (string.IsNullOrWhiteSpace(config))
-                return;
+            switch (parameter)
+            {
+                case "delim":
+                    if (configuration.Length != 1)
+                        throw new ArgumentException("Invalid delim setting: Delimiter must be a single character (got: '" + configuration + "')");
+                    _delimiter = configuration[0];
+                    break;
 
-            _csvReader.SupportsMultiline = true;
+                case "multiline":
+                    string multiTemp = configuration.ToLowerInvariant();
+                    switch (multiTemp)
+                    {
+                        case "true":
+                            _multiline = true;
+                            break;
+                        case "false":
+                            _multiline = false;
+                            break;
+                        default:
+                            throw new ArgumentException("Invalid configuration setting for 'multiline': '" + configuration + "'. Expected true or false.");
+                    }
+                    break;
+
+                default:
+                    // Do nothing for now, just ignore.
+                    break;
+            }
+        }
+
+        protected void ConfigureReader()
+        {
+            _csvReader.SupportsMultiline = _multiline;
         }
         #endregion
 

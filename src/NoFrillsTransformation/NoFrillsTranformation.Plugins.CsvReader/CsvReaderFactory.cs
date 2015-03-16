@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using NoFrillsTransformation.Interfaces;
 
-namespace NoFrillsTranformation.Plugins.CsvReader
+namespace NoFrillsTranformation.Plugins.Csv
 {
     [Export(typeof(NoFrillsTransformation.Interfaces.ISourceReaderFactory))]
     public class CsvReaderFactory : ISourceReaderFactory

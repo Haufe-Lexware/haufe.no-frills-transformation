@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigurableBase.cs" />
     <Compile Include="CsvReaderFactory.cs" />
     <Compile Include="CsvReaderPlugin.cs" />
     <Compile Include="CsvWriterFactory.cs" />
