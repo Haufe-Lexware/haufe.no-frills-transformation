@@ -14,10 +14,15 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DCD343BD-D2D9-41B8-8A93-4DC18B9800E7}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\README.md = ..\..\README.md
-		..\..\config\sample_config.xml = ..\..\config\sample_config.xml
+		..\..\config\sample_config_sfdc.xml = ..\..\config\sample_config_sfdc.xml
+		..\..\config\sfdc_config_martin.xml = ..\..\config\sfdc_config_martin.xml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Operators", "NoFrillsTransformation.Operators\NoFrillsTransformation.Operators.csproj", "{EE679D88-2FDC-43C1-BA46-B675DDF50875}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Plugins.Salesforce", "NoFrillsTransformation.Plugins.Salesforce\NoFrillsTransformation.Plugins.Salesforce.csproj", "{5D6C04EA-4207-4893-85EF-F8AA3981122D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Plugins.Salesforce.Test", "NoFrillsTransformation.Plugins.Salesforce.Test\NoFrillsTransformation.Plugins.Salesforce.Test.csproj", "{0B6F08BC-D66B-43A7-BA70-F75845D7BBF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +50,14 @@ Global
 		{EE679D88-2FDC-43C1-BA46-B675DDF50875}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE679D88-2FDC-43C1-BA46-B675DDF50875}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE679D88-2FDC-43C1-BA46-B675DDF50875}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D6C04EA-4207-4893-85EF-F8AA3981122D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D6C04EA-4207-4893-85EF-F8AA3981122D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D6C04EA-4207-4893-85EF-F8AA3981122D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D6C04EA-4207-4893-85EF-F8AA3981122D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B6F08BC-D66B-43A7-BA70-F75845D7BBF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B6F08BC-D66B-43A7-BA70-F75845D7BBF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B6F08BC-D66B-43A7-BA70-F75845D7BBF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B6F08BC-D66B-43A7-BA70-F75845D7BBF9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

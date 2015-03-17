@@ -5,7 +5,7 @@ using System.Text;
 
 namespace NoFrillsTranformation.Plugins.Csv
 {
-    class ConfigurableBase
+    public class ConfigurableBase
     {
         protected void ReadConfig(string config)
         {

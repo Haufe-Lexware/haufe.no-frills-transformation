@@ -1,0 +1,34 @@
+﻿<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="csvExtractProcess"
+      class="com.salesforce.dataloader.process.ProcessRunner"
+      singleton="false">
+    <description>Generic extract bean for NoFrillsTransformation</description>
+    <property name="name" value="csvAccountExtract"/>
+    <property name="configOverrideMap">
+      <map>
+        <entry key="sfdc.debugMessages" value="false"/>
+        <!-- c:\dataloader\samples\status\sfdcSoapTrace.log -->
+        <entry key="sfdc.debugMessagesFile" value="%DEBUGLOGFILE%"/>
+        <!-- https://login.salesforce.com -->
+        <entry key="sfdc.endpoint" value="%ENDPOINT%"/>
+        <entry key="sfdc.username" value="%USERNAME%"/>
+        <!-- password specified below is invalid, please generate one using the encrypt.bat utility -->
+        <entry key="sfdc.password" value="%PASSWORD%"/>
+        <entry key="sfdc.timeoutSecs" value="600"/>
+        <entry key="sfdc.loadBatchSize" value="200"/>
+        <!-- Account -->
+        <entry key="sfdc.entity" value="%ENTITY%"/>
+        <entry key="sfdc.extractionRequestSize" value="500"/>
+        <!-- Select Id, Name, Type, ParentId, Phone, AccountNumber, Website, Sic, AnnualRevenue, NumberOfEmployees, TickerSymbol, Oracle_Id__c FROM Account" -->
+        <entry key="sfdc.extractionSOQL" value="%SOQL%"/>
+        <entry key="process.operation" value="extract"/>
+        <!-- c:\dataloader\samples\conf\accountExtractMap.sdl -->
+        <entry key="process.mappingFile" value="%SDLFILE%"/>
+        <entry key="dataAccess.type" value="csvWrite"/>
+        <!-- c:\dataloader\samples\data\extract.csv -->
+        <entry key="dataAccess.name" value="%CSVOUTFILE%"/>
+      </map>
+    </property>
+  </bean>
+</beans>

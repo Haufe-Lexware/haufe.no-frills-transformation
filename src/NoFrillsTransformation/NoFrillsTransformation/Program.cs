@@ -158,6 +158,8 @@ namespace NoFrillsTransformation
 
         private bool RecordMatchesFilter(IEvaluator eval, Context context)
         {
+            if (null == context.Filters)
+                return true;
             foreach (var filter in context.Filters)
             {
                 bool val = ExpressionParser.StringToBool(eval.Evaluate(eval, filter.Expression, context));

@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Transformation>
+  <Source config="C:\Projects\no-frills-transformation\config\sfdc_config.xml">soql://Select Id, Name, Phone From Account</Source>
+  <Target config="delim=',' encoding='UTF-16'">file://C:\Projects\no-frills-transformation\scratch\sfdc-accounts.csv</Target>
+
+  <Mappings>
+    <Mapping>
+      <Fields>
+        <Field name="Id">$ID</Field>
+        <Field name="Name">$NAME</Field>
+        <Field name="Phone">$PHONE</Field>
+      </Fields>
+    </Mapping>
+  </Mappings>
+</Transformation>

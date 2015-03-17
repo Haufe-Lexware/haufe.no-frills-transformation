@@ -9,9 +9,9 @@ using System.IO;
 
 namespace NoFrillsTranformation.Plugins.Csv
 {
-    class CsvReaderPlugin : ConfigurableBase, ISourceReader, IRecord
+    public class CsvReaderPlugin : ConfigurableBase, ISourceReader, IRecord
     {
-        internal CsvReaderPlugin(string source, string config)
+        public CsvReaderPlugin(string source, string config)
         {
             _fileName = source.Substring(7); // Strip file://
 

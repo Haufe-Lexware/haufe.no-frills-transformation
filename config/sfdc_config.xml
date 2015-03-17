@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SfdcConfig>
+  <DataLoaderDir>C:\Program Files (x86)\salesforce.com\Data Loader</DataLoaderDir>
+  <SfdcUsername>your.salesforce.login@company.com</SfdcUsername>
+  <SfdcEncryptedPassword>encrypted password; use data loaders encrypt.bat for this! don't forget your security token.</SfdcEncryptedPassword>
+  <SfdcEndPoint>https://test.salesforce.com</SfdcEndPoint>
+  <KeepTempFiles>false</KeepTempFiles>
+</SfdcConfig>
