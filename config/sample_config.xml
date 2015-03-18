@@ -12,7 +12,9 @@
       <Source config="delim=','">file://C:\Projects\no-frills-transformation\scratch\status_mapping.csv</Source>
     </LookupMap>
   </LookupMaps>
-
+  
+  <!-- <OutputFields>true</OutputFields> -->
+  
   <FilterMode>AND</FilterMode>
   <SourceFilters>
     <SourceFilter>EqualsIgnoreCase(If(Contains($SOBID, "A"), "hooray", "boo"), "HooRay")</SourceFilter>

@@ -12,6 +12,9 @@ namespace NoFrillsTransformation.Config
         public LoggerXml Logger { get; set; }
         public SourceTargetXml Source { get; set; }
         public SourceTargetXml Target { get; set; }
+
+        public bool OutputFields { get; set; }
+
         public string FilterMode { get; set; }
         [XmlArray("SourceFilters")]
         [XmlArrayItem("SourceFilter")]

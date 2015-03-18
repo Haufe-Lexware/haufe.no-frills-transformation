@@ -81,6 +81,9 @@ namespace NoFrillsTransformation
                     ReadMappings(configFile, context);
 
                     context.SourceReader = readerFactory.CreateReader(context, configFile.Source.Uri, configFile.Source.Config);
+                    if (configFile.OutputFields)
+                        return OutputSourceFieldsToConsole(context);
+
                     context.TargetWriter = writerFactory.CreateWriter(context, configFile.Target.Uri, context.TargetFields, configFile.Target.Config);
 
                     Process(context);
@@ -106,6 +109,48 @@ namespace NoFrillsTransformation
                 }
                 return (int)ExitCodes.Failure;
             }
+        }
+
+        private int OutputSourceFieldsToConsole(Context context)
+        {
+            int[] sizes = new int[context.SourceReader.FieldCount];
+            for (int i = 0; i < sizes.Length; ++i)
+                sizes[i] = 0;
+            int maxCount = 100;
+
+            while (!context.SourceReader.IsEndOfStream
+                && context.SourceRecordsRead < maxCount)
+            {
+                context.SourceReader.NextRecord();
+                context.SourceRecordsRead++;
+
+                var rec = context.SourceReader.CurrentRecord;
+                for (int i=0; i<sizes.Length; ++i)
+                {
+                    int l = rec[i].Length;
+                    if (l > sizes[i])
+                        sizes[i] = l;
+                }
+            }
+
+            for (int i=0; i<sizes.Length; ++i)
+            {
+                sizes[i] = ((sizes[i] + 10) / 10) * 10;
+            }
+
+            Console.WriteLine("  <Mappings>");
+            Console.WriteLine("    <Mapping>");
+            Console.WriteLine("      <Fields>");
+
+            for (int i=0; i<sizes.Length; ++i)
+            {
+                Console.WriteLine("        <Field name=\"{0}\" maxSize=\"{1}\">${0}</Field>", context.SourceReader.FieldNames[i], sizes[i]);
+            }
+            Console.WriteLine("      </Fields>");
+            Console.WriteLine("    </Mapping>");
+            Console.WriteLine("  </Mappings>");
+
+            return (int)ExitCodes.Success;
         }
 
         private void LogOperators(Context context)
