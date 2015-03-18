@@ -860,6 +860,7 @@ follow these steps:
 
 * Create a new assembly for .NET 4.0 and reference `NoFrillsTransformation.Interfaces` and `System.ComponentModel.Composition` (this is the MEF framework)
 * Implement `ILoggerFactory`
-* Mark the class as `[Export(typeof(IOperator))]`
+* Mark the class as `[Export(typeof(ILogger))]`
 * Implement your logger class, implementing the `ILogger` interface
 * Make sure your assembly is located side by side with `NoFrillsTransformation.exe`
+* Add a `Logger` type into your NFT configuration with your newly created log type string, e.g. `loggregate`, `odbc` or whatever you chose as `LogType`.
