@@ -1,10 +1,12 @@
 # no-frills-transformation
 
-"No frills transformation" (NFT) is intended to be a super lightweight transformation engine, with very limited support for reading and writing stuff, but having an extensible interface.
+"No frills transformation" (NFT) is intended to be a lightweight transformation engine, with very limited support
+for reading and writing stuff, but having an extensible interface.
 
 Out of the box, NFT will read:
 
 * CSV files
+* Salesforce SOQL queries
 
 and write
 
@@ -12,9 +14,12 @@ and write
 
 because... that's what I currently need ;-)
 
-In an ETL scenario, NFT is neither designed to do the "E" nor the "L" part, just simple "T" tasks. 
+In an ETL scenario, NFT is neither designed to do the "E" nor the "L" part, mostly just "T" tasks. 
 But that quickly and efficiently, supporting the basic transformation stuff you might need (and
- with extensibility support if you need something out of the order). Among supported transformations are:
+ with extensibility support if you need something out of the order). For convenience, the "E" is
+ supported better than "L", with e.g. a Salesforce Reader for SOQL queries.
+ 
+ Among supported transformations are:
 
 * Copy (nop transformation, copy source to target)
 * Lookup (in other sources)
@@ -231,6 +236,10 @@ option1=value1 option2=value2
 | ------ | --------------- |
 | `delim`  | Delimiter character; defaults to `','`. Other normal option is `';'` |
 | `encoding` | Defines the output encoding of the CSV; defaults to `UTF-8` |
+
+##### Salesforce SOQL reader configuration
+
+More information to come; but I think I need to split up the documentation, this is getting to large and difficult to read.
 
 ### <a name="lookupTag"></a>Lookup map definitions
 
