@@ -35,7 +35,9 @@
         <Field name="Length" maxSize="5">Length($SOBID)</Field>
         <Field name="Wupd" maxSize="40">Substring($SOBID, 3, -1)</Field>
         <Field name="Holla" maxSize="40">Substring($SOBID, 0, Subtract(Length($SOBID), 3))</Field>
-        <Field name="Stupid" maxSize="10">Add($BOGUSTYPE, 10)</Field>
+        <Field name="Stupid" maxSize="10">Add(Int($BOGUSTYPE), 10)</Field>
+        <Field name="Modul" maxSize="10">Modulo(Int($BOGUSTYPE), 5)</Field>
+        <Field name="Division" maxSize="10">Divide(Int($BOGUSTYPE), 2)</Field>
       </Fields>
     </Mapping>
   </Mappings>

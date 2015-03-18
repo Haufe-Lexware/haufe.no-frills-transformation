@@ -55,6 +55,7 @@
     <Compile Include="IntOperator.cs" />
     <Compile Include="LengthOperator.cs" />
     <Compile Include="LowerCaseOperator.cs" />
+    <Compile Include="ModuloOperator.cs" />
     <Compile Include="MultiplyOperator.cs" />
     <Compile Include="OrOperator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
