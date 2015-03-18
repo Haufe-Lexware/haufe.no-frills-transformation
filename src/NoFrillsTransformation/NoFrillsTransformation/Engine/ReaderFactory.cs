@@ -22,12 +22,12 @@ namespace NoFrillsTransformation.Engine
         private ISourceReaderFactory[] _readerFactories;
 #pragma warning restore 0649
 
-        public ISourceReader CreateReader(string source, string config)
+        public ISourceReader CreateReader(IContext context, string source, string config)
         {
             foreach (var rf in _readerFactories)
             {
                 if (rf.CanReadSource(source))
-                    return rf.CreateReader(source, config);
+                    return rf.CreateReader(context, source, config);
             }
             throw new InvalidOperationException("Could not find a suitable reader for source '" + source + "'.");
         }

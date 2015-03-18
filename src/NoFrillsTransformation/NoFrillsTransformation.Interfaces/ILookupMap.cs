@@ -10,6 +10,7 @@ namespace NoFrillsTransformation.Interfaces
         string Id { get; }
         string KeyField { get;}
 
+        bool HasKey(string key);
         string GetValue(string key, string fieldName);
         string GetValue(string key, int fieldIndex);
         int GetFieldIndex(string fieldName);

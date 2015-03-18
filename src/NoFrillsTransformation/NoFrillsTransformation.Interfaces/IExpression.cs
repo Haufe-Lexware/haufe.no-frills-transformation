@@ -13,5 +13,7 @@ namespace NoFrillsTransformation.Interfaces
         //public Expression FirstArgument { get; set; }
         //public Expression SecondArgument { get; set; }
         IExpression[] Arguments { get; set; }
+
+        ILookupMap CachedLookupMap { get; set; }
     }
 }

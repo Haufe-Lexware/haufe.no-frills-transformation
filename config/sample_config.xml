@@ -1,7 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Transformation>
+  <Logger type="std" level="info"/>
+  <!--
+  <Logger type="file" level="info">C:\Projects\no-frills-transformation\scratch\log.txt</Logger>
+  -->
+
   <Source config="delim=','">file://C:\Projects\no-frills-transformation\scratch\users.csv</Source>
-  <Target config="delim=',' encoding='UTF-16'">file://C:\Projects\no-frills-transformation\scratch\Accounts.csv</Target>
+  <Target config="delim=',' encoding='UTF-8'">file://C:\Projects\no-frills-transformation\scratch\Accounts.csv</Target>
   <LookupMaps>
     <LookupMap keyField="id" name="Status">
       <Source config="delim=','">file://C:\Projects\no-frills-transformation\scratch\status_mapping.csv</Source>
@@ -26,6 +31,11 @@
         <Field name="Whatever" maxSize="50">Concat($OTYPE, $OBJID)</Field>
         <!-- status mapping from lookup "Status" (see definition above) -->
         <Field name="Status" maxSize="40">Status($BOGUSTYPE, $salesforce_status)</Field>
+        <Field name="HasStatus" maxSize="10">HasKey("Status", $BOGUSTYPE)</Field>
+        <Field name="Length" maxSize="5">Length($SOBID)</Field>
+        <Field name="Wupd" maxSize="40">Substring($SOBID, 3, -1)</Field>
+        <Field name="Holla" maxSize="40">Substring($SOBID, 0, Subtract(Length($SOBID), 3))</Field>
+        <Field name="Stupid" maxSize="10">Add($BOGUSTYPE, 10)</Field>
       </Fields>
     </Mapping>
   </Mappings>

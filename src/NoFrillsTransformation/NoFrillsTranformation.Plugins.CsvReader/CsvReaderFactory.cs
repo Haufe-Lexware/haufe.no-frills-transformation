@@ -22,11 +22,12 @@ namespace NoFrillsTranformation.Plugins.Csv
             return true;
         }
 
-        public ISourceReader CreateReader(string source, string config)
+        public ISourceReader CreateReader(IContext context, string source, string config)
         {
             CsvReaderPlugin reader = null;
             try
             {
+                context.Logger.Info("CsvReaderFactory: Attempting to create a CsvReaderPlugin.");
                 reader = new CsvReaderPlugin(source, config);
             }
             catch (Exception)
@@ -36,6 +37,7 @@ namespace NoFrillsTranformation.Plugins.Csv
                 reader = null;
                 throw;
             }
+            context.Logger.Info("CsvReaderFactory: Successfully created a CsvReaderPlugin."); 
             return reader;
         }
 

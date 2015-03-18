@@ -13,10 +13,11 @@ namespace NoFrillsTransformation.Plugins.Salesforce
 {
     internal class SfdcReader : ISourceReader //IDisposable// : ISourceReader
     {
-        public SfdcReader(SoqlQuery query, SfdcReaderConfig config)
+        public SfdcReader(IContext context, SoqlQuery query, SfdcReaderConfig config)
         {
             _query = query;
             _config = config;
+            _context = context;
         }
 
         // NOTE: Leave out the finalizer altogether if this class doesn't 
@@ -30,6 +31,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce
 
         private SoqlQuery _query;
         private SfdcReaderConfig _config;
+        private IContext _context;
         private CsvReaderPlugin _csvReader;
         private string _csvOutput;
         private string _sdlFile;
@@ -39,16 +41,19 @@ namespace NoFrillsTransformation.Plugins.Salesforce
 
         public void Initialize()
         {
+            _context.Logger.Info("SfdcReader: Initialization started.");
             _csvOutput = GetTempFileName(".csv");
             string sdlFile = CreateMappingFile();
             string confFile = CreateProcessConf();
             CallDataLoader();
             // Now delegate the rest to the CsvReaderPlugin.
             _csvReader = new CsvReaderPlugin("file://" + _csvOutput, "");
+            _context.Logger.Info("SfdcReader: Initialization finished.");
         }
 
         private void CallDataLoader()
         {
+            _context.Logger.Info("SfdcReader: Calling external process Data Loader.");
             string batPath = Path.Combine(_config.DataLoaderDir, "bin");
             string bat = Path.Combine(batPath, "process.bat");
 
@@ -75,10 +80,13 @@ namespace NoFrillsTransformation.Plugins.Salesforce
 
             if (!output.Contains("The operation has fully completed"))
             {
-                Console.WriteLine(output);
-                Console.WriteLine(error);
+                _context.Logger.Error(output);
+                _context.Logger.Error(error);
                 throw new InvalidOperationException("SFDC extraction via Data Loader failed. See above error message for more information.");
             }
+
+            _context.Logger.Info(output);
+            _context.Logger.Info("SfdcReader: External process Data Loader has finished.");
         }
 
         private string CreateProcessConf()
@@ -87,12 +95,23 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             var resourceName = "NoFrillsTransformation.Plugins.Salesforce.Templates.process-conf.template.xml";
             //var auxList = assembly.GetManifestResourceNames();
             string confTemplate = "";
-            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+
+            // Irky code to avoid CA2202 (do not dispose of objects twice)
+            Stream stream = null;
+            try
             {
+                stream = assembly.GetManifestResourceStream(resourceName);
                 using (StreamReader reader = new StreamReader(stream))
                 {
+                    stream = null;
                     confTemplate = reader.ReadToEnd();
                 }
+            }
+            finally
+            {
+                if (null != stream)
+                    stream.Dispose();
+                stream = null;
             }
 
             string conf = confTemplate;
@@ -121,6 +140,8 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             _tempFiles.Add(Path.Combine(_tempDir, "csvAccountExtract_lastRun.properties"));
             File.WriteAllText(configFile, conf);
 
+            _context.Logger.Info("SfdcReader: Created process-conf.xml (" + configFile + ").");
+
             return configFile;
         }
 
@@ -134,6 +155,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                     sr.WriteLine("{0}={0}", fieldName);
                 }
             }
+            _context.Logger.Info("SfdcReader: Created mapping file (" + _sdlFile + ")");
             return _sdlFile;
         }
 
@@ -185,8 +207,17 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             //    Marshal.FreeHGlobal(nativeResource);
             //    nativeResource = IntPtr.Zero;
             //}
-            if (_tempFiles.Count > 0)
+
+            if (_config.KeepTempFiles)
             {
+                _context.Logger.Warning("SfdcReader: Not deleting temporary files due to configuration setting.");
+                _context.Logger.Warning("SfdcReader: Temp directory: " + _tempDir);
+            }
+
+            if (!_config.KeepTempFiles 
+                && _tempFiles.Count > 0)
+            {
+                _context.Logger.Info("SfdcReader: Cleaning up temporary files in directory: " + _tempDir);
                 foreach(string file in _tempFiles)
                 {
                     try 
@@ -198,7 +229,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                     }
                     catch (Exception e)
                     {
-                        Console.Error.WriteLine("Warning: Failed to delete temp file '" + file + "': " + e.Message);
+                        _context.Logger.Warning("Failed to delete temp file '" + file + "': " + e.Message);
                     }
                 }
                 _tempFiles.Clear();
@@ -211,9 +242,13 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                     {
                         Directory.Delete(_tempDir);
                     }
-                    catch (Exception) { }
+                    catch (Exception ex) 
+                    {
+                        _context.Logger.Warning("Failed to delete temp dir: " + _tempDir + ", error: " + ex.Message);
+                    }
                     _tempDir = null;
                 }
+                _context.Logger.Info("SfdcReader: Done cleaning up.");
             }
         }
         #endregion

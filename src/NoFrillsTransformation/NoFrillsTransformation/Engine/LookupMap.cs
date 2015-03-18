@@ -9,12 +9,12 @@ namespace NoFrillsTransformation.Engine
 {
     class LookupMapFactory
     {
-        public static LookupMap CreateLookupMap(LookupMapXml config, ReaderFactory readerFactory)
+        public static LookupMap CreateLookupMap(IContext context, LookupMapXml config, ReaderFactory readerFactory)
         {
             try
             {
                 // First find a suitable reader
-                using (var reader = readerFactory.CreateReader(config.Source.Uri, config.Source.Config))
+                using (var reader = readerFactory.CreateReader(context, config.Source.Uri, config.Source.Config))
                 {
                     var lm = new LookupMap(reader.FieldNames);
                     lm.Id = config.Name;
@@ -73,6 +73,11 @@ namespace NoFrillsTransformation.Engine
             {
                 return _rows;
             }
+        }
+
+        public bool HasKey(string key)
+        {
+            return Rows.ContainsKey(key);
         }
 
         public string GetValue(string key, string fieldName)

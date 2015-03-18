@@ -9,6 +9,7 @@ namespace NoFrillsTransformation.Config
     [XmlRoot("Transformation")]
     public class ConfigFileXml
     {
+        public LoggerXml Logger { get; set; }
         public SourceTargetXml Source { get; set; }
         public SourceTargetXml Target { get; set; }
         public string FilterMode { get; set; }
@@ -24,6 +25,16 @@ namespace NoFrillsTransformation.Config
         [XmlArray("OperatorConfigs")]
         [XmlArrayItem("OperatorConfig")]
         public OperatorConfigXml[] OperatorConfigs { get; set; }
+    }
+
+    public class LoggerXml
+    {
+        [XmlText]
+        public string Config { get; set; }
+        [XmlAttribute("type")]
+        public string LogType { get; set; }
+        [XmlAttribute("level)")]
+        public string LogLevel { get; set; }
     }
 
     public class SourceTargetXml

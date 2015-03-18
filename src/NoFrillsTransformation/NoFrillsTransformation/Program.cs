@@ -22,19 +22,22 @@ namespace NoFrillsTransformation
 
         static int Main(string[] args)
         {
-            try
-            {
-                if (VerifyArguments(args))
-                    (new Program()).Run(args[0]);
-                Console.WriteLine("Operation finished successfully.");
+            if (VerifyArguments(args))
+                return (new Program()).Run(args[0]);
+            return (int)ExitCodes.Failure;
+            //try
+            //{
+            //    if (VerifyArguments(args))
+            //        (new Program()).Run(args[0]);
+            //    Console.WriteLine("Operation finished successfully.");
 
-                return (int)ExitCodes.Success;
-            }
-            catch (Exception e)
-            {
-                Console.Error.WriteLine("Operation failed: " + e.Message);
-                return (int)ExitCodes.Failure;
-            }
+            //    return (int)ExitCodes.Success;
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.Error.WriteLine("Operation failed: " + e.Message);
+            //    return (int)ExitCodes.Failure;
+            //}
         }
 
         private static bool VerifyArguments(string[] args)
@@ -50,35 +53,107 @@ namespace NoFrillsTransformation
             return true;
         }
 
-        private void Run(string configFileName)
+        private int Run(string configFileName)
         {
-            var configFile = ReadConfigFile(configFileName);
-
-            // Set up MEF
-            var catalog = new DirectoryCatalog(".");
-            var container = new CompositionContainer(catalog);
-
-            var readerFactory = new ReaderFactory(container);
-            var writerFactory = new WriterFactory(container);
-            var operatorFactory = new OperatorFactory(container);
-
-            Context context = new Context();
-            InitOperators(configFile, context, operatorFactory);
-            InitLookupMaps(configFile, readerFactory, context);
-
-            ReadFilters(configFile, context);
-            ReadMappings(configFile, context);
-
-            using (var reader = readerFactory.CreateReader(configFile.Source.Uri, configFile.Source.Config))
+            using (Context context = new Context())
             {
-                context.SourceReader = reader;
-                using (var writer = writerFactory.CreateWriter(configFile.Target.Uri, context.TargetFields, configFile.Target.Config))
+                try
                 {
-                    context.TargetWriter = writer;
+                    var configFile = ReadConfigFile(configFileName);
+
+                    // Set up MEF
+                    var catalog = new DirectoryCatalog(".");
+                    var container = new CompositionContainer(catalog);
+
+                    var loggerFactory = new LoggerFactory(container);
+                    var readerFactory = new ReaderFactory(container);
+                    var writerFactory = new WriterFactory(container);
+                    var operatorFactory = new OperatorFactory(container);
+
+                    InitLogger(configFile, context, loggerFactory);
+                    context.Logger.Info("Read configuration file: " + configFileName);
+                    InitOperators(configFile, context, operatorFactory);
+                    InitLookupMaps(configFile, context, readerFactory);
+
+                    LogOperators(context);
+
+                    ReadFilters(configFile, context);
+                    ReadMappings(configFile, context);
+
+                    context.SourceReader = readerFactory.CreateReader(context, configFile.Source.Uri, configFile.Source.Config);
+                    context.TargetWriter = writerFactory.CreateWriter(context, configFile.Target.Uri, context.TargetFields, configFile.Target.Config);
 
                     Process(context);
+
+                    // Explicitly dispose readers and writers to have control
+                    // on when these resources are released. If something fails,
+                    // this is done in the Dispose() method of Context.
+                    context.SourceReader.Dispose();
+                    context.SourceReader = null;
+                    context.TargetWriter.Dispose();
+                    context.TargetWriter = null;
+
+                    context.Logger.Info("Operation finished successfully.");
+                    Console.WriteLine("Operation finished successfully.");
+
+                    return (int)ExitCodes.Success;
                 }
+                catch (Exception ex)
+                {
+                    if (null != context.Logger)
+                        context.Logger.Error("Operation failed: " + ex.Message);
+                    Console.Error.WriteLine("Operation failed: " + ex.Message);
+                }
+                return (int)ExitCodes.Failure;
             }
+        }
+
+        private void LogOperators(Context context)
+        {
+            var sb = new StringBuilder();
+            bool first = true;
+            foreach (var op in context.Operators.Keys)
+            {
+                if (!first)
+                    sb.Append(", ");
+                first = false;
+                sb.Append(op);
+            }
+            context.Logger.Info("Available operators: " + sb.ToString());
+        }
+
+        private void InitLogger(ConfigFileXml configFile, Context context, LoggerFactory loggerFactory)
+        {
+            bool usedDefaultLogger = false;
+            if (null == configFile.Logger)
+            {
+                configFile.Logger = new LoggerXml { LogType = "std", LogLevel = "info" };
+                usedDefaultLogger = true;
+            }
+
+            if (null == configFile.Logger.LogLevel)
+                configFile.Logger.LogLevel = "info";
+            if (null == configFile.Logger.LogType)
+                configFile.Logger.LogType = "std";
+
+            LogLevel logLevel = LogLevel.Info;
+            bool unknownLogLevel = false;
+            switch (configFile.Logger.LogLevel.ToLowerInvariant())
+            {
+                case "info": logLevel = LogLevel.Info; break;
+                case "warning": logLevel = LogLevel.Warning; break;
+                case "error": logLevel = LogLevel.Error; break;
+
+                default:
+                    unknownLogLevel = true;
+                    break;
+            }
+
+            context.Logger = loggerFactory.CreateLogger(configFile.Logger.LogType, logLevel, configFile.Logger.Config);
+            if (usedDefaultLogger)
+                context.Logger.Info("Using default stdout logger (type 'std').");
+            if (unknownLogLevel)
+                context.Logger.Warning("Unknown log level '" + configFile.Logger.LogLevel + "', assuming 'info'.");
         }
 
         private void InitOperators(ConfigFileXml config, Context context, OperatorFactory operatorFactory)
@@ -101,6 +176,8 @@ namespace NoFrillsTransformation
                     context.Operators[opConfig.Name].Configure(opConfig.Config);
                 }
             }
+
+            context.Logger.Info("Initialized operators.");
         }
 
         private static ConfigFileXml ReadConfigFile(string configFileName)
@@ -125,6 +202,8 @@ namespace NoFrillsTransformation
         {
             try
             {
+                context.Logger.Info("Started processing.");
+
                 string[] outValues = new string[context.TargetFields.Length];
 
                 var evaluator = new ExpressionParser();
@@ -133,6 +212,12 @@ namespace NoFrillsTransformation
                 {
                     context.SourceReader.NextRecord();
                     context.SourceRecordsRead++;
+
+                    if (context.SourceRecordsRead % 1000 == 0
+                        && context.SourceRecordsRead > 0)
+                    {
+                        context.Logger.Info("Processed " + context.SourceRecordsRead + " records.");
+                    }
 
                     if (!RecordMatchesFilter(evaluator, context))
                     {
@@ -149,6 +234,11 @@ namespace NoFrillsTransformation
                     context.TargetWriter.WriteRecord(outValues);
                     context.TargetRecordsWritten++;
                 }
+
+                context.Logger.Info("Finished processing.");
+                context.Logger.Info("Total source records read: " + context.SourceRecordsRead);
+                context.Logger.Info("Total target records written: " + context.TargetRecordsWritten);
+                context.Logger.Info("Records filtered out: " + context.SourceRecordsFiltered);
             }
             catch (Exception e)
             {
@@ -173,18 +263,20 @@ namespace NoFrillsTransformation
             return (FilterMode.And == context.FilterMode);
         }
 
-        private void InitLookupMaps(ConfigFileXml configFile, ReaderFactory readerFactory, Context context)
+        private void InitLookupMaps(ConfigFileXml configFile, Context context, ReaderFactory readerFactory)
         {
             if (null == configFile.LookupMaps)
                 return; // No lookup maps
             foreach (var lookupMap in configFile.LookupMaps)
             {
-                context.LookupMaps.Add(lookupMap.Name, LookupMapFactory.CreateLookupMap(lookupMap, readerFactory));
+                context.LookupMaps.Add(lookupMap.Name, LookupMapFactory.CreateLookupMap(context, lookupMap, readerFactory));
                 string nameLow = lookupMap.Name.ToLowerInvariant();
                 if (context.Operators.ContainsKey(nameLow))
                     throw new InvalidOperationException("Duplicate use of operator '" + lookupMap.Name + "' for lookup maps; please rename the lookup map.");
                 context.Operators[nameLow] = new NoFrillsTransformation.Engine.Operators.LookupOperator(nameLow);
             }
+
+            context.Logger.Info("Initialized Lookup maps.");
         }
 
         private void ReadFilters(ConfigFileXml configFile, Context context)
@@ -216,6 +308,8 @@ namespace NoFrillsTransformation
             {
                 throw new ArgumentException("Could not read/parse filter definitions: " + e.Message);
             }
+
+            context.Logger.Info("Initialized Filters.");
         }
 
         private void ReadMappings(ConfigFileXml configFile, Context context)
@@ -252,6 +346,8 @@ namespace NoFrillsTransformation
                     throw new ArgumentException("An error occurred while parsing field '" + field.Name + "': " + e.Message);
                 }
             }
+
+            context.Logger.Info("Initialized field mappings, found " + context.TargetFields.Length + " output fields.");
         }
     }
 }

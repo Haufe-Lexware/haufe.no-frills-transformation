@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Transformation>
-  <Source config="C:\Projects\no-frills-transformation\config\sfdc_config.xml">soql://Select Id, Name, Phone From Account</Source>
+  <!-- 
+  <Logger type="file" level="info">C:\Projects\no-frills-transformation\scratch\log.txt</Logger>
+  -->
+  <Source config="C:\Projects\no-frills-transformation\config\sfdc_config_martin.xml">soql://Select Id, Name, Phone From Account</Source>
   <Target config="delim=',' encoding='UTF-16'">file://C:\Projects\no-frills-transformation\scratch\sfdc-accounts.csv</Target>
 
   <Mappings>

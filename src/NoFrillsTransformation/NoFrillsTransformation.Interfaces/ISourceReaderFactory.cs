@@ -9,7 +9,7 @@ namespace NoFrillsTransformation.Interfaces
     {
         bool CanReadSource(string source);
 
-        ISourceReader CreateReader(string source, string config);
+        ISourceReader CreateReader(IContext context, string source, string config);
         bool SupportsQuery { get; }
     }
 }

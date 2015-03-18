@@ -13,8 +13,9 @@ namespace NoFrillsTransformation.Engine
         Or
     }
 
-    class Context : IContext
+    class Context : IContext, IDisposable
     {
+        public ILogger Logger { get; set; }
         public ISourceReader SourceReader { get; set; }
         public ITargetWriter TargetWriter { get; set; }
         private Dictionary<string, LookupMap> _lookupMaps = new Dictionary<string, LookupMap>();
@@ -25,6 +26,12 @@ namespace NoFrillsTransformation.Engine
                 return _lookupMaps;
             }
         }
+
+        public bool HasLookupMap(string id)
+        {
+            return LookupMaps.ContainsKey(id);
+        }
+
         public ILookupMap GetLookupMap(string id)
         {
             return LookupMaps[id];
@@ -54,5 +61,36 @@ namespace NoFrillsTransformation.Engine
         public int SourceRecordsFiltered { get; set; }
         public int SourceRecordsProcessed { get; set; }
         public int TargetRecordsWritten { get; set; }
+
+        #region IDisposable
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (null != SourceReader)
+                {
+                    SourceReader.Dispose();
+                    SourceReader = null;
+                }
+                if (null != TargetWriter)
+                {
+                    TargetWriter.Dispose();
+                    TargetWriter = null;
+                }
+                // The logger must be the last thing to go!
+                if (null != Logger)
+                {
+                    Logger.Dispose();
+                    Logger = null;
+                }
+            }
+        }
+        #endregion
     }
 }

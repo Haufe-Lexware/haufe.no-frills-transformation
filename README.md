@@ -61,6 +61,7 @@ A typical simple XML configuration may look like this:
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <Transformation>
+  <Logger type="file" level="info">C:\Projects\no-frills-transformation\scratch\log.txt</Logger>
   <Source config="delim=','">file://C:\temp\users.csv</Source>
   <Target config="delim=','">file://C:\temp\Accounts.csv</Target>
   <LookupMaps>
@@ -99,6 +100,7 @@ A typical simple XML configuration may look like this:
 ```
 
 So, what does this do?
+* Defines log output to be written to a file (`log.txt`)
 * Reads data from `C:\temp\users.csv`
 * Writes data to `C:\temp\Accounts.csv`
 * Loads a lookup map into the operator `Status` from `C:\temp\status_mapping.csv`
@@ -137,11 +139,55 @@ $
 
 More information will follow as soon as I put up a proper release (with precompiled binaries).
 
-#### Logging output
-
-Not implemented yet. I will come up with something here.
 
 ## XML specification
+
+### Logging tag
+
+*Optional tag*
+
+The syntax for the logging tag is as follows:
+```xml
+<Logger type="type" level="level">configuration</Logger>
+```
+
+| Tag/Attribute | Description|
+| ------------- | ----------- |
+| `Logging` content | Configuration of the logging component; depends on the logger type (see below) |
+| `type` | The logger type; out of the box, `std`, `file` and `nil` are supported (see below) |
+| `level` | Log logging level; `info`, `warning` and `error` are supported values. |
+
+[Custom loggers can be implementing using the extension mechanism](#loggers).
+
+##### Logger type `std`
+
+The logger type `std` simply outputs logging information to the console (stdout). It does not require any
+configuration; the config string is ignored, if it is present.
+```xml
+<Logger type="std" level="warning" />
+```
+This configuration outputs all errors and warnings to the console.
+
+If no logger is given explicitly, the default is the `std` logger at `info` level (quite verbose loggin).
+
+##### Logger type `file`
+
+The logger type `file` outputs the log information to a file. The file name must be specified as the
+configuration string of the logger component.
+```xml
+<Logger type="file" level="error">C:\Temp\log.txt</Logger>
+```
+This configuration outputs only errors to a log file at `C:\Temp\log.txt`.
+
+##### Logger type `nil`
+
+The `nil` logger type suppresses all kinds of log messages. You still get the exit code of the process
+though.
+```xml
+<Logger type="nil" />
+```
+The log level is not important in this case, as all logs are suppressed anyway. Same applies to the
+configuration: There is no configuration available.
 
 ### Source and Target tags
 
@@ -291,15 +337,17 @@ This requires the lookup having been defined using a `<LookupMap>` tag (see exam
 
 ### <a name="expressionSyntax"></a>Expression syntax
 
-Expressions can be freely combined, as long as the return types are correct. There are only
-two different return types (currently), bool and string.
+Expressions can be freely combined, as long as the return types are correct. There are three different return types (currently):
+Bool, String and Int (actually 64 Bit integers).
 
-In addition to the operators below, there are two special expressions: Field names, and string
-literals. Both can be used anywhere a string expression can be used (with one exception, see [Lookup](#lookup)).
+In addition to the operators below, there are three special expressions: Field names, string
+literals and integer literals. All three can be used anywhere a string expression can be used (with one exception, see [Lookup](#lookup)).
 
 A field name is given by using the dollar ($) operator: e.g. `$title`, or `$firstName`.
 
 A string literal is defined by putting a string within double quotes, e.g. `"this is a text"`.
+
+Integer literals are defined by simply putting numbers into the expression, like `3`, `65535` or `-1`.
 
 #### And
 
@@ -313,6 +361,19 @@ And operator. Returns `true` if both parameters return true.
 | Return type | bool |
 
 **Example:** `And(Contains($title, "Lord"), Contains($author, "Tolkien"))`
+
+#### Add
+
+Add operator. Adds two numeric expressions and returns the sum.
+
+| What       | Type |
+| ----------- | -------- |
+| Syntax | `Add(param1, param2)` |
+| Parameter 1 | int |
+| Parameter 2 | int |
+| Return type | int |
+
+**Example:** `Add(Int($field1), Int($field2))`
 
 #### Concat
 
@@ -343,6 +404,18 @@ casing into account, and `ContainsIgnoreCase` which doesn't.
 **Example**: `ContainsIgnoreCase($companyName, "Ltd.")`
 
 
+#### Divide
+
+Divide operator. Divides two integer values (param1 / param2). Rounds down.
+
+| What       | Type |
+| ----------- | -------- |
+| Syntax | `Divide(param1, param2)` |
+| Parameter 1 | int |
+| Parameter 2 | int |
+| Return type | int |
+
+
 #### EndsWith
 
 Checks whether parameter 1 ends with parameters, returns a boolean value.
@@ -371,6 +444,23 @@ Checks whether to strings are equal. Comes in two flavors, `Equals` and `EqualsI
 
 **Example**: `Equals($firstName, "Martin")`
 
+#### HasKey
+
+Checks whether a lookup key is present in a lookup map with the given name. Returns a bool.
+
+| What       | Type |
+| ----------- | -------- |
+| Syntax | `HasKey(lookupName, key)` |
+| lookupName | string |
+| key | string |
+| Return type | bool |
+
+**Example**: `If(HasKey("Status", $StatusId), Status($StatusId, $StatusText), "missing lookup")`
+
+Checks whether the "Status" [lookup map](#lookup) has an entry for the content of the field `StatusId`. If it has,
+it returns this lookup, otherwise returns a string literal `"missing lookup"`. Please note that the lookup would
+cause an error if doesn't find the key in the lookup map.
+
 
 #### If
 
@@ -386,6 +476,33 @@ the third.
 | Return type | string |
 
 **Example**: `If(Contains($firstName, "Martin"), "good", "bad")`
+
+
+#### Int
+
+The `Int` operator converts a string to an integer value, e.g. for use in operators needing integer
+parameters. This is typically used if the source columns contain numbers as strings which need
+to be used for calculations of sorts.
+
+| What       | Type |
+| ----------- | -------- |
+| Syntax | `Int(parameter)` |
+| parameter | string |
+| Return type | int |
+
+**Example**: `Multiply(Int($wage), 10)`
+
+Multiplies the content of the field `wage`, interpreted as an integer value, by 10.
+
+#### Length
+
+Returns the length (in characters) of a string expression.
+
+| What       | Type |
+| ----------- | -------- |
+| Syntax | `Length(parameter)` |
+| parameter | string |
+| Return type | int |
 
 
 #### <a name="lookup"></a>Lookups
@@ -437,6 +554,28 @@ Transforms a string into lower case.
 **Example**: `LowerCase($emailAddress)`
 
 
+#### Modulo
+
+Modulo operator. Divides param1 by param2 and returns the remainder.
+
+| What       | Type |
+| ----------- | -------- |
+| Syntax | `Modulo(param1, param2)` |
+| Parameter 1 | int |
+| Parameter 2 | int |
+| Return type | int |
+
+#### Multiply
+
+Multiply operator. Multiplies two integer values.
+
+| What       | Type |
+| ----------- | -------- |
+| Syntax | `Multiply(param1, param2)` |
+| Parameter 1 | int |
+| Parameter 2 | int |
+| Return type | int |
+
 #### Or
 
 Or operator. Returns `true` if one of the parameters return true.
@@ -465,6 +604,47 @@ This operator ignores the case.
 
 **Example**: `StartsWith($lastName, "M")`
 
+#### Substring
+
+The substring operator. Takes one string and two integer parameters.
+
+| What       | Type |
+| ----------- | -------- |
+| Syntax | `Substring(string, offset, length)` |
+| Parameter 1 | string |
+| offset | int |
+| length | int |
+| Return type | int |
+
+The `substring` operator follows these rules:
+* If the offset is larger than the string length, the operator returns `""`
+* If the length is larger than the string length minus the offset, the operator returns the entire string from the offset on (but does not pad!)
+* If the length is negative, the entire string from offset on is returned.
+
+
+#### Subtract
+
+Subtract operator. Subtracts param2 from param1 (param1-param2).
+
+| What       | Type |
+| ----------- | -------- |
+| Syntax | `Subtract(param1, param2)` |
+| Parameter 1 | int |
+| Parameter 2 | int |
+| Return type | int |
+
+#### Trim
+
+Trims whitespace. Removes any leading or trailing whitespace from a string.
+
+| What       | Type |
+| ----------- | -------- |
+| Syntax | `Trim(param1)` |
+| Parameter 1 | any |
+| Return type | string |
+
+**Example**: `Trim($someField)`
+
 
 #### UpperCase
 
@@ -482,7 +662,7 @@ Transforms a string into upper case.
 ## Extension points
 
 NFT is leveraging MEF ([Microsoft Extension Framework](https://msdn.microsoft.com/en-us/en-en/library/dd460648(v=vs.110).aspx))
-for dependency injection (inversion of control). There are three interfaces which may be used to hook into NFT:
+for dependency injection (inversion of control). There are four interfaces which may be used to hook into NFT:
 
 ```csharp
 public interface ISourceReaderFactory
@@ -515,6 +695,12 @@ public interface IEvaluator
 {
     string Evaluate(IEvaluator eval, IExpression expression, IContext context);
 }
+
+public interface ILoggerFactory
+{
+    string LogType { get; }
+    ILogger CreateLogger(string configuration, LogLevel logLevel);
+}
 ```
 
 As to connectivity, i.e. reading and writing, both interfaces make use of methods to find out whether the reader/writer can read/write the source/target, based on
@@ -525,6 +711,8 @@ As an example, the CSV Plugin returns true for URIs starting with `file://` and 
 For operators, things are even simpler. All you need to do is to implement the `IOperator` interface, using the `ExpressionType.Custom` expression type,
 have it exported as `IOperator` via MEF, and the new operator will be picked up automatically by NFT. [See below](#operators) for more information
 on writing operators.
+
+Also loggers can be plugged in to NFT, using the `ILoggerFactory` interface, producing `ILogger` instances which can be used for logging purposes.
 
 
 ### Writing plugins
@@ -569,7 +757,7 @@ Possible extension plugins could be stuff like:
 * ODBC reader/writer
 * SQLite reader/writer
 * XML reader/writer
-* Salesforce SOQL reader (that would be cool), Salesforce writer
+* Salesforce SOQL reader, Salesforce writer
 
 ### <a name="operators"></a>Writing Plugin operators
 
@@ -650,3 +838,19 @@ Configuration on operator level can be passed from the configuration XML file, i
 
 The string in the `OperatorConfig` tags will be passed on to the operator's `Configure` method, as shown in the
 `IOperator` interface above.
+
+### <a name="loggers"></a>Writing plugin loggers
+
+Writing custom loggers is also possible. As with the operators, you have two possibilities how to get started:
+
+ * Forking the repository and adding the loggers directly to `NoFrillsTransformation.Logging`
+ * Writing your own assembly containing operators which adher to the `ILoggerFactory` and `ILogger` interface.
+
+If you go for the second method (which enables you to use the latest NFT releases and hook into that), you need to
+follow these steps:
+
+* Create a new assembly for .NET 4.0 and reference `NoFrillsTransformation.Interfaces` and `System.ComponentModel.Composition` (this is the MEF framework)
+* Implement `ILoggerFactory`
+* Mark the class as `[Export(typeof(IOperator))]`
+* Implement your logger class, implementing the `ILogger` interface
+* Make sure your assembly is located side by side with `NoFrillsTransformation.exe`

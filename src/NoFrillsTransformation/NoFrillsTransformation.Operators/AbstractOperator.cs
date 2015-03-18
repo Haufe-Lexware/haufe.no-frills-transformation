@@ -30,5 +30,18 @@ namespace NoFrillsTransformation.Operators
         {
             return b ? "true" : "false";
         }
+
+        internal static long StringToInt(string s)
+        {
+            long result = 0L;
+            if (Int64.TryParse(s, out result))
+                return result;
+            return 0L;
+        }
+
+        internal static string IntToString(long l)
+        {
+            return l.ToString();
+        }
     }
 }

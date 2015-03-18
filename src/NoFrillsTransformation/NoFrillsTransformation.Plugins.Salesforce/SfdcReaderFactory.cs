@@ -25,7 +25,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             return true;
         }
 
-        public ISourceReader CreateReader(string source, string config)
+        public ISourceReader CreateReader(IContext context, string source, string config)
         {
             string soql = source.Substring(7);
             var soqlQuery = ParseQuery(soql);
@@ -33,7 +33,9 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             SfdcReader sfdcReader = null;
             try
             {
-                sfdcReader = new SfdcReader(soqlQuery, sfdcConfig);
+                context.Logger.Info("SfdcReaderFactory: Attempting to create a SfdcReader."); 
+                
+                sfdcReader = new SfdcReader(context, soqlQuery, sfdcConfig);
                 sfdcReader.Initialize();
             }
             catch (Exception ex)
@@ -45,6 +47,8 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                 }
                 throw new InvalidOperationException("An error occurred while creating the SfdcReader: " + ex.Message);
             }
+
+            context.Logger.Info("SfdcReaderFactory: Successfully created a SfdcReader.");
 
             return sfdcReader;
         }

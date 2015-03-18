@@ -5,11 +5,10 @@ using System.Text;
 
 namespace NoFrillsTransformation.Interfaces
 {
-    public enum ParamType
+    public interface ILogger : IDisposable
     {
-        Bool,
-        String,
-        Int,
-        Any
+        void Info(string log);
+        void Warning(string log);
+        void Error(string log);
     }
 }

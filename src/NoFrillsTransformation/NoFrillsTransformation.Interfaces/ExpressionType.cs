@@ -14,6 +14,7 @@ namespace NoFrillsTransformation.Interfaces
         StringLiteral,
         Concat,
         Lookup,
+        HasKey,
         LowerCase,
         UpperCase,
         Equals,
@@ -24,6 +25,16 @@ namespace NoFrillsTransformation.Interfaces
         EndsWith,
         And,
         Or,
-        If
+        If,
+        Trim,
+        Int,
+        IntLiteral,
+        Substring,
+        Length,
+        Add,
+        Subtract,
+        Divide,
+        Multiply,
+        Modulo,
     }
 }

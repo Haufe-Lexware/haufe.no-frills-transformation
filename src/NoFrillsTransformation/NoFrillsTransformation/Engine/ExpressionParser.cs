@@ -23,6 +23,9 @@ namespace NoFrillsTransformation.Engine
                 return CreateFieldExpression(t);
             if (firstChar == '"')
                 return CreateLiteralExpression(t);
+            if (Char.IsDigit(firstChar)
+                || '-' == firstChar)
+                return CreateIntLiteralExpression(t);
             if (!IsTokenChar(firstChar))
                 throw new ArgumentException("Illegal first character in expression: '" + firstChar + "'. Expected letter, digit, _, -, \" or $.");
 
@@ -97,7 +100,8 @@ namespace NoFrillsTransformation.Engine
                     continue;
 
                 if (paramType != returnType)
-                    throw new ArgumentException("Parameter type mismatch in operator '" + ex.Content + "', argument " + (i+1) + ".");
+                    throw new ArgumentException("Parameter type mismatch in operator '" + ex.Content + "', argument " + (i+1) 
+                        + ". Expected " + TypeToString(paramType) + ", got " + TypeToString(returnType) + ".");
             }
 
             // Extra sausage for the Lookup operator
@@ -105,7 +109,22 @@ namespace NoFrillsTransformation.Engine
             {
                 SanityCheckSecondArgumentIsField(ex);
             }
+            else if (ex.Operator.Type == ExpressionType.HasKey)
+            {
+                SanityCheckFirstArgumentIsStringLiteral(ex);
+            }
+        }
 
+        private static string TypeToString(ParamType pt)
+        {
+            switch (pt)
+            {
+                case ParamType.String: return "String";
+                case ParamType.Bool: return "Bool";
+                case ParamType.Int: return "Int";
+                case ParamType.Any: return "Any type";
+            }
+            return "<unknown type>";
         }
 
         private static void SanityCheckSecondArgumentIsField(IExpression ex)
@@ -115,12 +134,20 @@ namespace NoFrillsTransformation.Engine
             throw new ArgumentException("Second argument of operator '" + ex.Content + "' must be a field name ($<field>).");
         }
 
+        private static void SanityCheckFirstArgumentIsStringLiteral(IExpression ex)
+        {
+            if (ex.Arguments[0].Operator.Type == ExpressionType.StringLiteral)
+                return;
+            throw new ArgumentException("First argument of operator '" + ex.Content + "' must be a string literal (the lookup map name)");
+        }
+
         public string Evaluate(IEvaluator eval, IExpression expression, IContext context)
         {
             switch (expression.Operator.Type)
             {
                 // First things first, the simple case.
                 case ExpressionType.StringLiteral:
+                case ExpressionType.IntLiteral:
                     return expression.Content;
 
                 // Evaluates to a source field
@@ -298,6 +325,24 @@ namespace NoFrillsTransformation.Engine
             {
                 Operator = new StringLiteralOperator(),
                 Content = expression.Substring(1, expression.Length - 2)
+            };
+        }
+
+        private static Expression CreateIntLiteralExpression(string expression)
+        {
+            if (expression[0] == '-'
+                && expression.Length == 1)
+                throw new ArgumentException("Illegal integer literal expression: " + expression);
+            for (int i=1; i<expression.Length; ++i)
+            {
+                if (!Char.IsDigit(expression[i]))
+                    throw new ArgumentException("Illegal integer literal expression: " + expression);
+            }
+            long l = Int64.Parse(expression);
+            return new Expression
+            {
+                Operator = new IntLiteralOperator(),
+                Content = l.ToString()
             };
         }
     }

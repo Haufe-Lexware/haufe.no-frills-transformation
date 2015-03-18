@@ -21,14 +21,14 @@ namespace NoFrillsTransformation.Engine
         private ITargetWriterFactory[] _writerFactories;
 #pragma warning restore 0649
 
-        public ITargetWriter CreateWriter(string target, TargetFieldDef[] fieldDefs, string config)
+        public ITargetWriter CreateWriter(IContext context, string target, TargetFieldDef[] fieldDefs, string config)
         {
             var fieldNames = GetFieldNames(fieldDefs);
             var fieldSizes = GetFieldSizes(fieldDefs);
             foreach (var wf in _writerFactories)
             {
                 if (wf.CanWriteTarget(target))
-                    return wf.CreateWriter(target, fieldNames, fieldSizes, config);
+                    return wf.CreateWriter(context, target, fieldNames, fieldSizes, config);
             }
             throw new InvalidOperationException("Could not find a suitable writer for target '" + target + "'.");
         }

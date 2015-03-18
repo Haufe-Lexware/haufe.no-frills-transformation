@@ -8,6 +8,6 @@ namespace NoFrillsTransformation.Interfaces
     public interface ITargetWriterFactory
     {
         bool CanWriteTarget(string target);
-        ITargetWriter CreateWriter(string target, string[] fieldNames, int[] fieldSizes, string config);
+        ITargetWriter CreateWriter(IContext context, string target, string[] fieldNames, int[] fieldSizes, string config);
     }
 }
