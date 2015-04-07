@@ -57,6 +57,7 @@
     <Compile Include="LowerCaseOperator.cs" />
     <Compile Include="ModuloOperator.cs" />
     <Compile Include="MultiplyOperator.cs" />
+    <Compile Include="NotOperator.cs" />
     <Compile Include="OrOperator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SourceRowNumOperator.cs" />

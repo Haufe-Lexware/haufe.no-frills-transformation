@@ -25,6 +25,7 @@ namespace NoFrillsTransformation.Interfaces
         EndsWith,
         And,
         Or,
+        Not,
         If,
         Trim,
         Int,
