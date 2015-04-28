@@ -21,6 +21,8 @@ namespace NoFrillsTransformation.Engine
             char firstChar = t[pos];
             if (firstChar == '$')
                 return CreateFieldExpression(t);
+            if (firstChar == '%')
+                return CreateParameterExpression(t);
             if (firstChar == '"')
                 return CreateLiteralExpression(t);
             if (Char.IsDigit(firstChar)
@@ -98,6 +100,8 @@ namespace NoFrillsTransformation.Engine
 
                 if (paramType == ParamType.Any)
                     continue;
+                if (ex.Arguments[i].Operator.Type == ExpressionType.Parameter)
+                    continue; // Don't check parameters; that'd turn out nasty.
 
                 if (paramType != returnType)
                     throw new ArgumentException("Parameter type mismatch in operator '" + ex.Content + "', argument " + (i+1) 
@@ -115,7 +119,7 @@ namespace NoFrillsTransformation.Engine
             }
         }
 
-        private static string TypeToString(ParamType pt)
+        internal static string TypeToString(ParamType pt)
         {
             switch (pt)
             {
@@ -125,6 +129,18 @@ namespace NoFrillsTransformation.Engine
                 case ParamType.Any: return "Any type";
             }
             return "<unknown type>";
+        }
+
+        internal static ParamType StringToType(string pt)
+        {
+            switch (pt.ToLowerInvariant())
+            {
+                case "string": return ParamType.String;
+                case "bool": return ParamType.Bool;
+                case "int": return ParamType.Int;
+                case "any": return ParamType.Any;
+            }
+            return ParamType.Undefined;
         }
 
         private static void SanityCheckSecondArgumentIsField(IExpression ex)
@@ -313,6 +329,15 @@ namespace NoFrillsTransformation.Engine
             return new Expression
             {
                 Operator = new FieldNameOperator(),
+                Content = expression.Substring(1)
+            };
+        }
+
+        private static Expression CreateParameterExpression(string expression)
+        {
+            return new Expression
+            {
+                Operator = new ParameterOperator(),
                 Content = expression.Substring(1)
             };
         }

@@ -8,6 +8,7 @@ namespace NoFrillsTransformation.Interfaces
     public enum ExpressionType
     {
         Custom,
+        CustomFunction,
         SourceRowNum,
         TargetRowNum,
         FieldName,
@@ -37,5 +38,6 @@ namespace NoFrillsTransformation.Interfaces
         Divide,
         Multiply,
         Modulo,
+        Parameter,
     }
 }

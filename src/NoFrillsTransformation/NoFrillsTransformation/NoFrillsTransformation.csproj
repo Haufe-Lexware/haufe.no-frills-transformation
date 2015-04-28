@@ -50,9 +50,11 @@
     <Compile Include="Engine\FilterDef.cs" />
     <Compile Include="Engine\LoggerFactory.cs" />
     <Compile Include="Engine\LookupMap.cs" />
+    <Compile Include="Engine\Operators\CustomOperator.cs" />
     <Compile Include="Engine\Operators\FieldNameOperator.cs" />
     <Compile Include="Engine\Operators\IntLiteralOperator.cs" />
     <Compile Include="Engine\Operators\LookupOperator.cs" />
+    <Compile Include="Engine\Operators\ParameterOperator.cs" />
     <Compile Include="Engine\Operators\StringLiteralOperator.cs" />
     <Compile Include="Engine\ReaderFactory.cs" />
     <Compile Include="Engine\TargetFieldDef.cs" />

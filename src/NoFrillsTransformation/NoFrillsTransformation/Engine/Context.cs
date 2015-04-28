@@ -53,6 +53,16 @@ namespace NoFrillsTransformation.Engine
         {
             return _operators[name];
         }
+
+        private Stack<ParameterContext> _parameterStack = new Stack<ParameterContext>();
+        public Stack<ParameterContext> ParameterStack
+        {
+            get
+            {
+                return _parameterStack;
+            }
+        }
+
         public FilterMode FilterMode { get; set; }
         public FilterDef[] Filters { get; set; }
         public TargetFieldDef[] TargetFields { get; set; }

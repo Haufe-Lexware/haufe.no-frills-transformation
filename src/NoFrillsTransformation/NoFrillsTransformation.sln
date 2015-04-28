@@ -13,6 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Inte
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DCD343BD-D2D9-41B8-8A93-4DC18B9800E7}"
 	ProjectSection(SolutionItems) = preProject
+		..\..\config\operator_include.xml = ..\..\config\operator_include.xml
 		..\..\README.md = ..\..\README.md
 		..\..\config\sample_config.xml = ..\..\config\sample_config.xml
 		..\..\config\sample_config_sfdc.xml = ..\..\config\sample_config_sfdc.xml

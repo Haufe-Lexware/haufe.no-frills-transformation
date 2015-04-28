@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Transformation>
+  <CustomOperators>
+    <CustomOperator name="MakeEmail" paramCount="2" returnType="string">
+      <Parameters>
+        <Parameter name="firstName" type="string"/>
+        <Parameter name="lastName" type="string"/>
+      </Parameters>
+      <Function>Concat(Concat(Concat(LowerCase(%firstName), "."), LowerCase(%lastName)), "@mydomain.com")</Function>
+    </CustomOperator>
+    <CustomOperator name="MakeMyEmail" paramCount="3" returnType="string">
+      <Parameters>
+        <Parameter name="firstName" type="string"/>
+        <Parameter name="lastName" type="string"/>
+        <Parameter name="suffix" type="string"/>
+      </Parameters>
+      <Function>Concat(MakeEmail(%firstName, %lastName), %suffix)</Function>
+    </CustomOperator>
+  </CustomOperators>
+</Transformation>

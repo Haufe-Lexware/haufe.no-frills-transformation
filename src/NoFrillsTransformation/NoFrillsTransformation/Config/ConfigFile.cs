@@ -9,6 +9,10 @@ namespace NoFrillsTransformation.Config
     [XmlRoot("Transformation")]
     public class ConfigFileXml
     {
+        [XmlArray("Includes")]
+        [XmlArrayItem("Include")]
+        public IncludeXml[] Includes { get; set; }
+
         public LoggerXml Logger { get; set; }
         public SourceTargetXml Source { get; set; }
         public SourceTargetXml Target { get; set; }
@@ -28,6 +32,15 @@ namespace NoFrillsTransformation.Config
         [XmlArray("OperatorConfigs")]
         [XmlArrayItem("OperatorConfig")]
         public OperatorConfigXml[] OperatorConfigs { get; set; }
+        [XmlArray("CustomOperators")]
+        [XmlArrayItem("CustomOperator")]
+        public CustomOperatorXml[] CustomOperators { get; set; }
+    }
+
+    public class IncludeXml
+    {
+        [XmlText]
+        public string FileName { get; set; }
     }
 
     public class LoggerXml
@@ -86,5 +99,29 @@ namespace NoFrillsTransformation.Config
         public string Name { get; set; }
         [XmlText]
         public string Config { get; set; }
+    }
+
+    public class CustomOperatorXml
+    {
+        [XmlAttribute("name")]
+        public string Name { get; set; }
+        [XmlAttribute("paramCount")]
+        public int ParamCount { get; set; }
+        [XmlAttribute("returnType")]
+        public string ReturnType { get; set; }
+
+        [XmlArray("Parameters")]
+        [XmlArrayItem("Parameter")]
+        public ParameterXml[] Parameters { get; set; }
+
+        public string Function { get; set; }
+    }
+
+    public class ParameterXml
+    {
+        [XmlAttribute("name")]
+        public string Name { get; set; }
+        [XmlAttribute("type")]
+        public string Type { get; set; }
     }
 }

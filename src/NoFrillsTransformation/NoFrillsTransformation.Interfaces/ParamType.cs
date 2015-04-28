@@ -10,6 +10,7 @@ namespace NoFrillsTransformation.Interfaces
         Bool,
         String,
         Int,
-        Any
+        Any,
+        Undefined
     }
 }

@@ -1,5 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Transformation>
+  <Includes>
+    <Include>operator_include.xml</Include>
+  </Includes>
+  
   <Logger type="std" level="info"/>
   <!--
   <Logger type="file" level="info">C:\Projects\no-frills-transformation\scratch\log.txt</Logger>
@@ -19,6 +23,12 @@
   <SourceFilters>
     <SourceFilter>EqualsIgnoreCase(If(Contains($SOBID, "A"), "hooray", "boo"), "HooRay")</SourceFilter>
   </SourceFilters>
+
+  <CustomOperators>
+    <CustomOperator name="FakeEmail" paramCount="0" returnType="string">
+      <Function>MakeMyEmail($SOBID, $SOBID, ".migration")</Function>
+    </CustomOperator>
+  </CustomOperators>
 
   <Mappings>
     <Mapping>
@@ -40,6 +50,9 @@
         <Field name="Stupid" maxSize="10">Add(Int($BOGUSTYPE), 10)</Field>
         <Field name="Modul" maxSize="10">Modulo(Int($BOGUSTYPE), 5)</Field>
         <Field name="Division" maxSize="10">Divide(Int($BOGUSTYPE), 2)</Field>
+        <Field name="EMail" maxSize="100">MakeEmail("Martin", "Danielsson")</Field>
+        <Field name="EMail2" maxSize="100">MakeMyEmail("Martin", "Danielsson", ".test")</Field>
+        <Field name="FakeEMail" maxSize="100">FakeEmail()</Field>
       </Fields>
     </Mapping>
   </Mappings>

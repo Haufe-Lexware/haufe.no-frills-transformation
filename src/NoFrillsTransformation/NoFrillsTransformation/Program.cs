@@ -60,6 +60,8 @@ namespace NoFrillsTransformation
                 try
                 {
                     var configFile = ReadConfigFile(configFileName);
+                    var includes = ReadIncludes(configFile, configFileName);
+                    configFile = MergeConfigFiles(configFile, includes);
 
                     // Set up MEF
                     var catalog = new DirectoryCatalog(".");
@@ -72,8 +74,10 @@ namespace NoFrillsTransformation
 
                     InitLogger(configFile, context, loggerFactory);
                     context.Logger.Info("Read configuration file: " + configFileName);
+
                     InitOperators(configFile, context, operatorFactory);
                     InitLookupMaps(configFile, context, readerFactory);
+                    InitCustomOperators(configFile, context);//, operatorFactory);
 
                     LogOperators(context);
 
@@ -225,6 +229,48 @@ namespace NoFrillsTransformation
             context.Logger.Info("Initialized operators.");
         }
 
+        private void InitCustomOperators(ConfigFileXml configFile, Context context)//, OperatorFactory operatorFactory)
+        {
+            try
+            {
+                if (null == configFile.CustomOperators)
+                    return;
+
+                foreach (var op in configFile.CustomOperators)
+                {
+                    var returnType = ExpressionParser.StringToType(op.ReturnType);
+                    var name = op.Name.ToLowerInvariant();
+                    var paramNameList = new List<string>();
+                    var paramTypeList = new List<ParamType>();
+                    if (null != op.Parameters)
+                    {
+                        foreach (var param in op.Parameters)
+                        {
+                            paramNameList.Add(param.Name.ToLowerInvariant());
+                            paramTypeList.Add(ExpressionParser.StringToType(param.Type));
+                        }
+                    }
+                    if (paramNameList.Count != op.ParamCount)
+                        throw new ArgumentException("Custom operator paramCount attribute does not match actual parameter count: " + op.ParamCount + " vs. " + paramNameList.Count);
+
+                    if (context.Operators.ContainsKey(name))
+                        throw new ArgumentException("Duplicate definition for custom operator '" + op.Name + "' found.");
+                    context.Operators[name] = new Engine.Operators.CustomOperator(name)
+                        {
+                            ParamCount = op.ParamCount,
+                            ParamNames = paramNameList.ToArray(),
+                            ParamTypes = paramTypeList.ToArray(),
+                            ReturnType = returnType,
+                            Expression = ExpressionParser.ParseExpression(op.Function, context)
+                        };
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException("An error occurred while parsing the custom operators: " + ex.Message);
+            }
+        }
+
         private static ConfigFileXml ReadConfigFile(string configFileName)
         {
             ConfigFileXml configFile = null;
@@ -240,6 +286,54 @@ namespace NoFrillsTransformation
             {
                 throw new ArgumentException("Could not read XML config file: " + e.Message);
             }
+            return configFile;
+        }
+
+        private static ConfigFileXml[] ReadIncludes(ConfigFileXml configFile, string mainFileName)
+        {
+            int includeCount = configFile.Includes != null ? configFile.Includes.Length : 0;
+
+            ConfigFileXml[] includes = new ConfigFileXml[includeCount];
+            for (int i=0; i<includeCount; ++i)
+            {
+                string resolvedPath = ResolvePath(configFile.Includes[i].FileName, mainFileName);
+                includes[i] = ReadConfigFile(resolvedPath);
+            }
+            return includes;
+        }
+
+        private static string ResolvePath(string fileName, string mainFileName)
+        {
+            if (File.Exists(fileName))
+                return fileName;
+            string path = Path.GetDirectoryName(fileName).Trim();
+            if (!string.IsNullOrEmpty(path))
+                throw new ArgumentException("Cannot resolve file '" + fileName + "'.");
+
+            string mainPath = Path.GetDirectoryName(mainFileName);
+            string includeInMainPath = Path.Combine(mainPath, fileName);
+
+            if (!File.Exists(includeInMainPath))
+                throw new ArgumentException("Cannot resolve file '" + fileName + "'.");
+            return includeInMainPath;
+        }
+
+        private static ConfigFileXml MergeConfigFiles(ConfigFileXml configFile, ConfigFileXml[] includes)
+        {
+            var customOperators = new List<CustomOperatorXml>();
+            foreach (var includeFile in includes)
+            {
+                if (null == includeFile.CustomOperators)
+                    continue;
+                foreach (var customOperator in includeFile.CustomOperators)
+                    customOperators.Add(customOperator);
+            }
+            if (null != configFile.CustomOperators)
+            {
+                foreach (var customOperator in configFile.CustomOperators)
+                    customOperators.Add(customOperator);
+            }
+            configFile.CustomOperators = customOperators.ToArray();
             return configFile;
         }
 
