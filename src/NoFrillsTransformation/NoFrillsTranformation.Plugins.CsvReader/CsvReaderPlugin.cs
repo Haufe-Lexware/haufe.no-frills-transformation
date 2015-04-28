@@ -7,7 +7,7 @@ using NoFrillsTransformation.Interfaces;
 using LumenWorks.Framework.IO;
 using System.IO;
 
-namespace NoFrillsTranformation.Plugins.Csv
+namespace NoFrillsTransformation.Plugins.Csv
 {
     public class CsvReaderPlugin : ConfigurableBase, ISourceReader, IRecord
     {

@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using NoFrillsTranformation.Plugins.Csv;
+using NoFrillsTransformation.Plugins.Csv;
 using NoFrillsTransformation.Interfaces;
 using NoFrillsTransformation.Plugins.Salesforce.Config;
 
