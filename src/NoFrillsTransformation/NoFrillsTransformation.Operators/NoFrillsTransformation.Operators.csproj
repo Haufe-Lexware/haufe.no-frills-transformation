@@ -46,6 +46,7 @@
     <Compile Include="ConcatOperator.cs" />
     <Compile Include="ContainsIgnoreCaseOperator.cs" />
     <Compile Include="ContainsOperator.cs" />
+    <Compile Include="ConvertUmlautOperator.cs" />
     <Compile Include="DivideOperator.cs" />
     <Compile Include="EndsWithOperator.cs" />
     <Compile Include="EqualsIgnoreCaseOperator.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="HasKeyOperator.cs" />
     <Compile Include="IfOperator.cs" />
     <Compile Include="IntOperator.cs" />
+    <Compile Include="IsEmptyOperator.cs" />
     <Compile Include="LengthOperator.cs" />
     <Compile Include="LowerCaseOperator.cs" />
     <Compile Include="ModuloOperator.cs" />

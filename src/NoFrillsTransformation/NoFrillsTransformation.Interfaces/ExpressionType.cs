@@ -38,6 +38,8 @@ namespace NoFrillsTransformation.Interfaces
         Divide,
         Multiply,
         Modulo,
+        IsEmpty,
+        ConvertUmlaut,
         Parameter,
     }
 }

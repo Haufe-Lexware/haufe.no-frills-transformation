@@ -306,8 +306,7 @@ namespace NoFrillsTransformation
         {
             if (File.Exists(fileName))
                 return fileName;
-            string path = Path.GetDirectoryName(fileName).Trim();
-            if (!string.IsNullOrEmpty(path))
+            if (Path.IsPathRooted(fileName))
                 throw new ArgumentException("Cannot resolve file '" + fileName + "'.");
 
             string mainPath = Path.GetDirectoryName(mainFileName);
