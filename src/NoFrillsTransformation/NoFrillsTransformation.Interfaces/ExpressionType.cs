@@ -40,6 +40,7 @@ namespace NoFrillsTransformation.Interfaces
         Modulo,
         IsEmpty,
         ConvertUmlaut,
+        Replace,
         Parameter,
     }
 }
