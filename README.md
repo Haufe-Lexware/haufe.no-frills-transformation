@@ -755,9 +755,9 @@ public class CsvWriterFactory : ITargetWriterFactory
         return true;
     }
 
-    public ITargetWriter CreateWriter(string target, string[] fieldNames, int[] fieldSizes, string config)
+    public ITargetWriter CreateWriter(IContext context, string target, string[] fieldNames, int[] fieldSizes, string config)
     {
-        return new CsvWriterPlugin(target, fieldNames, fieldSizes, config);
+        return new CsvWriterPlugin(context, target, fieldNames, fieldSizes, config);
     }
 }
 ```

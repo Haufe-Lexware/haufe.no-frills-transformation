@@ -23,7 +23,11 @@ namespace NoFrillsTransformation
         static int Main(string[] args)
         {
             if (VerifyArguments(args))
-                return (new Program()).Run(args[0]);
+            {
+                var parameters = ExtractParameters(args);
+                if (null != parameters)
+                    return (new Program()).Run(args[0], parameters);
+            }
             return (int)ExitCodes.Failure;
             //try
             //{
@@ -47,20 +51,62 @@ namespace NoFrillsTransformation
             if (args[0].Equals("-help"))
             {
                 Console.WriteLine("Usage:");
-                Console.WriteLine("  NoFrillsTransformation.exe <config file>");
+                Console.WriteLine("  NoFrillsTransformation.exe <config file> [param1=setting1 param2=setting2...]");
                 return false;
             }
             return true;
         }
 
-        private int Run(string configFileName)
+        private static Dictionary<string, string> ExtractParameters(string[] args)
+        {
+            var dict = new Dictionary<string, string>();
+            if (args.Length <= 1)
+                return dict;
+            for (int i = 1; i < args.Length; ++i)
+            {
+                string p = TrimQuotes(args[i]);
+                int eqIndex = p.IndexOf('=');
+                if (eqIndex < 0)
+                {
+                    Console.WriteLine("Invalid parameter setting: '" + p + "'.");
+                    Console.WriteLine("Parameters have to be in format: paramName=paramValue");
+                    return null;
+                }
+                string paramName = TrimQuotes(p.Substring(0, eqIndex));
+                if (string.IsNullOrEmpty(paramName))
+                {
+                    Console.WriteLine("Invalid parameter name: '" + paramName + "'.");
+                    return null;
+                }
+                string paramValue = TrimQuotes(p.Substring(eqIndex + 1));
+
+                if (dict.ContainsKey(paramName))
+                {
+                    Console.WriteLine("Duplicate parameter name: '" + paramName + "'.");
+                    return null;
+                }
+                dict[paramName] = paramValue;
+            }
+            return dict;
+        }
+
+        private static string TrimQuotes(string s)
+        {
+            if (s.StartsWith("\"") && s.EndsWith("\""))
+                return s.Substring(1, s.Length - 2);
+            return s;
+        }
+
+        private int Run(string configFileName, Dictionary<string, string> parameters)
         {
             using (Context context = new Context())
             {
                 try
                 {
+                    context.Parameters = parameters;
+                    context.ConfigFileName = configFileName;
                     var configFile = ReadConfigFile(configFileName);
-                    var includes = ReadIncludes(configFile, configFileName);
+                    var includes = ReadIncludes(context, configFile);
                     configFile = MergeConfigFiles(configFile, includes);
 
                     // Set up MEF
@@ -73,6 +119,8 @@ namespace NoFrillsTransformation
                     var operatorFactory = new OperatorFactory(container);
 
                     InitLogger(configFile, context, loggerFactory);
+                    LogParameters(context);
+                    ReplaceParameters(configFile, context);
                     context.Logger.Info("Read configuration file: " + configFileName);
 
                     InitOperators(configFile, context, operatorFactory);
@@ -85,8 +133,11 @@ namespace NoFrillsTransformation
                     ReadMappings(configFile, context);
 
                     context.SourceReader = readerFactory.CreateReader(context, configFile.Source.Uri, configFile.Source.Config);
-                    if (configFile.OutputFields)
-                        return OutputSourceFieldsToConsole(context);
+                    if (null != configFile.OutputFields)
+                    {
+                        if (configFile.OutputFields.Value)
+                            return OutputSourceFieldsToConsole(context, configFile.OutputFields.NoSizes);
+                    }
 
                     context.TargetWriter = writerFactory.CreateWriter(context, configFile.Target.Uri, context.TargetFields, configFile.Target.Config);
 
@@ -115,31 +166,33 @@ namespace NoFrillsTransformation
             }
         }
 
-        private int OutputSourceFieldsToConsole(Context context)
+        private int OutputSourceFieldsToConsole(Context context, bool noSizes)
         {
             int[] sizes = new int[context.SourceReader.FieldCount];
             for (int i = 0; i < sizes.Length; ++i)
                 sizes[i] = 0;
             int maxCount = 100;
 
-            while (!context.SourceReader.IsEndOfStream
-                && context.SourceRecordsRead < maxCount)
+            if (!noSizes)
             {
-                context.SourceReader.NextRecord();
-                context.SourceRecordsRead++;
-
-                var rec = context.SourceReader.CurrentRecord;
-                for (int i=0; i<sizes.Length; ++i)
+                while (!context.SourceReader.IsEndOfStream
+                    && context.SourceRecordsRead < maxCount)
                 {
-                    int l = rec[i].Length;
-                    if (l > sizes[i])
-                        sizes[i] = l;
-                }
-            }
+                    context.SourceReader.NextRecord();
+                    context.SourceRecordsRead++;
 
-            for (int i=0; i<sizes.Length; ++i)
-            {
-                sizes[i] = ((sizes[i] + 10) / 10) * 10;
+                    var rec = context.SourceReader.CurrentRecord;
+                    for (int i = 0; i < sizes.Length; ++i)
+                    {
+                        int l = rec[i].Length;
+                        if (l > sizes[i])
+                            sizes[i] = l;
+                    }
+                }
+                for (int i = 0; i < sizes.Length; ++i)
+                {
+                    sizes[i] = ((sizes[i] + 10) / 10) * 10;
+                }
             }
 
             Console.WriteLine("  <Mappings>");
@@ -148,7 +201,10 @@ namespace NoFrillsTransformation
 
             for (int i=0; i<sizes.Length; ++i)
             {
-                Console.WriteLine("        <Field name=\"{0}\" maxSize=\"{1}\">${0}</Field>", context.SourceReader.FieldNames[i], sizes[i]);
+                if (!noSizes)
+                    Console.WriteLine("        <Field name=\"{0}\" maxSize=\"{1}\">${0}</Field>", context.SourceReader.FieldNames[i], sizes[i]);
+                else
+                    Console.WriteLine("        <Field name=\"{0}\">${0}</Field>", context.SourceReader.FieldNames[i]);
             }
             Console.WriteLine("      </Fields>");
             Console.WriteLine("    </Mapping>");
@@ -204,6 +260,32 @@ namespace NoFrillsTransformation
             if (unknownLogLevel)
                 context.Logger.Warning("Unknown log level '" + configFile.Logger.LogLevel + "', assuming 'info'.");
         }
+
+        private void LogParameters(Context context)
+        {
+            foreach (string key in context.Parameters.Keys)
+            {
+                context.Logger.Info("Parameter: " + key + "=" + context.Parameters[key]);
+            }
+        }
+
+        private void ReplaceParameters(ConfigFileXml config, Context context)
+        {
+            config.Source.Uri = context.ReplaceParameters(config.Source.Uri);
+            config.Source.Config = context.ReplaceParameters(config.Source.Config);
+            config.Target.Uri = context.ReplaceParameters(config.Target.Uri);
+            config.Target.Config = context.ReplaceParameters(config.Target.Config);
+
+            if (null != config.LookupMaps)
+            {
+                foreach (var lookup in config.LookupMaps)
+                {
+                    lookup.Source.Uri = context.ReplaceParameters(lookup.Source.Uri);
+                    lookup.Source.Config = context.ReplaceParameters(lookup.Source.Config);
+                }
+            }
+        }
+
 
         private void InitOperators(ConfigFileXml config, Context context, OperatorFactory operatorFactory)
         {
@@ -289,32 +371,17 @@ namespace NoFrillsTransformation
             return configFile;
         }
 
-        private static ConfigFileXml[] ReadIncludes(ConfigFileXml configFile, string mainFileName)
+        private static ConfigFileXml[] ReadIncludes(IContext context, ConfigFileXml configFile)
         {
             int includeCount = configFile.Includes != null ? configFile.Includes.Length : 0;
 
             ConfigFileXml[] includes = new ConfigFileXml[includeCount];
             for (int i=0; i<includeCount; ++i)
             {
-                string resolvedPath = ResolvePath(configFile.Includes[i].FileName, mainFileName);
+                string resolvedPath = context.ResolveFileName(configFile.Includes[i].FileName);
                 includes[i] = ReadConfigFile(resolvedPath);
             }
             return includes;
-        }
-
-        private static string ResolvePath(string fileName, string mainFileName)
-        {
-            if (File.Exists(fileName))
-                return fileName;
-            if (Path.IsPathRooted(fileName))
-                throw new ArgumentException("Cannot resolve file '" + fileName + "'.");
-
-            string mainPath = Path.GetDirectoryName(mainFileName);
-            string includeInMainPath = Path.Combine(mainPath, fileName);
-
-            if (!File.Exists(includeInMainPath))
-                throw new ArgumentException("Cannot resolve file '" + fileName + "'.");
-            return includeInMainPath;
         }
 
         private static ConfigFileXml MergeConfigFiles(ConfigFileXml configFile, ConfigFileXml[] includes)
@@ -349,6 +416,8 @@ namespace NoFrillsTransformation
                 while (!context.SourceReader.IsEndOfStream)
                 {
                     context.SourceReader.NextRecord();
+                    if (context.SourceReader.IsEndOfStream)
+                        break;
                     context.SourceRecordsRead++;
 
                     if (context.SourceRecordsRead % 1000 == 0
@@ -372,6 +441,9 @@ namespace NoFrillsTransformation
                     context.TargetWriter.WriteRecord(outValues);
                     context.TargetRecordsWritten++;
                 }
+
+                context.Logger.Info("Finishing Write Process.");
+                context.TargetWriter.FinishWrite();
 
                 context.Logger.Info("Finished processing.");
                 context.Logger.Info("Total source records read: " + context.SourceRecordsRead);

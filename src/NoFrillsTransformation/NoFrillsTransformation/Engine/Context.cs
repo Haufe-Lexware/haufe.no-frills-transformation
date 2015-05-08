@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using NoFrillsTransformation.Config;
@@ -15,6 +16,30 @@ namespace NoFrillsTransformation.Engine
 
     class Context : IContext, IDisposable
     {
+        public string ConfigFileName { get; set; }
+        public string ResolveFileName(string fileName)
+        {
+            return ResolveFileName(fileName, true);
+        }
+
+        public string ResolveFileName(string fileName, bool hasToExist)
+        {
+
+            if (File.Exists(fileName))
+                return fileName;
+            if (hasToExist && Path.IsPathRooted(fileName))
+                throw new ArgumentException("Cannot resolve file '" + fileName + "'.");
+
+            string mainPath = Path.GetDirectoryName(ConfigFileName);
+            string includeInMainPath = Path.Combine(mainPath, fileName);
+
+            string fullPath = Path.GetFullPath(includeInMainPath);
+
+            if (hasToExist && !File.Exists(fullPath))
+                throw new ArgumentException("Cannot resolve file '" + fileName + "'.");
+            return fullPath;
+        }
+
         public ILogger Logger { get; set; }
         public ISourceReader SourceReader { get; set; }
         public ITargetWriter TargetWriter { get; set; }
@@ -71,6 +96,28 @@ namespace NoFrillsTransformation.Engine
         public int SourceRecordsFiltered { get; set; }
         public int SourceRecordsProcessed { get; set; }
         public int TargetRecordsWritten { get; set; }
+
+        public Dictionary<string, string> Parameters { get; set; }
+        public string ReplaceParameters(string s)
+        {
+            string o = s;
+            foreach (string key in Parameters.Keys)
+            {
+                o = o.Replace(string.Format("§{0}§", key), Parameters[key]);
+            }
+            int index = o.IndexOf('§');
+            if (index >= 0)
+            {
+                int endIndex = o.IndexOf('§', index + 1);
+                if (endIndex >= 0)
+                {
+                    string paramName = o.Substring(index + 1, endIndex - index - 1);
+                    throw new ArgumentException("Unknown parameter used in string '" + s + "': '" + paramName + "'.");
+                }
+            }
+            return o;
+
+        }
 
         #region IDisposable
         public void Dispose()

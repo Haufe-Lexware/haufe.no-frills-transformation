@@ -11,7 +11,7 @@ using NoFrillsTransformation.Plugins.Salesforce.Config;
 namespace NoFrillsTransformation.Plugins.Salesforce
 {
     [Export(typeof(NoFrillsTransformation.Interfaces.ISourceReaderFactory))]
-    public class SfdcReaderFactory : ISourceReaderFactory
+    public class SfdcReaderFactory : SfdcBaseFactory, ISourceReaderFactory
     {
         public bool CanReadSource(string source)
         {
@@ -29,11 +29,11 @@ namespace NoFrillsTransformation.Plugins.Salesforce
         {
             string soql = source.Substring(7);
             var soqlQuery = ParseQuery(soql);
-            var sfdcConfig = ParseConfig(config);
+            var sfdcConfig = ParseConfig(context, config);
             SfdcReader sfdcReader = null;
             try
             {
-                context.Logger.Info("SfdcReaderFactory: Attempting to create a SfdcReader."); 
+                context.Logger.Info("SfdcReaderFactory: Attempting to create an SfdcReader."); 
                 
                 sfdcReader = new SfdcReader(context, soqlQuery, sfdcConfig);
                 sfdcReader.Initialize();
@@ -110,29 +110,5 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             return q;
         }
 
-        private static SfdcReaderConfig ParseConfig(string configFile)
-        {
-            try
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(SfdcReaderConfig));
-                using (var fs = new FileStream(configFile, FileMode.Open))
-                {
-                    var config = (SfdcReaderConfig)serializer.Deserialize(fs);
-                    return config;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new ArgumentException("Could not read SfdcReader configuration file: " + configFile + ", error message: " + ex.Message);
-            }
-        }
-
-    }
-
-    public class SoqlQuery
-    {
-        public string Soql { get; set; }
-        public string Entity { get; set; }
-        public string[] FieldNames { get; set; }
     }
 }

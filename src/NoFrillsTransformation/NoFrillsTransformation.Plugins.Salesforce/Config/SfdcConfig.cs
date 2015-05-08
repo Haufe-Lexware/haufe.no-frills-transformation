@@ -7,9 +7,12 @@ using System.Xml.Serialization;
 namespace NoFrillsTransformation.Plugins.Salesforce.Config
 {
     [XmlRoot("SfdcConfig")]
-    public class SfdcReaderConfig
+    public class SfdcConfig
     {
         public string DataLoaderDir { get; set; }
+        public string LogFileDir { get; set; }
+        public string SuccessFileName { get; set; }
+        public string ErrorFileName { get; set; }
         public string SfdcUsername { get; set; }
         public string SfdcEncryptedPassword { get; set; }
         public string SfdcEndPoint { get; set; }

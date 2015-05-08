@@ -9,5 +9,6 @@ namespace NoFrillsTransformation.Interfaces
     {
         void WriteRecord(string[] fieldValues);
         int RecordsWritten { get; }
+        void FinishWrite();
     }
 }

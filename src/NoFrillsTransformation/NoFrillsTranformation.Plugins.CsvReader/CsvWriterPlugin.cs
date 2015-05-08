@@ -7,15 +7,15 @@ using NoFrillsTransformation.Interfaces;
 
 namespace NoFrillsTransformation.Plugins.Csv
 {
-    class CsvWriterPlugin : ConfigurableBase, ITargetWriter
+    public class CsvWriterPlugin : ConfigurableBase, ITargetWriter
     {
-        internal CsvWriterPlugin(string target, string[] fieldNames, int[] fieldSizes, string config)
+        public CsvWriterPlugin(IContext context, string target, string[] fieldNames, int[] fieldSizes, string config)
         {
             if (null == fieldNames)
                 throw new ArgumentException("Cannot create CsvWriterPlugin without field names.");
 
             ReadConfig(config);
-            _fileName = target.Substring(7); // Strip file://
+            _fileName = context.ResolveFileName(target.Substring(7), false); // Strip file://
             _fieldNames = fieldNames;
             _fieldSizes = fieldSizes;
             _writer = new StreamWriter(_fileName, false, _encoding);
@@ -106,6 +106,11 @@ namespace NoFrillsTransformation.Plugins.Csv
             }
             // Nothing to do, just return
             return value;
+        }
+
+        public void FinishWrite()
+        {
+            // Doesn't do anything.
         }
 
         #region IDisposable

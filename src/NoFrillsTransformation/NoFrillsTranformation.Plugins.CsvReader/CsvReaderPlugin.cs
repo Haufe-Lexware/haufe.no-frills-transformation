@@ -11,9 +11,9 @@ namespace NoFrillsTransformation.Plugins.Csv
 {
     public class CsvReaderPlugin : ConfigurableBase, ISourceReader, IRecord
     {
-        public CsvReaderPlugin(string source, string config)
+        public CsvReaderPlugin(IContext context, string source, string config)
         {
-            _fileName = source.Substring(7); // Strip file://
+            _fileName = context.ResolveFileName(source.Substring(7)); // Strip file://
 
             TextReader textReader = null;
             try

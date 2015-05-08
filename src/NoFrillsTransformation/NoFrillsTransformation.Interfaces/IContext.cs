@@ -7,6 +7,10 @@ namespace NoFrillsTransformation.Interfaces
 {
     public interface IContext
     {
+        string ConfigFileName { get; }
+        string ResolveFileName(string filePath);
+        string ResolveFileName(string filePath, bool hasToExist);
+
         ILogger Logger { get; set; }
         ISourceReader SourceReader { get; set; }
         ITargetWriter TargetWriter { get; set; }
@@ -25,6 +29,9 @@ namespace NoFrillsTransformation.Interfaces
         int SourceRecordsFiltered { get; }
         int SourceRecordsProcessed { get; }
         int TargetRecordsWritten { get; }
+
+        Dictionary<string, string> Parameters { get; }
+        string ReplaceParameters(string input);
     }
 
     public class ParameterContext

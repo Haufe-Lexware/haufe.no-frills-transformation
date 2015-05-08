@@ -5,49 +5,70 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using NoFrillsTransformation.Plugins.Csv;
 using NoFrillsTransformation.Interfaces;
+using NoFrillsTransformation.Plugins.Csv;
 using NoFrillsTransformation.Plugins.Salesforce.Config;
 
 namespace NoFrillsTransformation.Plugins.Salesforce
 {
-    internal class SfdcReader : SfdcBase, ISourceReader //IDisposable// : ISourceReader
+    class SfdcWriter : SfdcBase, ITargetWriter
     {
-        public SfdcReader(IContext context, SoqlQuery query, SfdcConfig config) : base(context, config)
+        public SfdcWriter(IContext context, SfdcTarget target, string[] fieldNames, SfdcConfig config)
+            : base(context, config)
         {
-            _query = query;
+            _target = target;
+            _fieldNames = fieldNames;
+
+            _tempCsvFileName = GetTempFileName(".csv");
+            _csvWriter = new CsvWriterPlugin(
+                context,
+                "file://" + _tempCsvFileName,
+                fieldNames,
+                new int[] {},
+                "delim=',' encoding='ISO-8859-1'" // comma separated for SFDC, plain ISO-8859-1
+                );
         }
 
-        // NOTE: Leave out the finalizer altogether if this class doesn't 
-        // own unmanaged resources itself, but leave the other methods
-        // exactly as they are. 
-        ~SfdcReader()
+        private SfdcTarget _target;
+        private string[] _fieldNames;
+        private CsvWriterPlugin _csvWriter;
+        private string _tempCsvFileName;
+
+        public void WriteRecord(string[] fieldValues)
         {
-            // Finalizer calls Dispose(false)
-            Dispose(false);
+            _csvWriter.WriteRecord(fieldValues);
         }
 
-        private SoqlQuery _query;
-
-        private CsvReaderPlugin _csvReader;
-        private string _csvOutput;
-
-
-        public void Initialize()
+        public int RecordsWritten
         {
-            _context.Logger.Info("SfdcReader: Initialization started.");
-            _csvOutput = GetTempFileName(".csv");
+            get 
+            {
+                return _csvWriter.RecordsWritten;
+            }
+        }
+
+        public void FinishWrite()
+        {
+            _csvWriter.FinishWrite();
+            try
+            {
+                _csvWriter.Dispose();
+            }
+            finally
+            {
+                _csvWriter = null;
+            }
+
+            // Now we can do our SFDC DataLoader action.
+            _context.Logger.Info("SfdcWriter: Initialization started.");
             string sdlFile = CreateMappingFile();
             string confFile = CreateProcessConf();
             CallDataLoader();
-            // Now delegate the rest to the CsvReaderPlugin.
-            _csvReader = new CsvReaderPlugin(_context, "file://" + _csvOutput, "");
-            _context.Logger.Info("SfdcReader: Initialization finished.");
         }
 
         private void CallDataLoader()
         {
-            _context.Logger.Info("SfdcReader: Calling external process Data Loader.");
+            _context.Logger.Info("SfdcWriter: Calling external process Data Loader.");
             string batPath = Path.Combine(_config.DataLoaderDir, "bin");
             string bat = Path.Combine(batPath, "process.bat");
 
@@ -55,7 +76,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             ProcessStartInfo processInfo;
             Process process;
 
-            string command = string.Format("process.bat \"{0}\" csvExtractProcess", _tempDir);
+            string command = string.Format("process.bat \"{0}\" csvEntityWrite", _tempDir);
 
             processInfo = new ProcessStartInfo("cmd.exe", "/c " + command);
             processInfo.WorkingDirectory = batPath;
@@ -75,17 +96,32 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             {
                 _context.Logger.Error(output);
                 _context.Logger.Error(error);
-                throw new InvalidOperationException("SFDC extraction via Data Loader failed. See above error message for more information.");
+                throw new InvalidOperationException("SFDC insert/upsert/delete via Data Loader failed. See above error message for more information.");
             }
 
             _context.Logger.Info(output);
-            _context.Logger.Info("SfdcReader: External process Data Loader has finished.");
+            _context.Logger.Info("SfdcWriter: External process Data Loader has finished.");
+        }
+
+        private string CreateMappingFile()
+        {
+            _sdlFile = GetTempFileName(".sdl");
+            using (var sr = new StreamWriter(new FileStream(_sdlFile, FileMode.CreateNew), Encoding.GetEncoding("ISO-8859-1")))
+            {
+                sr.WriteLine("# Automatically generated mapping file");
+                foreach (var fieldName in _fieldNames)
+                {
+                    sr.WriteLine("{0}={0}", fieldName);
+                }
+            }
+            _context.Logger.Info("SfdcWriter: Created mapping file (" + _sdlFile + ")");
+            return _sdlFile;
         }
 
         private string CreateProcessConf()
         {
             var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = "NoFrillsTransformation.Plugins.Salesforce.Templates.process-conf.template.xml";
+            var resourceName = "NoFrillsTransformation.Plugins.Salesforce.Templates.process-conf.write.template.xml";
             //var auxList = assembly.GetManifestResourceNames();
             string confTemplate = "";
 
@@ -108,20 +144,40 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             }
 
             string conf = confTemplate;
+            string statusDir = null;
             if (string.IsNullOrEmpty(_config.LogFileDir))
+            {
                 _logFile = GetTempFileName(".log");
+                statusDir = _tempDir;
+            }
             else
+            {
                 _logFile = Path.Combine(_config.LogFileDir, Path.GetRandomFileName() + ".log");
+                statusDir = _config.LogFileDir;
+            }
+            var externalIdXml = "";
+            if (!string.IsNullOrEmpty(_target.ExternalId))
+                externalIdXml = string.Format("<entry key=\"sfdc.externalIdField\" value=\"{0}\"/>", _target.ExternalId);
+            var outputErrorXml = "";
+            if (!string.IsNullOrEmpty(_config.ErrorFileName))
+                outputErrorXml = string.Format("<entry key=\"process.outputError\" value=\"{0}\"/>", _config.ErrorFileName);
+            var outputSuccessXml = "";
+            if (!string.IsNullOrEmpty(_config.SuccessFileName))
+                outputSuccessXml = string.Format("<entry key=\"process.outputSuccess\" value=\"{0}\"/>", _config.SuccessFileName);
             var replaces = new string[,]
                 { 
                   {"%DEBUGLOGFILE%", _logFile },
                   {"%ENDPOINT%", _config.SfdcEndPoint },
                   {"%USERNAME%", _config.SfdcUsername },
                   {"%PASSWORD%", _config.SfdcEncryptedPassword },
-                  {"%ENTITY%", _query.Entity },
-                  {"%SOQL%", _query.Soql },
+                  {"%ENTITY%", _target.Entity },
+                  {"%EXTERNALIDXML%", externalIdXml },
+                  {"%OPERATION%", _target.Operation },
                   {"%SDLFILE%", _sdlFile },
-                  {"%CSVOUTFILE%", _csvOutput }
+                  {"%STATUSDIR%", statusDir },
+                  {"%OUTPUTERRORXML%", outputErrorXml },
+                  {"%OUTPUTSUCCESSXML%", outputSuccessXml },
+                  {"%CSVINFILE%", _tempCsvFileName }
                 };
 
             int items = replaces.GetLength(0);
@@ -133,39 +189,13 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             string configFile = Path.Combine(_tempDir, "process-conf.xml");
             AddTempFile(configFile);
             AddTempFile(Path.Combine(_tempDir, "config.properties"));
-            AddTempFile(Path.Combine(_tempDir, "csvAccountExtract_lastRun.properties"));
+            AddTempFile(Path.Combine(_tempDir, "csvEntityAction_lastRun.properties"));
             File.WriteAllText(configFile, conf);
 
-            _context.Logger.Info("SfdcReader: Created process-conf.xml (" + configFile + ").");
+            _context.Logger.Info("SfdcWriter: Created process-conf.xml (" + configFile + ").");
 
             return configFile;
         }
-
-        private string CreateMappingFile()
-        {
-            _sdlFile = GetTempFileName(".sdl");
-            using (var sr = new StreamWriter(new FileStream(_sdlFile, FileMode.CreateNew), Encoding.GetEncoding("ISO-8859-1")))
-            {
-                sr.WriteLine("# Automatically generated mapping file");
-                foreach (var fieldName in _query.FieldNames)
-                {
-                    sr.WriteLine("{0}={0}", fieldName);
-                }
-            }
-            _context.Logger.Info("SfdcReader: Created mapping file (" + _sdlFile + ")");
-            return _sdlFile;
-        }
-
-        #region ISourceReader
-        public bool IsEndOfStream { get { return _csvReader.IsEndOfStream; } }
-        public void NextRecord() { _csvReader.NextRecord(); }
-        public IRecord CurrentRecord { get { return _csvReader.CurrentRecord; } }
-        public int FieldCount { get { return _csvReader.FieldCount; } }
-        public string[] FieldNames { get { return _csvReader.FieldNames; } }
-        public int GetFieldIndex(string fieldName) { return _csvReader.GetFieldIndex(fieldName); }
-        public IRecord Query(string key) { return _csvReader.Query(key); }        
-        #endregion
-
 
         #region IDisposable
         // Dispose() calls Dispose(true)
@@ -180,10 +210,10 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             if (disposing)
             {
                 // free managed resources
-                if (null != _csvReader)
+                if (null != _csvWriter)
                 {
-                    _csvReader.Dispose();
-                    _csvReader = null;
+                    _csvWriter.Dispose();
+                    _csvWriter = null;
                 }
             }
 

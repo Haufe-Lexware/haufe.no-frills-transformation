@@ -19,6 +19,7 @@ namespace NoFrillsTransformation.Engine
                     var lm = new LookupMap(reader.FieldNames);
                     lm.Id = config.Name;
                     lm.KeyField = config.Key;
+                    lm.NoFailOnMiss = config.NoFailOnMiss;
                     int keyIndex = -1;
                     try
                     {
@@ -75,6 +76,8 @@ namespace NoFrillsTransformation.Engine
             }
         }
 
+        public bool NoFailOnMiss { get; set; }
+
         public bool HasKey(string key)
         {
             return Rows.ContainsKey(key);
@@ -87,6 +90,11 @@ namespace NoFrillsTransformation.Engine
 
         public string GetValue(string key, int fieldIndex)
         {
+            if (NoFailOnMiss)
+            {
+                if (!HasKey(key))
+                    return "";
+            }
             return Rows[key][fieldIndex];
         }
 

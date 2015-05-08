@@ -25,7 +25,7 @@ namespace NoFrillsTransformation.Plugins.Csv
         public ITargetWriter CreateWriter(IContext context, string target, string[] fieldNames, int[] fieldSizes, string config)
         {
             context.Logger.Info("CsvWriterFactory: Creating a CsvWriterPlugin.");
-            return new CsvWriterPlugin(target, fieldNames, fieldSizes, config);
+            return new CsvWriterPlugin(context, target, fieldNames, fieldSizes, config);
         }
     }
 }

@@ -28,7 +28,8 @@ namespace NoFrillsTransformation.Plugins.Csv
             try
             {
                 context.Logger.Info("CsvReaderFactory: Attempting to create a CsvReaderPlugin.");
-                reader = new CsvReaderPlugin(source, config);
+                
+                reader = new CsvReaderPlugin(context, source, config);
             }
             catch (Exception)
             {

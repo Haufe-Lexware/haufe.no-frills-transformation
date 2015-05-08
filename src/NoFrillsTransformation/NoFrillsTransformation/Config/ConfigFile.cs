@@ -17,7 +17,7 @@ namespace NoFrillsTransformation.Config
         public SourceTargetXml Source { get; set; }
         public SourceTargetXml Target { get; set; }
 
-        public bool OutputFields { get; set; }
+        public OutputFieldsXml OutputFields { get; set; }
 
         public string FilterMode { get; set; }
         [XmlArray("SourceFilters")]
@@ -41,6 +41,14 @@ namespace NoFrillsTransformation.Config
     {
         [XmlText]
         public string FileName { get; set; }
+    }
+
+    public class OutputFieldsXml
+    {
+        [XmlText]
+        public bool Value { get; set; }
+        [XmlAttribute("noSizes")]
+        public bool NoSizes { get; set; }
     }
 
     public class LoggerXml
@@ -73,6 +81,8 @@ namespace NoFrillsTransformation.Config
         public string Key { get; set; }
         [XmlAttribute("name")]
         public string Name { get; set; }
+        [XmlAttribute("noFailOnMiss")]
+        public bool NoFailOnMiss { get; set; }
         public SourceTargetXml Source { get; set; }
     }
 
