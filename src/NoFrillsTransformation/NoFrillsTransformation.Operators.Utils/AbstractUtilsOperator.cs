@@ -14,7 +14,7 @@ namespace NoFrillsTransformation.Operators.Utils
         public ParamType[] ParamTypes { get; protected set; }
         public ParamType ReturnType { get; protected set; }
 
-        public void Configure(string config)
+        public virtual void Configure(string config)
         {
             // None of the built-in operators need configuring.
         }

@@ -164,7 +164,7 @@ namespace NoFrillsTransformation.Engine
                 // First things first, the simple case.
                 case ExpressionType.StringLiteral:
                 case ExpressionType.IntLiteral:
-                    return expression.Content;
+                    return context.ReplaceParameters(expression.Content);
 
                 // Evaluates to a source field
                 case ExpressionType.FieldName:
