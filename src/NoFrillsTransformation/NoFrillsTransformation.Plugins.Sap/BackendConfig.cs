@@ -41,7 +41,8 @@ namespace NoFrillsTransformation.Plugins.Sap
         {
             return false;
         }
-
+#pragma warning disable 0067
         public event RfcDestinationManager.ConfigurationChangeHandler ConfigurationChanged;
+#pragma warning restore 0067
     }
 }

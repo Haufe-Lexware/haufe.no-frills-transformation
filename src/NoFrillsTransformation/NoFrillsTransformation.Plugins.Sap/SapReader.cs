@@ -101,8 +101,7 @@ namespace NoFrillsTransformation.Plugins.Sap
         {
             RfcDestinationManager.RegisterDestinationConfiguration(new BackendConfig(_config));
             RfcDestination prd = RfcDestinationManager.GetDestination(_config.RfcDestination);
-            //try
-            //{
+
             RfcRepository repo = prd.Repository;
             IRfcFunction rfc = repo.CreateFunction(_sapQuery.RfcName);
             foreach (var parameter in _sapQuery.Parameters)
@@ -124,6 +123,8 @@ namespace NoFrillsTransformation.Plugins.Sap
                     exportTableName = meta.Name;
                 }
             }
+            if (null == exportTableName)
+                throw new InvalidOperationException("The RFC " + _sapQuery.RfcName + " does not have an EXPORT parameter with TABLE structure.");
 
             var tableObject = rfc[exportTableName];
             _table = tableObject.GetTable();

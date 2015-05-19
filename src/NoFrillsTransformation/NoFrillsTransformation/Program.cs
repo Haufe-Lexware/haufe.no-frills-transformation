@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition.Hosting;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Xml;
+using System.Xml.Linq;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 using LumenWorks.Framework.IO.Csv;
 using NoFrillsTransformation.Config;
@@ -358,6 +362,11 @@ namespace NoFrillsTransformation
             ConfigFileXml configFile = null;
             try
             {
+                bool errors = ValidateConfigFile(configFileName);
+
+                if (errors)
+                    throw new ArgumentException("XML config file could not be validated successfully.");
+
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(ConfigFileXml));
                 using (var fs = new FileStream(configFileName, FileMode.Open))
                 {
@@ -369,6 +378,43 @@ namespace NoFrillsTransformation
                 throw new ArgumentException("Could not read XML config file: " + e.Message);
             }
             return configFile;
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times")]
+        private static bool ValidateConfigFile(string configFileName)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = "NoFrillsTransformation.Config.Config.xsd";
+
+            bool errors = false;
+            Stream stream = null;
+            try
+            {
+                stream = assembly.GetManifestResourceStream(resourceName);
+                using (var xsdStream = XmlReader.Create(stream))
+                {
+                    stream = null;
+                    var schemaSet = new XmlSchemaSet();
+                    schemaSet.Add("", xsdStream);
+                    var xmlDoc = XDocument.Load(configFileName);
+                    bool first = true;
+                    xmlDoc.Validate(schemaSet, (o, e) =>
+                    {
+                        if (first)
+                            Console.WriteLine("The input file does not adher to the input file schema:");
+                        first = false;
+                        Console.WriteLine(e.Message);
+                        errors = true;
+                    });
+                }
+            }
+            finally
+            {
+                if (null != stream)
+                    stream.Dispose();
+                stream = null;
+            }
+            return errors;
         }
 
         private static ConfigFileXml[] ReadIncludes(IContext context, ConfigFileXml configFile)
