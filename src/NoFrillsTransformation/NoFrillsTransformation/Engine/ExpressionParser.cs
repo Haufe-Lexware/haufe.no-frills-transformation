@@ -164,7 +164,7 @@ namespace NoFrillsTransformation.Engine
                 // First things first, the simple case.
                 case ExpressionType.StringLiteral:
                 case ExpressionType.IntLiteral:
-                    return context.ReplaceParameters(expression.Content);
+                    return ReplaceEscapeChars(context.ReplaceParameters(expression.Content));
 
                 // Evaluates to a source field
                 case ExpressionType.FieldName:
@@ -178,6 +178,13 @@ namespace NoFrillsTransformation.Engine
                     // All other operators are called using their own implementations
                     return expression.Operator.Evaluate(eval, expression, context);
             }
+        }
+
+        private static string ReplaceEscapeChars(string s)
+        {
+            s = s.Replace("\\n", "\n");
+            s = s.Replace("\\t", "\t");
+            return s;
         }
 
         private static string HandleLookup(IEvaluator eval, Expression expression, IContext context)

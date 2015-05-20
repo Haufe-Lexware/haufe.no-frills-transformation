@@ -4,7 +4,7 @@
 >
   <xs:element name="Transformation">
     <xs:complexType>
-      <xs:sequence>
+      <xs:all minOccurs="0">
         <xs:element name="Includes" minOccurs="0" maxOccurs="1">
           <xs:complexType>
             <xs:sequence>
@@ -18,17 +18,27 @@
             <xs:simpleContent>
               <xs:extension base="xs:string">
                 <xs:attribute name="type" type="xs:string" use="required"/>
-                <xs:attribute name="logLevel" type="xs:string" use="optional"/>
+                <xs:attribute name="level" type="xs:string" use="optional"/>
               </xs:extension >
             </xs:simpleContent>
           </xs:complexType>
         </xs:element>
 
-        <xs:element name="Source" type="SourceTargetType" minOccurs="1" maxOccurs="1"/>
-        <xs:element name="Target" type="SourceTargetType" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="Source" type="SourceTargetType" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="Target" type="SourceTargetType" minOccurs="0" maxOccurs="1"/>
 
-        <xs:element name="OutputFields" type="xs:boolean" minOccurs="0" maxOccurs="1"/>
+        <!--<xs:element name="OutputFields" type="xs:boolean" minOccurs="0" maxOccurs="1"/>-->
 
+        <xs:element name="OutputFields" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:simpleContent>
+              <xs:extension base="xs:boolean">
+                <xs:attribute name="noSizes" type="xs:boolean" use="optional"/>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+        </xs:element>
+        
         <xs:element name="FilterMode" minOccurs="0" maxOccurs="1">
           <xs:simpleType>
             <xs:restriction base="xs:string">
@@ -54,7 +64,15 @@
           </xs:complexType>
         </xs:element>
 
-        <xs:element name="Mappings" minOccurs="1" maxOccurs="1">
+        <xs:element name="CustomOperators" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="CustomOperator" type="CustomOperatorType" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        
+        <xs:element name="Mappings" minOccurs="0" maxOccurs="1">
           <xs:complexType>
             <xs:sequence>
               <xs:element name="Mapping" minOccurs="1" maxOccurs="1">
@@ -90,14 +108,7 @@
           </xs:complexType>
         </xs:element>
 
-        <xs:element name="CustomOperators" minOccurs="0" maxOccurs="1">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="CustomOperator" type="CustomOperatorType" minOccurs="0" maxOccurs="unbounded"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
-      </xs:sequence>
+      </xs:all>
     </xs:complexType>
   </xs:element>
 

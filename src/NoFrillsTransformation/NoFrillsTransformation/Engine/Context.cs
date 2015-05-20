@@ -24,14 +24,13 @@ namespace NoFrillsTransformation.Engine
 
         public string ResolveFileName(string fileName, bool hasToExist)
         {
-
             if (File.Exists(fileName))
-                return fileName;
+                return Path.GetFullPath(fileName);
             if (hasToExist && Path.IsPathRooted(fileName))
                 throw new ArgumentException("Cannot resolve file '" + fileName + "'.");
 
             string mainPath = Path.GetDirectoryName(ConfigFileName);
-            string includeInMainPath = Path.Combine(mainPath, fileName);
+            string includeInMainPath = Path.Combine(mainPath, fileName.Replace("\\\\", "\\"));
 
             string fullPath = Path.GetFullPath(includeInMainPath);
 

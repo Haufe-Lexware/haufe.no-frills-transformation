@@ -57,7 +57,7 @@ namespace NoFrillsTransformation.Config
         public string Config { get; set; }
         [XmlAttribute("type")]
         public string LogType { get; set; }
-        [XmlAttribute("level)")]
+        [XmlAttribute("level")]
         public string LogLevel { get; set; }
     }
 

@@ -46,8 +46,10 @@
     <Compile Include="FilterDuplicateOperator.cs" />
     <Compile Include="FilterOnceOperator.cs" />
     <Compile Include="IsValidEmailOperator.cs" />
+    <Compile Include="IsValidUriOperator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FileResolveOperator.cs" />
+    <Compile Include="RegexMatchOperator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NoFrillsTransformation.Interfaces\NoFrillsTransformation.Interfaces.csproj">
