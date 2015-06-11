@@ -42,5 +42,9 @@ namespace NoFrillsTransformation.Interfaces
         ConvertUmlaut,
         Replace,
         Parameter,
+        Less,
+        LessEqual,
+        Greater,
+        GreaterEqual
     }
 }

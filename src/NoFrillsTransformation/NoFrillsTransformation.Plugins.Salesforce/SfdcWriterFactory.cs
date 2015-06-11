@@ -57,6 +57,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                 }
                 operation = operation.ToLowerInvariant();
                 if (!operation.Equals("insert", StringComparison.InvariantCultureIgnoreCase)
+                    && !operation.Equals("update", StringComparison.InvariantCultureIgnoreCase)
                     && !operation.Equals("upsert", StringComparison.InvariantCultureIgnoreCase)
                     && !operation.Equals("delete", StringComparison.InvariantCultureIgnoreCase)
                     && !operation.Equals("hard_delete", StringComparison.InvariantCultureIgnoreCase))
@@ -71,7 +72,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             }
             catch (Exception)
             {
-                throw new ArgumentException("Malformed SFDC target string. Expected 'sfdc://<Entity>.<operation>[:<externalId>]', whereas <operation> is 'insert', 'upsert', 'delete' or 'hard_delete', and the optional <externalId> can be passed for the 'upsert' operation.");
+                throw new ArgumentException("Malformed SFDC target string. Expected 'sfdc://<Entity>.<operation>[:<externalId>]', whereas <operation> is 'insert', 'update', 'upsert', 'delete' or 'hard_delete', and the optional <externalId> can be passed for the 'upsert' operation.");
             }
         }
     }

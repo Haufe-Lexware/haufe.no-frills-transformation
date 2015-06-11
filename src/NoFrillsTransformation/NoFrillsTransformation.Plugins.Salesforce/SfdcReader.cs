@@ -41,7 +41,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             string confFile = CreateProcessConf();
             CallDataLoader();
             // Now delegate the rest to the CsvReaderPlugin.
-            _csvReader = new CsvReaderPlugin(_context, "file://" + _csvOutput, "");
+            _csvReader = new CsvReaderPlugin(_context, "file://" + _csvOutput, "encoding='utf-8'");
             _context.Logger.Info("SfdcReader: Initialization finished.");
         }
 

@@ -18,7 +18,7 @@
         <!-- <entry key="sfdc.externalIdField" value="%EXTERNALID%"/> -->
         %EXTERNALIDXML%
         <entry key="sfdc.timeoutSecs" value="600"/>
-        <entry key="sfdc.loadBatchSize" value="200"/>
+        <entry key="sfdc.loadBatchSize" value="%LOADBATCHSIZE%"/>
         <!-- Account -->
         <entry key="sfdc.entity" value="%ENTITY%"/>
         <entry key="process.operation" value="%OPERATION%"/>
@@ -30,6 +30,7 @@
         <entry key="dataAccess.type" value="csvRead"/>
         <!-- c:\dataloader\samples\data\extract.csv -->
         <entry key="dataAccess.name" value="%CSVINFILE%"/>
+        <entry key="dataAccess.readUTF8" value="true"/>
       </map>
     </property>
   </bean>

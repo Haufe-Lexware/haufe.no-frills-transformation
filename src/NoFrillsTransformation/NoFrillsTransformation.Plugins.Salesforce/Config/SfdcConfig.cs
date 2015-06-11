@@ -17,6 +17,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce.Config
         public string SfdcEncryptedPassword { get; set; }
         public string SfdcEndPoint { get; set; }
         public bool KeepTempFiles { get; set; }
+        public int LoadBatchSize { get; set; }
     }
 
         //public SourceTargetXml Source { get; set; }

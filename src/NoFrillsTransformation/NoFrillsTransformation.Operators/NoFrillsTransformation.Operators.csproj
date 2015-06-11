@@ -51,11 +51,15 @@
     <Compile Include="EndsWithOperator.cs" />
     <Compile Include="EqualsIgnoreCaseOperator.cs" />
     <Compile Include="EqualsOperator.cs" />
+    <Compile Include="GreaterEqualOperator.cs" />
+    <Compile Include="GreaterOperator.cs" />
     <Compile Include="HasKeyOperator.cs" />
     <Compile Include="IfOperator.cs" />
     <Compile Include="IntOperator.cs" />
     <Compile Include="IsEmptyOperator.cs" />
     <Compile Include="LengthOperator.cs" />
+    <Compile Include="LessEqualOperator.cs" />
+    <Compile Include="LessOperator.cs" />
     <Compile Include="LowerCaseOperator.cs" />
     <Compile Include="ModuloOperator.cs" />
     <Compile Include="MultiplyOperator.cs" />

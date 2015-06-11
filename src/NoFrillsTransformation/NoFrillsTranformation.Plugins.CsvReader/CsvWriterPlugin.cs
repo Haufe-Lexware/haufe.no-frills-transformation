@@ -15,6 +15,7 @@ namespace NoFrillsTransformation.Plugins.Csv
                 throw new ArgumentException("Cannot create CsvWriterPlugin without field names.");
 
             ReadConfig(config);
+            CheckUtf8Setting();
             _fileName = context.ResolveFileName(target.Substring(7), false); // Strip file://
             _fieldNames = fieldNames;
             _fieldSizes = fieldSizes;
@@ -32,6 +33,7 @@ namespace NoFrillsTransformation.Plugins.Csv
         private char _delimiter = ',';
         private string _encodingString = "UTF-8";
         private Encoding _encoding = Encoding.GetEncoding("UTF-8");
+        private bool _useUtf8Bom = true;
 
         protected override void SetConfig(string parameter, string configuration)
         {
@@ -48,10 +50,31 @@ namespace NoFrillsTransformation.Plugins.Csv
                     _encoding = Encoding.GetEncoding(_encodingString);
                     break;
 
+                case "utf8bom":
+                    if (configuration.Equals("false", StringComparison.InvariantCultureIgnoreCase)
+                        || configuration.Equals("0", StringComparison.InvariantCultureIgnoreCase)
+                        || configuration.Equals("no", StringComparison.InvariantCultureIgnoreCase))
+                        _useUtf8Bom = false;
+                    else
+                        _useUtf8Bom = true;
+                    break;
+
                 default:
                     // Do nothing with unknown parameters
                     break;
             }
+        }
+
+        private void CheckUtf8Setting()
+        {
+            if (!_encodingString.Equals("utf-8", StringComparison.InvariantCultureIgnoreCase))
+                return;
+
+            if (_useUtf8Bom)
+                return;
+
+            // UTF-8 without BOM requires a special Encoding
+            _encoding = new UTF8Encoding(false); // Will omit Byte Order Mark
         }
         #endregion
 

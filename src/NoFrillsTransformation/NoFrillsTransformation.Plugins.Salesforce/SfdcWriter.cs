@@ -25,7 +25,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                 "file://" + _tempCsvFileName,
                 fieldNames,
                 new int[] {},
-                "delim=',' encoding='ISO-8859-1'" // comma separated for SFDC, plain ISO-8859-1
+                "delim=',' encoding='UTF-8' utf8bom='false'" // comma separated for SFDC, UTF-8 without BOM
                 );
         }
 
@@ -164,6 +164,33 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             var outputSuccessXml = "";
             if (!string.IsNullOrEmpty(_config.SuccessFileName))
                 outputSuccessXml = string.Format("<entry key=\"process.outputSuccess\" value=\"{0}\"/>", _config.SuccessFileName);
+            if (_config.LoadBatchSize == 0)
+            {
+                if (_context.Parameters.ContainsKey("sfdcloadbatchsize"))
+                {
+                    string loadBatchSizeString = _context.Parameters["sfdcloadbatchsize"];
+                    int loadBatchSize = 0;
+                    if (!int.TryParse(loadBatchSizeString, out loadBatchSize))
+                    {
+                        _context.Logger.Warning("SfdcWriter: Invalid LoadBatchSize from Parameter 'sfdcloadbatchsize': " + loadBatchSizeString + ", defaults to 200");
+                        _config.LoadBatchSize = 200;
+                    }
+                    else
+                    {
+                        _context.Logger.Info("SfdcWriter: Setting LoadBatchSize from parameter 'sfdcloadbatchsize' to " + loadBatchSize);
+                        _config.LoadBatchSize = loadBatchSize;
+                    }
+                }
+                else
+                {
+                    _context.Logger.Info("SfdcWriter: LoadBatchSize not specified, defaulting to 200.");
+                    _config.LoadBatchSize = 200;
+                }
+            }
+            if (_config.LoadBatchSize < 1 || _config.LoadBatchSize > 200)
+            {
+                _context.Logger.Warning("SfdcWriter: Invalid LoadBatchSize " + _config.LoadBatchSize + ". Defaults to 200.");
+            }
             var replaces = new string[,]
                 { 
                   {"%DEBUGLOGFILE%", _logFile },
@@ -177,7 +204,8 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                   {"%STATUSDIR%", statusDir },
                   {"%OUTPUTERRORXML%", outputErrorXml },
                   {"%OUTPUTSUCCESSXML%", outputSuccessXml },
-                  {"%CSVINFILE%", _tempCsvFileName }
+                  {"%CSVINFILE%", _tempCsvFileName },
+                  {"%LOADBATCHSIZE%", _config.LoadBatchSize.ToString() }
                 };
 
             int items = replaces.GetLength(0);

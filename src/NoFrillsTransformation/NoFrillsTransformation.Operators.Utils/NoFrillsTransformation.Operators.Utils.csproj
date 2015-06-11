@@ -43,6 +43,7 @@
     <Compile Include="AbstractUtilsOperator.cs" />
     <Compile Include="FileContentOperator.cs" />
     <Compile Include="FileExtOperator.cs" />
+    <Compile Include="FileSizeOperator.cs" />
     <Compile Include="FilterDuplicateOperator.cs" />
     <Compile Include="FilterOnceOperator.cs" />
     <Compile Include="IsValidEmailOperator.cs" />
