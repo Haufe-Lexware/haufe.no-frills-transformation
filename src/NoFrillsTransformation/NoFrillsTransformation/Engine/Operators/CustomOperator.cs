@@ -22,7 +22,12 @@ namespace NoFrillsTransformation.Engine.Operators
         public ParamType[] ParamTypes { get; set; }
         public ParamType ReturnType { get; set; }
 
+        // Function
         public IExpression Expression { get; set; }
+        // Switch/Case
+        public IExpression[] Conditions { get; set; }
+        public IExpression[] CaseFunctions { get; set; }
+        public IExpression Otherwise { get; set; }
 
         public string Evaluate(IEvaluator eval, IExpression expression, IContext context)
         {
@@ -35,7 +40,22 @@ namespace NoFrillsTransformation.Engine.Operators
 
             try
             {
-                return eval.Evaluate(eval, Expression, context);
+                // Plain function
+                if (null != Expression)
+                {
+                    return eval.Evaluate(eval, Expression, context);
+                }
+                else // Switch/Case
+                {
+                    for (int i=0; i<Conditions.Length; ++i)
+                    {
+                        var cond = Conditions[i];
+                        var func = CaseFunctions[i];
+                        if (StringToBool(eval.Evaluate(eval, cond, context)))
+                            return eval.Evaluate(eval, func, context);
+                    }
+                    return eval.Evaluate(eval, Otherwise, context);
+                }
             }
             finally
             {
@@ -46,6 +66,18 @@ namespace NoFrillsTransformation.Engine.Operators
         public void Configure(string config)
         {
             // No config for this operator.
+        }
+
+        internal static bool StringToBool(string s)
+        {
+            if (s.Equals("true"))
+                return true;
+            return false;
+        }
+
+        internal static string BoolToString(bool b)
+        {
+            return b ? "true" : "false";
         }
     }
 }

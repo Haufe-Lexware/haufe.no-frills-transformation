@@ -341,14 +341,50 @@ namespace NoFrillsTransformation
 
                     if (context.Operators.ContainsKey(name))
                         throw new ArgumentException("Duplicate definition for custom operator '" + op.Name + "' found.");
-                    context.Operators[name] = new Engine.Operators.CustomOperator(name)
+                    // Plain function?
+                    if (op.Function != null)
+                    {
+                        if (op.Switch != null)
+                            throw new ArgumentException("A CustomOperator cannot have both a Function and a Switch/Case block: " + op.Name);
+                        context.Operators[name] = new Engine.Operators.CustomOperator(name)
+                            {
+                                ParamCount = op.ParamCount,
+                                ParamNames = paramNameList.ToArray(),
+                                ParamTypes = paramTypeList.ToArray(),
+                                ReturnType = returnType,
+                                Expression = ExpressionParser.ParseExpression(op.Function, context)
+                            };
+                    }
+                    else if (op.Switch != null)
+                    {
+                        int conditionCount = op.Switch.Cases.Length;
+                        var conditions = new IExpression[conditionCount];
+                        var caseFunctions = new IExpression[conditionCount];
+                        for (int i=0; i<conditionCount; ++i)
                         {
-                            ParamCount = op.ParamCount,
-                            ParamNames = paramNameList.ToArray(),
-                            ParamTypes = paramTypeList.ToArray(),
-                            ReturnType = returnType,
-                            Expression = ExpressionParser.ParseExpression(op.Function, context)
-                        };
+                            var thisCase = op.Switch.Cases[i];
+                            conditions[i] = ExpressionParser.ParseExpression(thisCase.Condition, context);
+                            if (conditions[i].Operator.ReturnType != ParamType.Bool)
+                                throw new ArgumentException("The return type of Case conditions must be boolean: " + thisCase.Condition + ", is " + conditions[i].Operator.ReturnType);
+                            caseFunctions[i] = ExpressionParser.ParseExpression(thisCase.Function, context);
+                        }
+                        var otherwise = ExpressionParser.ParseExpression(op.Switch.Otherwise, context);
+
+                        context.Operators[name] = new Engine.Operators.CustomOperator(name)
+                            {
+                                ParamCount = op.ParamCount,
+                                ParamNames = paramNameList.ToArray(),
+                                ParamTypes = paramTypeList.ToArray(),
+                                ReturnType = returnType,
+                                Conditions = conditions,
+                                CaseFunctions = caseFunctions,
+                                Otherwise = otherwise
+                            };
+                    }
+                    else
+                    {
+                        throw new ArgumentException("A CustomOperator must either have a Function tag or a Switch/Case block: " + op.Name);
+                    }
                 }
             }
             catch (Exception ex)

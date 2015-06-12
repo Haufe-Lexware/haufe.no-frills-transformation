@@ -7,6 +7,7 @@ namespace NoFrillsTransformation.Interfaces
 {
     public enum ExpressionType
     {
+        Error,
         Custom,
         CustomFunction,
         SourceRowNum,

@@ -51,6 +51,7 @@
     <Compile Include="EndsWithOperator.cs" />
     <Compile Include="EqualsIgnoreCaseOperator.cs" />
     <Compile Include="EqualsOperator.cs" />
+    <Compile Include="ErrorOperator.cs" />
     <Compile Include="GreaterEqualOperator.cs" />
     <Compile Include="GreaterOperator.cs" />
     <Compile Include="HasKeyOperator.cs" />

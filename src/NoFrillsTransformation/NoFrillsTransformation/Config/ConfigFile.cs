@@ -125,6 +125,8 @@ namespace NoFrillsTransformation.Config
         public ParameterXml[] Parameters { get; set; }
 
         public string Function { get; set; }
+
+        public SwitchCaseXml Switch { get; set; }
     }
 
     public class ParameterXml
@@ -133,5 +135,21 @@ namespace NoFrillsTransformation.Config
         public string Name { get; set; }
         [XmlAttribute("type")]
         public string Type { get; set; }
+    }
+
+    public class SwitchCaseXml
+    {
+        [XmlElement("Case")]
+        public CaseXml[] Cases { get; set; }
+
+        public string Otherwise;
+    }
+
+    public class CaseXml
+    {
+        [XmlAttribute("condition")]
+        public string Condition { get; set; }
+        [XmlText]
+        public string Function { get; set; }
     }
 }
