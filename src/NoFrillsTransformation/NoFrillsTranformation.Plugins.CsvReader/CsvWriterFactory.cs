@@ -22,10 +22,20 @@ namespace NoFrillsTransformation.Plugins.Csv
             return true;
         }
 
-        public ITargetWriter CreateWriter(IContext context, string target, string[] fieldNames, int[] fieldSizes, string config)
+        public ITargetWriter CreateWriter(IContext context, string target, IFieldDefinition[] fieldDefs, string config)
         {
             context.Logger.Info("CsvWriterFactory: Creating a CsvWriterPlugin.");
-            return new CsvWriterPlugin(context, target, fieldNames, fieldSizes, config);
+            return new CsvWriterPlugin(context, target, GetFieldNames(fieldDefs), GetFieldSizes(fieldDefs), config);
+        }
+
+        private static string[] GetFieldNames(IFieldDefinition[] fieldDefs)
+        {
+            return fieldDefs.Select(def => def.FieldName).ToArray();
+        }
+
+        private static int[] GetFieldSizes(IFieldDefinition[] fieldDefs)
+        {
+            return fieldDefs.Select(def => def.FieldSize).ToArray();
         }
     }
 }

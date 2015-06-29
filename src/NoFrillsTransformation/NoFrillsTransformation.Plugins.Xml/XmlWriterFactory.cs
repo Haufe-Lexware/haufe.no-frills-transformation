@@ -22,10 +22,20 @@ namespace NoFrillsTransformation.Plugins.Xml
             return true;
         }
 
-        public ITargetWriter CreateWriter(IContext context, string target, string[] fieldNames, int[] fieldSizes, string config)
+        public ITargetWriter CreateWriter(IContext context, string target, IFieldDefinition[] fieldDefs, string config)
         {
             context.Logger.Info("XmlWriterFactory: Creating a XmlWriterPlugin.");
-            return new XmlWriterPlugin(context, target, fieldNames, fieldSizes, config);
+            return new XmlWriterPlugin(context, target, GetFieldNames(fieldDefs), GetFieldSizes(fieldDefs), config);
+        }
+
+        private static string[] GetFieldNames(IFieldDefinition[] fieldDefs)
+        {
+            return fieldDefs.Select(def => def.FieldName).ToArray();
+        }
+
+        private static int[] GetFieldSizes(IFieldDefinition[] fieldDefs)
+        {
+            return fieldDefs.Select(def => def.FieldSize).ToArray();
         }
     }
 }

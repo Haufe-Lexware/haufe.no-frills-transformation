@@ -740,6 +740,7 @@ namespace NoFrillsTransformation
                     var tfd = new TargetFieldDef();
                     tfd.FieldName = field.Name;
                     tfd.FieldSize = field.MaxSize;
+                    tfd.Config = (null != field.Config) ? context.ReplaceParameters(field.Config) : null;
                     tfd.Expression = ExpressionParser.ParseExpression(field.Expression, context);
 
                     context.TargetFields[i] = tfd;

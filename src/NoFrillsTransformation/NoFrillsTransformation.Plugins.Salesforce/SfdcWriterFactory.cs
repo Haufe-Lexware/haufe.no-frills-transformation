@@ -22,12 +22,12 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             return true;
         }
 
-        public ITargetWriter CreateWriter(IContext context, string target, string[] fieldNames, int[] fieldSizes, string config)
+        public ITargetWriter CreateWriter(IContext context, string target, IFieldDefinition[] fieldDefs, string config)
         {
             context.Logger.Info("CsvWriterFactory: Creating a CsvWriterPlugin.");
             var sfdcTarget = ParseTarget(target);
             var sfdcConfig = ParseConfig(context, config);
-            return new SfdcWriter(context, sfdcTarget, fieldNames, sfdcConfig);
+            return new SfdcWriter(context, sfdcTarget, fieldDefs, sfdcConfig);
         }
 
         // Typical target strings:

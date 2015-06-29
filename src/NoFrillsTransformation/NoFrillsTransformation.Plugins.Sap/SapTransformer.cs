@@ -125,12 +125,12 @@ namespace NoFrillsTransformation.Plugins.Sap
                 switch (metadata.DataType)
                 {
                     case RfcDataType.STRUCTURE:
-                        outputStructures.Structures.Add(metadata.Name, ParseSapStructure(parameter.GetStructure()));
+                        outputStructures.Structures.Add(metadata.Name, ParseSapStructure(metadata.Name, parameter.GetStructure()));
                         break;
 
                     case RfcDataType.TABLE:
                         if (!metadata.Name.Equals("CONTROLLER", StringComparison.InvariantCultureIgnoreCase))
-                            outputStructures.Tables.Add(metadata.Name, ParseSapTable(parameter.GetTable()));
+                            outputStructures.Tables.Add(metadata.Name, ParseSapTable(metadata.Name, parameter.GetTable()));
                         break;
 
                     default: // treat as string, might be wrong
@@ -141,9 +141,9 @@ namespace NoFrillsTransformation.Plugins.Sap
             return outputStructures;
         }
 
-        private SapStructure ParseSapStructure(IEnumerable<IRfcField> rfcStructure)
+        private SapStructure ParseSapStructure(string name, IEnumerable<IRfcField> rfcStructure)
         {
-            var outputStructures = new SapStructure();
+            var outputStructures = new SapStructure { Name = name };
             foreach (IRfcField field in rfcStructure)
             {
                 var metadata = field.Metadata;
@@ -151,12 +151,12 @@ namespace NoFrillsTransformation.Plugins.Sap
                 switch (metadata.DataType)
                 {
                     case RfcDataType.STRUCTURE:
-                        outputStructures.Structures.Add(metadata.Name, ParseSapStructure(field.GetStructure()));
+                        outputStructures.Structures.Add(metadata.Name, ParseSapStructure(metadata.Name, field.GetStructure()));
                         break;
 
                     case RfcDataType.TABLE:
                         if (!metadata.Name.Equals("CONTROLLER", StringComparison.InvariantCultureIgnoreCase))
-                            outputStructures.Tables.Add(metadata.Name, ParseSapTable(field.GetTable()));
+                            outputStructures.Tables.Add(metadata.Name, ParseSapTable(metadata.Name, field.GetTable()));
                         break;
 
                     default: // treat as string, might be wrong
@@ -168,18 +168,61 @@ namespace NoFrillsTransformation.Plugins.Sap
         }
 
 
-        private SapStructure ParseSapTable(IRfcTable rfcTable)
+        private SapStructure ParseSapTable(string name, IRfcTable rfcTable)
         {
-            var outputStructures = new SapStructure();
+            var outputStructures = new SapStructure { Name = name };
             outputStructures.IsTable = true;
 
             var lineType = rfcTable.Metadata.LineType;
+            //foreach (IRfcField field in lineType)
+            for (int i = 0; i < lineType.FieldCount; ++i)
+            {
+                var metadata = lineType[i];
 
+                switch (metadata.DataType)
+                {
+                    case RfcDataType.STRUCTURE:
+                        var structure = rfcTable.GetStructure(i);
+                        outputStructures.Structures.Add(metadata.Name, ParseSapStructure(metadata.Name, structure));
+                        break;
+
+                    case RfcDataType.TABLE:
+                        if (!metadata.Name.Equals("CONTROLLER", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            var subTable = rfcTable.GetTable(i);
+                            outputStructures.Tables.Add(metadata.Name, ParseSapTable(metadata.Name, subTable));
+                        }
+                        break;
+
+                    default: // treat as string, might be wrong
+                        outputStructures.Fields.Add(metadata.Name.ToUpperInvariant());
+                        break;
+                }
+            }
+            /*
             // TABLES or STRUCTURES inside TABLES aren't currently supported.
             for (int i = 0; i < lineType.FieldCount; ++i)
             {
-                outputStructures.Fields.Add(lineType[i].Name.ToUpperInvariant());
+                string metadataName = lineType[i].Name.ToUpperInvariant();
+                switch (lineType[i].RfcDataType)
+                {
+                    case RfcDataType.STRUCTURE:
+                        outputStructures.Structures.Add(metadataName, ParseSapStructure(metadataName, field.GetStructure()));
+                        break;
+
+                    case RfcDataType.TABLE:
+                        if (!metadata.Name.Equals("CONTROLLER", StringComparison.InvariantCultureIgnoreCase))
+                            outputStructures.Tables.Add(metadataName, ParseSapTable(metadataName, field.GetTable()));
+                        break;
+
+                    default: // treat as string, might be wrong
+                        outputStructures.Fields.Add(metadataName.ToUpperInvariant());
+                        break;
+
+                }
+//                outputStructures.Fields.Add(lineType[i].Name.ToUpperInvariant());
             }
+            */
 
             return outputStructures;
         }
@@ -247,11 +290,6 @@ namespace NoFrillsTransformation.Plugins.Sap
 
             _context.Logger.Info("SapTransformer: Flattening output table '" + tableName + "'.");
         }
-
-        //private void TraverseSapTree(IRfcParameter rfcParameter)
-        //{
-        //    IRfcTable  
-        //}
 
         public void Transform(IContext context, IEvaluator eval)
         {

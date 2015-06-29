@@ -13,23 +13,25 @@ namespace NoFrillsTransformation.Plugins.Salesforce
 {
     class SfdcWriter : SfdcBase, ITargetWriter
     {
-        public SfdcWriter(IContext context, SfdcTarget target, string[] fieldNames, SfdcConfig config)
+        public SfdcWriter(IContext context, SfdcTarget target, IFieldDefinition[] fieldDefs, SfdcConfig config)
             : base(context, config)
         {
             _target = target;
-            _fieldNames = fieldNames;
+            _fieldDefs = fieldDefs;
+            _fieldNames = fieldDefs.Select(def => def.FieldName).ToArray();
 
             _tempCsvFileName = GetTempFileName(".csv");
             _csvWriter = new CsvWriterPlugin(
                 context,
                 "file://" + _tempCsvFileName,
-                fieldNames,
+                _fieldNames,
                 new int[] {},
                 "delim=',' encoding='UTF-8' utf8bom='false'" // comma separated for SFDC, UTF-8 without BOM
                 );
         }
 
         private SfdcTarget _target;
+        private IFieldDefinition[] _fieldDefs;
         private string[] _fieldNames;
         private CsvWriterPlugin _csvWriter;
         private string _tempCsvFileName;
@@ -109,9 +111,12 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             using (var sr = new StreamWriter(new FileStream(_sdlFile, FileMode.CreateNew), Encoding.GetEncoding("ISO-8859-1")))
             {
                 sr.WriteLine("# Automatically generated mapping file");
-                foreach (var fieldName in _fieldNames)
+                foreach (var fieldDef in _fieldDefs)
                 {
-                    sr.WriteLine("{0}={0}", fieldName);
+                    if (string.IsNullOrEmpty(fieldDef.Config))
+                        sr.WriteLine("{0}={0}", fieldDef.FieldName);
+                    else
+                        sr.WriteLine("{0}={1}", fieldDef.FieldName, fieldDef.Config);
                 }
             }
             _context.Logger.Info("SfdcWriter: Created mapping file (" + _sdlFile + ")");

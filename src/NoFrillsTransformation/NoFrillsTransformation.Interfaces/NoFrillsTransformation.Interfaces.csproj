@@ -43,6 +43,7 @@
     <Compile Include="IContext.cs" />
     <Compile Include="IEvaluator.cs" />
     <Compile Include="IExpression.cs" />
+    <Compile Include="IFieldDefinition.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="ILoggerFactory.cs" />
     <Compile Include="ILookupMap.cs" />

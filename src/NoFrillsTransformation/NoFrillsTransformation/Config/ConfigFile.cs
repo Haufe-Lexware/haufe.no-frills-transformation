@@ -129,6 +129,8 @@ namespace NoFrillsTransformation.Config
         public string Expression { get; set; }
         [XmlAttribute("maxSize")]
         public int MaxSize { get; set; }
+        [XmlAttribute("config")]
+        public string Config { get; set; }
     }
 
     public class OperatorConfigXml
