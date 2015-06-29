@@ -57,6 +57,8 @@
     <Compile Include="SapQuery.cs" />
     <Compile Include="SapReader.cs" />
     <Compile Include="SapReaderFactory.cs" />
+    <Compile Include="SapTransformer.cs" />
+    <Compile Include="SapTransformerFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NoFrillsTransformation.Interfaces\NoFrillsTransformation.Interfaces.csproj">

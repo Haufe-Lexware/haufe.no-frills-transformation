@@ -237,6 +237,14 @@ namespace NoFrillsTransformation.Engine
 
         private static string HandleFieldName(Expression expression, IContext context)
         {
+            if (!context.InTransform
+                && null != context.Transformer)
+            {
+                if (context.Transformer.HasField(expression.Content))
+                {
+                    return context.Transformer.CurrentRecord[expression.Content];
+                }
+            }
             if (expression.CachedFieldIndex < 0)
             {
                 try
@@ -248,6 +256,9 @@ namespace NoFrillsTransformation.Engine
                     throw new ArgumentException("Runtime expression evaluation error: Unknown field name '" + expression.Content + "'.");
                 }
             }
+            if (expression.CachedFieldIndex < 0)
+                throw new ArgumentException("Runtime expression evaluation error: Unknown field name '" + expression.Content + "'.");
+                
             return context.SourceReader.CurrentRecord[expression.CachedFieldIndex];
         }
 

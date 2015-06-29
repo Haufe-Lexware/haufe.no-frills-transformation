@@ -46,6 +46,8 @@ namespace NoFrillsTransformation.Interfaces
         Less,
         LessEqual,
         Greater,
-        GreaterEqual
+        GreaterEqual,
+        PadLeft,
+        PadRight
     }
 }

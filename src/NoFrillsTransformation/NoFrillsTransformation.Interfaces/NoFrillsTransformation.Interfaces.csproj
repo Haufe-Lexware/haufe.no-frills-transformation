@@ -47,9 +47,13 @@
     <Compile Include="ILoggerFactory.cs" />
     <Compile Include="ILookupMap.cs" />
     <Compile Include="IOperator.cs" />
+    <Compile Include="IParameter.cs" />
     <Compile Include="IRecord.cs" />
+    <Compile Include="ISetting.cs" />
     <Compile Include="ISourceReader.cs" />
     <Compile Include="ISourceReaderFactory.cs" />
+    <Compile Include="ISourceTransformer.cs" />
+    <Compile Include="ISourceTransformerFactory.cs" />
     <Compile Include="ITargetWriter.cs" />
     <Compile Include="ITargetWriterFactory.cs" />
     <Compile Include="ParamType.cs" />

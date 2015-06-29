@@ -13,6 +13,7 @@ namespace NoFrillsTransformation.Interfaces
 
         ILogger Logger { get; set; }
         ISourceReader SourceReader { get; set; }
+        ISourceTransformer Transformer { get; set; }
         ITargetWriter TargetWriter { get; set; }
 
         bool HasLookupMap(string id);
@@ -29,6 +30,7 @@ namespace NoFrillsTransformation.Interfaces
         int SourceRecordsFiltered { get; }
         int SourceRecordsProcessed { get; }
         int TargetRecordsWritten { get; }
+        bool InTransform { get; }
 
         Dictionary<string, string> Parameters { get; }
         string ReplaceParameters(string input);

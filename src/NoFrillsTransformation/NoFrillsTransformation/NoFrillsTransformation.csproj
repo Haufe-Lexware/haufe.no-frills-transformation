@@ -58,10 +58,13 @@
     <Compile Include="Engine\Operators\StringLiteralOperator.cs" />
     <Compile Include="Engine\ReaderFactory.cs" />
     <Compile Include="Engine\TargetFieldDef.cs" />
+    <Compile Include="Engine\TransformerFactory.cs" />
+    <Compile Include="Engine\TransformerSetting.cs" />
     <Compile Include="Engine\WriterFactory.cs" />
     <Compile Include="Engine\OperatorFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Engine\TransformerParameter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\3rdParty\LumenWorks.Framework.IO\LumenWorks.Framework.IO.csproj">

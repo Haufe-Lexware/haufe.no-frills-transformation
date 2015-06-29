@@ -8,7 +8,7 @@ namespace NoFrillsTransformation.Interfaces
 
     public interface ISourceReader : IDisposable
     {
-//        void Initialize(string sourceFile, string config);
+        //void Initialize(string sourceFile, string config);
         bool IsEndOfStream { get; }
         void NextRecord();
         IRecord CurrentRecord { get; }

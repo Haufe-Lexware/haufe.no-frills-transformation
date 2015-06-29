@@ -41,6 +41,7 @@ namespace NoFrillsTransformation.Engine
 
         public ILogger Logger { get; set; }
         public ISourceReader SourceReader { get; set; }
+        public ISourceTransformer Transformer { get; set; }
         public ITargetWriter TargetWriter { get; set; }
         private Dictionary<string, LookupMap> _lookupMaps = new Dictionary<string, LookupMap>();
         public Dictionary<string, LookupMap> LookupMaps
@@ -95,6 +96,8 @@ namespace NoFrillsTransformation.Engine
         public int SourceRecordsFiltered { get; set; }
         public int SourceRecordsProcessed { get; set; }
         public int TargetRecordsWritten { get; set; }
+
+        public bool InTransform { get; set; }
 
         public Dictionary<string, string> Parameters { get; set; }
         public string ReplaceParameters(string s)

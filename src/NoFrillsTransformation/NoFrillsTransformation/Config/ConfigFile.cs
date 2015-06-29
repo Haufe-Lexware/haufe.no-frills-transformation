@@ -15,6 +15,7 @@ namespace NoFrillsTransformation.Config
 
         public LoggerXml Logger { get; set; }
         public SourceTargetXml Source { get; set; }
+        public SourceTransformXml SourceTransform { get; set; }
         public SourceTargetXml Target { get; set; }
 
         public OutputFieldsXml OutputFields { get; set; }
@@ -67,6 +68,33 @@ namespace NoFrillsTransformation.Config
         public string Uri { get; set; }
         [XmlAttribute("config")]
         public string Config { get; set; }
+    }
+
+    public class SourceTransformXml
+    {
+        public SourceTargetXml Transform { get; set; }
+        [XmlArray("Parameters")]
+        [XmlArrayItem("Parameter")]
+        public TransformParameterXml[] Parameters { get; set; }
+        [XmlArray("Settings")]
+        [XmlArrayItem("Setting")]
+        public TransformSettingXml[] Settings { get; set; }
+    }
+
+    public class TransformParameterXml
+    {
+        [XmlText]
+        public string FunctionString { get; set; }
+        [XmlAttribute("name")]
+        public string Name { get; set; }
+    }
+
+    public class TransformSettingXml
+    {
+        [XmlText]
+        public string Setting { get; set; }
+        [XmlAttribute("name")]
+        public string Name { get; set; }
     }
 
     public class SourceFilterXml

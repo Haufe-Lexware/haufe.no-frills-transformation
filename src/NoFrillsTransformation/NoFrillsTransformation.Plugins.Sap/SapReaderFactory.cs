@@ -50,41 +50,9 @@ namespace NoFrillsTransformation.Plugins.Sap
 
             //context.Logger.Info("SfdcReaderFactory: Successfully created a SfdcReader.");
 
-            var sapConfig = ParseConfig(context, config);
+            var sapConfig = SapConfig.ParseConfig(context, config);
 
             return new SapReader(context, sapQuery, sapConfig);
-        }
-
-        private static SapConfig ParseConfig(IContext context, string configFile)
-        {
-            try
-            {
-                string resolvedPath = context.ResolveFileName(configFile); 
-                XmlSerializer serializer = new XmlSerializer(typeof(SapConfig));
-                using (var fs = new FileStream(resolvedPath, FileMode.Open))
-                {
-                    var config = (SapConfig)serializer.Deserialize(fs);
-                    //config.DataLoaderDir = context.ReplaceParameters(config.DataLoaderDir);
-                    //config.LogFileDir = context.ResolveFileName(context.ReplaceParameters(config.LogFileDir), false);
-                    //config.SuccessFileName = context.ResolveFileName(context.ReplaceParameters(config.SuccessFileName), false);
-                    //config.ErrorFileName = context.ResolveFileName(context.ReplaceParameters(config.ErrorFileName), false);
-                    //config.SfdcEncryptedPassword = context.ReplaceParameters(config.SfdcEncryptedPassword);
-                    //config.SfdcEndPoint = context.ReplaceParameters(config.SfdcEndPoint);
-                    //config.SfdcUsername = context.ReplaceParameters(config.SfdcUsername);
-                    config.AppServerHost = context.ReplaceParameters(config.AppServerHost);
-                    config.Client = context.ReplaceParameters(config.Client);
-                    config.Language = context.ReplaceParameters(config.Language);
-                    config.User = context.ReplaceParameters(config.User);
-                    config.Password = context.ReplaceParameters(config.Password);
-                    config.SystemNumber = context.ReplaceParameters(config.SystemNumber);
-                    config.RfcDestination = context.ReplaceParameters(config.RfcDestination);
-                    return config;
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new ArgumentException("Could not read SAP configuration file: " + configFile + ", error message: " + ex.Message);
-            }
         }
 
         private static int FindDelimiterPosition(string expression, int pos, char delimiter)

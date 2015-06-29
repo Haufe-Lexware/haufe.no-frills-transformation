@@ -66,6 +66,8 @@
     <Compile Include="MultiplyOperator.cs" />
     <Compile Include="NotOperator.cs" />
     <Compile Include="OrOperator.cs" />
+    <Compile Include="PadLeftOperator.cs" />
+    <Compile Include="PadRightOperator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReplaceOperator.cs" />
     <Compile Include="SourceRowNumOperator.cs" />

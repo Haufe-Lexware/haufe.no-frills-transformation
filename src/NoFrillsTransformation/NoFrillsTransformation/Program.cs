@@ -121,6 +121,7 @@ namespace NoFrillsTransformation
                     var readerFactory = new ReaderFactory(container);
                     var writerFactory = new WriterFactory(container);
                     var operatorFactory = new OperatorFactory(container);
+                    var transformerFactory = new TransformerFactory(container);
 
                     InitLogger(configFile, context, loggerFactory);
                     LogParameters(context);
@@ -130,6 +131,7 @@ namespace NoFrillsTransformation
                     InitOperators(configFile, context, operatorFactory);
                     InitLookupMaps(configFile, context, readerFactory);
                     InitCustomOperators(configFile, context);//, operatorFactory);
+                    InitTransformer(configFile, context, transformerFactory);
 
                     LogOperators(context);
 
@@ -169,6 +171,7 @@ namespace NoFrillsTransformation
                 return (int)ExitCodes.Failure;
             }
         }
+
 
         private int OutputSourceFieldsToConsole(Context context, bool noSizes)
         {
@@ -279,6 +282,25 @@ namespace NoFrillsTransformation
             config.Source.Config = context.ReplaceParameters(config.Source.Config);
             config.Target.Uri = context.ReplaceParameters(config.Target.Uri);
             config.Target.Config = context.ReplaceParameters(config.Target.Config);
+            if (null != config.SourceTransform)
+            {
+                config.SourceTransform.Transform.Config = context.ReplaceParameters(config.SourceTransform.Transform.Config);
+                config.SourceTransform.Transform.Uri = context.ReplaceParameters(config.SourceTransform.Transform.Uri);
+                if (null != config.SourceTransform.Parameters)
+                {
+                    foreach (var parameter in config.SourceTransform.Parameters)
+                    {
+                        parameter.FunctionString = context.ReplaceParameters(parameter.FunctionString);
+                    }
+                }
+                if (null != config.SourceTransform.Settings)
+                {
+                    foreach (var setting in config.SourceTransform.Settings)
+                    {
+                        setting.Setting = context.ReplaceParameters(setting.Setting);
+                    }
+                }
+            }
 
             if (null != config.LookupMaps)
             {
@@ -393,6 +415,59 @@ namespace NoFrillsTransformation
             }
         }
 
+        private void InitTransformer(ConfigFileXml configFile, Context context, TransformerFactory transformerFactory)
+        {
+            try
+            {
+                if (null == configFile.SourceTransform)
+                    return;
+                if (null == configFile.SourceTransform.Transform)
+                    return;
+
+                var parameters = new IParameter[configFile.SourceTransform.Parameters.Length];
+                for (int i = 0; i < parameters.Length; ++i)
+                {
+                    var xmlParam = configFile.SourceTransform.Parameters[i];
+                    parameters[i] = new TransformerParameter
+                    {
+                        Name = xmlParam.Name,
+                        FunctionString = xmlParam.FunctionString,
+                        Function = ExpressionParser.ParseExpression(xmlParam.FunctionString, context)
+                    };
+                }
+                ISetting[] settings = null;
+                if (null != configFile.SourceTransform.Settings)
+                {
+                    settings = new ISetting[configFile.SourceTransform.Settings.Length];
+                    for (int i=0; i<configFile.SourceTransform.Settings.Length; ++i)
+                    {
+                        var xmlSetting = configFile.SourceTransform.Settings[i];
+                        settings[i] = new TransformerSetting
+                        {
+                            Name = xmlSetting.Name,
+                            Setting = xmlSetting.Setting
+                        };
+                    }
+                }
+                else
+                {
+                    settings = new ISetting[0];
+                }
+
+                var transformer = transformerFactory.CreateTransformer(context, 
+                    configFile.SourceTransform.Transform.Uri,
+                    configFile.SourceTransform.Transform.Config,
+                    parameters,
+                    settings);
+
+                context.Transformer = transformer;
+            }
+            catch (Exception ex)
+            {
+                throw new ArgumentException("An error occurred while instantiating the SourceTransform plugin: " + ex.Message);
+            }
+        }
+
         private static ConfigFileXml ReadConfigFile(string configFileName)
         {
             ConfigFileXml configFile = null;
@@ -502,26 +577,62 @@ namespace NoFrillsTransformation
                         break;
                     context.SourceRecordsRead++;
 
-                    if (context.SourceRecordsRead % 1000 == 0
-                        && context.SourceRecordsRead > 0)
-                    {
-                        context.Logger.Info("Processed " + context.SourceRecordsRead + " records.");
-                    }
+                    bool hasMultipleTransformedRecord = true;
+                    bool isFirstRecord = true;
 
-                    if (!RecordMatchesFilter(evaluator, context))
+                    while (hasMultipleTransformedRecord)
                     {
-                        context.SourceRecordsFiltered++;
-                        continue;
-                    }
-                    context.SourceRecordsProcessed++;
+                        if (null != context.Transformer)
+                        {
+                            if (isFirstRecord)
+                            {
+                                try
+                                {
+                                    isFirstRecord = false;
+                                    context.InTransform = true;
+                                    context.Transformer.Transform(context, evaluator);
+                                }
+                                finally
+                                {
+                                    context.InTransform = false;
+                                }
+                            }
+                            else
+                            {
+                                context.Transformer.NextRecord();
+                            }
+                        }
+                        else
+                        {
+                            hasMultipleTransformedRecord = false;
+                        }
 
-                    for (int i = 0; i < outValues.Length; ++i)
-                    {
-                        outValues[i] = evaluator.Evaluate(evaluator, context.TargetFields[i].Expression, context);
-                    }
+                        if (context.SourceRecordsRead % 1000 == 0
+                            && context.SourceRecordsRead > 0)
+                        {
+                            context.Logger.Info("Processed " + context.SourceRecordsRead + " records.");
+                        }
 
-                    context.TargetWriter.WriteRecord(outValues);
-                    context.TargetRecordsWritten++;
+                        if (!RecordMatchesFilter(evaluator, context))
+                        {
+                            context.SourceRecordsFiltered++;
+                            continue;
+                        }
+                        context.SourceRecordsProcessed++;
+
+                        for (int i = 0; i < outValues.Length; ++i)
+                        {
+                            outValues[i] = evaluator.Evaluate(evaluator, context.TargetFields[i].Expression, context);
+                        }
+
+                        context.TargetWriter.WriteRecord(outValues);
+                        context.TargetRecordsWritten++;
+
+                        if (null != context.Transformer)
+                        {
+                            hasMultipleTransformedRecord = context.Transformer.HasMoreRecords();
+                        }
+                    }
                 }
 
                 context.Logger.Info("Finishing Write Process.");

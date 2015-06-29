@@ -25,6 +25,7 @@
         </xs:element>
 
         <xs:element name="Source" type="SourceTargetType" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="SourceTransform" type="SourceTransformType" minOccurs="0" maxOccurs="1"/>
         <xs:element name="Target" type="SourceTargetType" minOccurs="0" maxOccurs="1"/>
 
         <!--<xs:element name="OutputFields" type="xs:boolean" minOccurs="0" maxOccurs="1"/>-->
@@ -118,6 +119,42 @@
         <xs:attribute name="config" type="xs:string" use="optional"/>
       </xs:extension>
     </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="SourceTransformType">
+    <xs:sequence>
+      <xs:element name="Transform" type="SourceTargetType" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="Parameters" minOccurs="1" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Parameter" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:simpleContent>
+                  <xs:extension base="xs:string">
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                  </xs:extension>
+                </xs:simpleContent>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="Settings" minOccurs="0" maxOccurs="1">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="Setting" minOccurs="0" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:simpleContent>
+                  <xs:extension base="xs:string">
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                  </xs:extension>
+                </xs:simpleContent>
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
   </xs:complexType>
 
   <xs:complexType name="LookupMapType">
