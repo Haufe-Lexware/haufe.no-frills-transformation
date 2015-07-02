@@ -543,20 +543,28 @@ namespace NoFrillsTransformation
 
         private static ConfigFileXml MergeConfigFiles(ConfigFileXml configFile, ConfigFileXml[] includes)
         {
+            var configFiles = new List<ConfigFileXml>();
+            configFiles.AddRange(includes);
+            configFiles.Add(configFile);
+
             var customOperators = new List<CustomOperatorXml>();
-            foreach (var includeFile in includes)
+            var lookupMaps = new List<LookupMapXml>();
+            foreach (var cf in configFiles)
             {
-                if (null == includeFile.CustomOperators)
-                    continue;
-                foreach (var customOperator in includeFile.CustomOperators)
-                    customOperators.Add(customOperator);
+                if (null != cf.CustomOperators)
+                {
+                    foreach (var customOperator in cf.CustomOperators)
+                        customOperators.Add(customOperator);
+                }
+                if (null != cf.LookupMaps)
+                {
+                    foreach (var lookupMap in cf.LookupMaps)
+                        lookupMaps.Add(lookupMap);
+                }
             }
-            if (null != configFile.CustomOperators)
-            {
-                foreach (var customOperator in configFile.CustomOperators)
-                    customOperators.Add(customOperator);
-            }
+
             configFile.CustomOperators = customOperators.ToArray();
+            configFile.LookupMaps = lookupMaps.ToArray();
             return configFile;
         }
 

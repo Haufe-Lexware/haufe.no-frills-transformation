@@ -18,6 +18,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce.Config
         public string SfdcEndPoint { get; set; }
         public bool KeepTempFiles { get; set; }
         public int LoadBatchSize { get; set; }
+        public bool FailOnErrors { get; set; }
     }
 
         //public SourceTargetXml Source { get; set; }

@@ -103,6 +103,22 @@ namespace NoFrillsTransformation.Plugins.Salesforce
 
             _context.Logger.Info(output);
             _context.Logger.Info("SfdcWriter: External process Data Loader has finished.");
+
+            if (_config.FailOnErrors)
+            {
+                // This may throw an exception.
+                CheckErrorLog();
+            }
+        }
+
+        private void CheckErrorLog()
+        {
+            using (var csv = new CsvReaderPlugin(_context, "file://" + _config.ErrorFileName, "delim=','"))
+            {
+                csv.NextRecord();
+                if (!csv.IsEndOfStream)
+                    throw new InvalidOperationException("SfdcWriter: There were errors during the operation. Please see log file for more details.");
+            }
         }
 
         private string CreateMappingFile()
@@ -164,11 +180,20 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             if (!string.IsNullOrEmpty(_target.ExternalId))
                 externalIdXml = string.Format("<entry key=\"sfdc.externalIdField\" value=\"{0}\"/>", _target.ExternalId);
             var outputErrorXml = "";
-            if (!string.IsNullOrEmpty(_config.ErrorFileName))
-                outputErrorXml = string.Format("<entry key=\"process.outputError\" value=\"{0}\"/>", _config.ErrorFileName);
+            if (string.IsNullOrEmpty(_config.ErrorFileName))
+                _config.ErrorFileName = GetTempFileName("_errorlog.csv");
+            outputErrorXml = string.Format("<entry key=\"process.outputError\" value=\"{0}\"/>", _config.ErrorFileName);
+            _context.Logger.Info("SfdcWriter: Outputting error CSV to : " + _config.ErrorFileName);
             var outputSuccessXml = "";
             if (!string.IsNullOrEmpty(_config.SuccessFileName))
+            {
                 outputSuccessXml = string.Format("<entry key=\"process.outputSuccess\" value=\"{0}\"/>", _config.SuccessFileName);
+                _context.Logger.Info("SfdcWriter: Outputting success CSV to: " + _config.SuccessFileName);
+            }
+            else
+            {
+                _context.Logger.Info("SfdcWrwiter: Not outputting success CSV.");
+            }
             if (_config.LoadBatchSize == 0)
             {
                 if (_context.Parameters.ContainsKey("sfdcloadbatchsize"))

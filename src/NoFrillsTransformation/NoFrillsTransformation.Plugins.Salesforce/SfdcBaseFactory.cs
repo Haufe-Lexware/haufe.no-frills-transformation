@@ -27,6 +27,18 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                     config.SfdcEncryptedPassword = context.ReplaceParameters(config.SfdcEncryptedPassword);
                     config.SfdcEndPoint = context.ReplaceParameters(config.SfdcEndPoint);
                     config.SfdcUsername = context.ReplaceParameters(config.SfdcUsername);
+
+                    if (context.Parameters.ContainsKey("sfdckeeptempfiles"))
+                    {
+                        config.KeepTempFiles = SfdcBool(context.Parameters["sfdckeeptempfiles"]);
+                        context.Logger.Info("SFDC Settings: Override KeepTempFiles=" + config.KeepTempFiles);
+                    }
+                    if (context.Parameters.ContainsKey("sfdcfailonerrors"))
+                    {
+                        config.FailOnErrors = SfdcBool(context.Parameters["sfdcfailonerrors"]);
+                        context.Logger.Info("SFDC Settings: Override FailOnErrors=" + config.KeepTempFiles);
+                    }
+
                     return config;
                 }
             }
@@ -34,6 +46,19 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             {
                 throw new ArgumentException("Could not read SFDC configuration file: " + configFile + ", error message: " + ex.Message);
             }
+        }
+
+        private static  bool SfdcBool(string boolString)
+        {
+            switch (boolString.ToLowerInvariant())
+            {
+                case "yes":
+                case "on":
+                case "1":
+                case "true":
+                    return true;
+            }
+            return false;
         }
     }
 }
