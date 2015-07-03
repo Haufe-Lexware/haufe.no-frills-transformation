@@ -15,15 +15,25 @@ namespace NoFrillsTransformation.Operators
             Type = ExpressionType.Greater;
             Name = "greater";
             ParamCount = 2;
-            ParamTypes = new ParamType[] { ParamType.Int, ParamType.Int };
+            ParamTypes = new ParamType[] { ParamType.Any, ParamType.Any };
             ReturnType = ParamType.Bool;
         }
 
         public string Evaluate(IEvaluator eval, IExpression expression, IContext context)
         {
-            long a = long.Parse(eval.Evaluate(eval, expression.Arguments[0], context));
-            long b = long.Parse(eval.Evaluate(eval, expression.Arguments[1], context));
-            return BoolToString(a > b);
+            if (expression.Arguments[0].Operator.ReturnType == ParamType.Int
+                && expression.Arguments[1].Operator.ReturnType == ParamType.Int)
+            {
+                long a = long.Parse(eval.Evaluate(eval, expression.Arguments[0], context));
+                long b = long.Parse(eval.Evaluate(eval, expression.Arguments[1], context));
+                return BoolToString(a > b);
+            }
+            else
+            {
+                string a = eval.Evaluate(eval, expression.Arguments[0], context);
+                string b = eval.Evaluate(eval, expression.Arguments[1], context);
+                return BoolToString(a.CompareTo(b) > 0);
+            }
         }
     }
 }

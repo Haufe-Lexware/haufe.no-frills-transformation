@@ -138,7 +138,24 @@ namespace NoFrillsTransformation
                     ReadFilters(configFile, context);
                     ReadMappings(configFile, context);
 
-                    context.SourceReader = readerFactory.CreateReader(context, configFile.Source.Uri, configFile.Source.Config);
+                    if (null != configFile.Source
+                        && null != configFile.Sources
+                        && configFile.Sources.Length > 0)
+                        throw new ArgumentException("Configuration error: You can't both define the <Source> and <Sources> tag.");
+
+                    if (null != configFile.Source)
+                    {
+                        context.SourceReaders = new ISourceReader[] { 
+                            readerFactory.CreateReader(context, configFile.Source.Uri, configFile.Source.Config) 
+                        };
+                    }
+                    if (null != configFile.Sources
+                        && configFile.Sources.Length > 0)
+                    {
+                        context.SourceReaders = new ISourceReader[configFile.Sources.Length];
+                        for (int i = 0; i < configFile.Sources.Length; ++i)
+                            context.SourceReaders[i] = readerFactory.CreateReader(context, configFile.Sources[i].Uri, configFile.Sources[i].Config);
+                    }
                     if (null != configFile.OutputFields)
                     {
                         if (configFile.OutputFields.Value)
@@ -152,8 +169,10 @@ namespace NoFrillsTransformation
                     // Explicitly dispose readers and writers to have control
                     // on when these resources are released. If something fails,
                     // this is done in the Dispose() method of Context.
-                    context.SourceReader.Dispose();
-                    context.SourceReader = null;
+
+                    foreach (var reader in context.SourceReaders)
+                        reader.Dispose();
+                    context.SourceReaders = null;
                     context.TargetWriter.Dispose();
                     context.TargetWriter = null;
 
@@ -278,8 +297,19 @@ namespace NoFrillsTransformation
 
         private void ReplaceParameters(ConfigFileXml config, Context context)
         {
-            config.Source.Uri = context.ReplaceParameters(config.Source.Uri);
-            config.Source.Config = context.ReplaceParameters(config.Source.Config);
+            if (null != config.Source)
+            {
+                config.Source.Uri = context.ReplaceParameters(config.Source.Uri);
+                config.Source.Config = context.ReplaceParameters(config.Source.Config);
+            }
+            if (null != config.Sources)
+            {
+                foreach (var source in config.Sources)
+                {
+                    source.Uri = context.ReplaceParameters(source.Uri);
+                    source.Config = context.ReplaceParameters(source.Config);
+                }
+            }
             config.Target.Uri = context.ReplaceParameters(config.Target.Uri);
             config.Target.Config = context.ReplaceParameters(config.Target.Config);
             if (null != config.SourceTransform)
@@ -578,68 +608,86 @@ namespace NoFrillsTransformation
 
                 var evaluator = new ExpressionParser();
 
-                while (!context.SourceReader.IsEndOfStream)
+                if (null == context.SourceReaders)
                 {
-                    context.SourceReader.NextRecord();
-                    if (context.SourceReader.IsEndOfStream)
-                        break;
-                    context.SourceRecordsRead++;
+                    context.SourceReaders = new ISourceReader[] { context.SourceReader };
+                }
 
-                    bool hasMultipleTransformedRecord = true;
-                    bool isFirstRecord = true;
-
-                    while (hasMultipleTransformedRecord)
+                for (int source = 0; source < context.SourceReaders.Length; ++source)
+                {
+                    context.Logger.Info("Reading Source #" + (source + 1));
+                    try
                     {
-                        if (null != context.Transformer)
+                        context.SourceReader = context.SourceReaders[source];
+
+                        while (!context.SourceReader.IsEndOfStream)
                         {
-                            if (isFirstRecord)
+                            context.SourceReader.NextRecord();
+                            if (context.SourceReader.IsEndOfStream)
+                                break;
+                            context.SourceRecordsRead++;
+
+                            bool hasMultipleTransformedRecord = true;
+                            bool isFirstRecord = true;
+
+                            while (hasMultipleTransformedRecord)
                             {
-                                try
+                                if (null != context.Transformer)
                                 {
-                                    isFirstRecord = false;
-                                    context.InTransform = true;
-                                    context.Transformer.Transform(context, evaluator);
+                                    if (isFirstRecord)
+                                    {
+                                        try
+                                        {
+                                            isFirstRecord = false;
+                                            context.InTransform = true;
+                                            context.Transformer.Transform(context, evaluator);
+                                        }
+                                        finally
+                                        {
+                                            context.InTransform = false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        context.Transformer.NextRecord();
+                                    }
                                 }
-                                finally
+                                else
                                 {
-                                    context.InTransform = false;
+                                    hasMultipleTransformedRecord = false;
+                                }
+
+                                if (context.SourceRecordsRead % 1000 == 0
+                                    && context.SourceRecordsRead > 0)
+                                {
+                                    context.Logger.Info("Processed " + context.SourceRecordsRead + " records.");
+                                }
+
+                                if (!RecordMatchesFilter(evaluator, context))
+                                {
+                                    context.SourceRecordsFiltered++;
+                                    continue;
+                                }
+                                context.SourceRecordsProcessed++;
+
+                                for (int i = 0; i < outValues.Length; ++i)
+                                {
+                                    outValues[i] = evaluator.Evaluate(evaluator, context.TargetFields[i].Expression, context);
+                                }
+
+                                context.TargetWriter.WriteRecord(outValues);
+                                context.TargetRecordsWritten++;
+
+                                if (null != context.Transformer)
+                                {
+                                    hasMultipleTransformedRecord = context.Transformer.HasMoreRecords();
                                 }
                             }
-                            else
-                            {
-                                context.Transformer.NextRecord();
-                            }
                         }
-                        else
-                        {
-                            hasMultipleTransformedRecord = false;
-                        }
-
-                        if (context.SourceRecordsRead % 1000 == 0
-                            && context.SourceRecordsRead > 0)
-                        {
-                            context.Logger.Info("Processed " + context.SourceRecordsRead + " records.");
-                        }
-
-                        if (!RecordMatchesFilter(evaluator, context))
-                        {
-                            context.SourceRecordsFiltered++;
-                            continue;
-                        }
-                        context.SourceRecordsProcessed++;
-
-                        for (int i = 0; i < outValues.Length; ++i)
-                        {
-                            outValues[i] = evaluator.Evaluate(evaluator, context.TargetFields[i].Expression, context);
-                        }
-
-                        context.TargetWriter.WriteRecord(outValues);
-                        context.TargetRecordsWritten++;
-
-                        if (null != context.Transformer)
-                        {
-                            hasMultipleTransformedRecord = context.Transformer.HasMoreRecords();
-                        }
+                    }
+                    finally
+                    {
+                        context.SourceReader = null;
                     }
                 }
 

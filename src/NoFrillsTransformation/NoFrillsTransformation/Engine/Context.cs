@@ -41,6 +41,7 @@ namespace NoFrillsTransformation.Engine
 
         public ILogger Logger { get; set; }
         public ISourceReader SourceReader { get; set; }
+        public ISourceReader[] SourceReaders { get; set; }
         public ISourceTransformer Transformer { get; set; }
         public ITargetWriter TargetWriter { get; set; }
         private Dictionary<string, LookupMap> _lookupMaps = new Dictionary<string, LookupMap>();
@@ -136,6 +137,12 @@ namespace NoFrillsTransformation.Engine
                 {
                     SourceReader.Dispose();
                     SourceReader = null;
+                }
+                if (null != SourceReaders)
+                {
+                    foreach (var reader in SourceReaders)
+                        reader.Dispose();
+                    SourceReaders = null;
                 }
                 if (null != TargetWriter)
                 {

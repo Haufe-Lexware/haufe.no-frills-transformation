@@ -48,6 +48,8 @@ namespace NoFrillsTransformation.Interfaces
         Greater,
         GreaterEqual,
         PadLeft,
-        PadRight
+        PadRight,
+        True,
+        False
     }
 }

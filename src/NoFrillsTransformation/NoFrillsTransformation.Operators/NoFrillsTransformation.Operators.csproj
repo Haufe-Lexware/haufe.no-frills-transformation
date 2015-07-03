@@ -52,6 +52,7 @@
     <Compile Include="EqualsIgnoreCaseOperator.cs" />
     <Compile Include="EqualsOperator.cs" />
     <Compile Include="ErrorOperator.cs" />
+    <Compile Include="FalseOperator.cs" />
     <Compile Include="GreaterEqualOperator.cs" />
     <Compile Include="GreaterOperator.cs" />
     <Compile Include="HasKeyOperator.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="SubtractOperator.cs" />
     <Compile Include="TargetRowNumOperator.cs" />
     <Compile Include="TrimOperator.cs" />
+    <Compile Include="TrueOperator.cs" />
     <Compile Include="UpperCaseOperator.cs" />
   </ItemGroup>
   <ItemGroup>

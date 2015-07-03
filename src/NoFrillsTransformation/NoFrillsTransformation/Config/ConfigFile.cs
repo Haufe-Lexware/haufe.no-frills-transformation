@@ -15,6 +15,9 @@ namespace NoFrillsTransformation.Config
 
         public LoggerXml Logger { get; set; }
         public SourceTargetXml Source { get; set; }
+        [XmlArray("Sources")]
+        [XmlArrayItem("Source")]
+        public SourceTargetXml[] Sources { get; set; }
         public SourceTransformXml SourceTransform { get; set; }
         public SourceTargetXml Target { get; set; }
 
