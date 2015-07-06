@@ -194,49 +194,58 @@ namespace NoFrillsTransformation
 
         private int OutputSourceFieldsToConsole(Context context, bool noSizes)
         {
-            int[] sizes = new int[context.SourceReader.FieldCount];
-            for (int i = 0; i < sizes.Length; ++i)
-                sizes[i] = 0;
-            int maxCount = 100;
-
-            if (!noSizes)
+            try
             {
-                while (!context.SourceReader.IsEndOfStream
-                    && context.SourceRecordsRead < maxCount)
-                {
-                    context.SourceReader.NextRecord();
-                    context.SourceRecordsRead++;
+                context.SourceReader = context.SourceReaders[0];
 
-                    var rec = context.SourceReader.CurrentRecord;
+                int[] sizes = new int[context.SourceReader.FieldCount];
+                for (int i = 0; i < sizes.Length; ++i)
+                    sizes[i] = 0;
+                int maxCount = 100;
+
+                if (!noSizes)
+                {
+                    while (!context.SourceReader.IsEndOfStream
+                        && context.SourceRecordsRead < maxCount)
+                    {
+                        context.SourceReader.NextRecord();
+                        context.SourceRecordsRead++;
+
+                        var rec = context.SourceReader.CurrentRecord;
+                        for (int i = 0; i < sizes.Length; ++i)
+                        {
+                            int l = rec[i].Length;
+                            if (l > sizes[i])
+                                sizes[i] = l;
+                        }
+                    }
                     for (int i = 0; i < sizes.Length; ++i)
                     {
-                        int l = rec[i].Length;
-                        if (l > sizes[i])
-                            sizes[i] = l;
+                        sizes[i] = ((sizes[i] + 10) / 10) * 10;
                     }
                 }
+
+                Console.WriteLine("  <Mappings>");
+                Console.WriteLine("    <Mapping>");
+                Console.WriteLine("      <Fields>");
+
                 for (int i = 0; i < sizes.Length; ++i)
                 {
-                    sizes[i] = ((sizes[i] + 10) / 10) * 10;
+                    if (!noSizes)
+                        Console.WriteLine("        <Field name=\"{0}\" maxSize=\"{1}\">${0}</Field>", context.SourceReader.FieldNames[i], sizes[i]);
+                    else
+                        Console.WriteLine("        <Field name=\"{0}\">${0}</Field>", context.SourceReader.FieldNames[i]);
                 }
+                Console.WriteLine("      </Fields>");
+                Console.WriteLine("    </Mapping>");
+                Console.WriteLine("  </Mappings>");
+
+                return (int)ExitCodes.Success;
             }
-
-            Console.WriteLine("  <Mappings>");
-            Console.WriteLine("    <Mapping>");
-            Console.WriteLine("      <Fields>");
-
-            for (int i=0; i<sizes.Length; ++i)
+            finally
             {
-                if (!noSizes)
-                    Console.WriteLine("        <Field name=\"{0}\" maxSize=\"{1}\">${0}</Field>", context.SourceReader.FieldNames[i], sizes[i]);
-                else
-                    Console.WriteLine("        <Field name=\"{0}\">${0}</Field>", context.SourceReader.FieldNames[i]);
+                context.SourceReader = null;
             }
-            Console.WriteLine("      </Fields>");
-            Console.WriteLine("    </Mapping>");
-            Console.WriteLine("  </Mappings>");
-
-            return (int)ExitCodes.Success;
         }
 
         private void LogOperators(Context context)

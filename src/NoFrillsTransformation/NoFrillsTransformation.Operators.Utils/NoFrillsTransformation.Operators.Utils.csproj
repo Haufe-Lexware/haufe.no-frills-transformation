@@ -51,6 +51,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FileResolveOperator.cs" />
     <Compile Include="RegexMatchOperator.cs" />
+    <Compile Include="TimeSpanMonths.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NoFrillsTransformation.Interfaces\NoFrillsTransformation.Interfaces.csproj">
