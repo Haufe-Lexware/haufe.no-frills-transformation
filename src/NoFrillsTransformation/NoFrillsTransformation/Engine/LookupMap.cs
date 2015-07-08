@@ -24,9 +24,13 @@ namespace NoFrillsTransformation.Engine
                     try
                     {
                         keyIndex = reader.GetFieldIndex(config.Key);
+                        if (keyIndex < 0)
+                            throw new Exception();
                     }
                     catch (Exception)
                     {
+                        foreach (var fieldName in reader.FieldNames)
+                            context.Logger.Info("Lookup map field checked: " + fieldName);
                         throw new Exception("Cannot find key field '" + config.Key + "' in lookup source '" + config.Source.Uri + "'.");
                     }
 

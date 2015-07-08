@@ -19,7 +19,10 @@ namespace NoFrillsTransformation.Plugins.Csv
             try
             {
                 ReadConfig(config);
-                textReader = new StreamReader(new FileStream(_fileName, FileMode.Open));
+                if (null == _encoding)
+                    textReader = new StreamReader(new FileStream(_fileName, FileMode.Open));
+                else
+                    textReader = new StreamReader(new FileStream(_fileName, FileMode.Open), _encoding);
                 _csvReader = new LumenWorks.Framework.IO.Csv.CsvReader(textReader, true, _delimiter);
                 ConfigureReader();
             }
@@ -38,6 +41,8 @@ namespace NoFrillsTransformation.Plugins.Csv
         #region Configuration
         protected char _delimiter = ',';
         protected bool _multiline = true;
+        protected string _encodingString = null;
+        protected Encoding _encoding = null;
 
         protected override void SetConfig(string parameter, string configuration)
         {
@@ -62,6 +67,11 @@ namespace NoFrillsTransformation.Plugins.Csv
                         default:
                             throw new ArgumentException("Invalid configuration setting for 'multiline': '" + configuration + "'. Expected true or false.");
                     }
+                    break;
+
+                case "encoding":
+                    _encodingString = configuration;
+                    _encoding = Encoding.GetEncoding(_encodingString);
                     break;
 
                 default:
