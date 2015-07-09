@@ -137,25 +137,8 @@ namespace NoFrillsTransformation
 
                     ReadFilters(configFile, context);
                     ReadMappings(configFile, context);
+                    ReadSources(context, configFile, readerFactory);
 
-                    if (null != configFile.Source
-                        && null != configFile.Sources
-                        && configFile.Sources.Length > 0)
-                        throw new ArgumentException("Configuration error: You can't both define the <Source> and <Sources> tag.");
-
-                    if (null != configFile.Source)
-                    {
-                        context.SourceReaders = new ISourceReader[] { 
-                            readerFactory.CreateReader(context, configFile.Source.Uri, configFile.Source.Config) 
-                        };
-                    }
-                    if (null != configFile.Sources
-                        && configFile.Sources.Length > 0)
-                    {
-                        context.SourceReaders = new ISourceReader[configFile.Sources.Length];
-                        for (int i = 0; i < configFile.Sources.Length; ++i)
-                            context.SourceReaders[i] = readerFactory.CreateReader(context, configFile.Sources[i].Uri, configFile.Sources[i].Config);
-                    }
                     if (null != configFile.OutputFields)
                     {
                         if (configFile.OutputFields.Value)
@@ -188,6 +171,63 @@ namespace NoFrillsTransformation
                     Console.Error.WriteLine("Operation failed: " + ex.Message);
                 }
                 return (int)ExitCodes.Failure;
+            }
+        }
+
+        private static void ReadSources(Context context, ConfigFileXml configFile, ReaderFactory readerFactory)
+        {
+            var sourceList = new List<ISourceReader>();
+            var sourceFiles = new HashSet<string>();
+            if (null != configFile.Source
+                && null != configFile.Sources
+                && configFile.Sources.Length > 0)
+                throw new ArgumentException("Configuration error: You can't both define the <Source> and <Sources> tag.");
+
+            if (null != configFile.Source)
+            {
+                var thisSource = configFile.Source;
+                AddSources(context, readerFactory, sourceList, sourceFiles, thisSource);
+            }
+
+            if (null != configFile.Sources
+                && configFile.Sources.Length > 0)
+            {
+                for (int i = 0; i < configFile.Sources.Length; ++i)
+                {
+                    //    sourceList.Add(readerFactory.CreateReader(context, configFile.Sources[i].Uri, configFile.Sources[i].Config));
+                    AddSources(context, readerFactory, sourceList, sourceFiles, configFile.Sources[i]);
+                }
+            }
+
+            context.SourceReaders = sourceList.ToArray();
+
+            if (context.SourceReaders.Length <= 0)
+                throw new ArgumentException("No Sources were identified.");
+        }
+
+        private static void AddSources(Context context, ReaderFactory readerFactory, List<ISourceReader> sourceList, HashSet<string> sourceFiles, SourceTargetXml thisSource)
+        {
+            // Wildcards in Source?
+            if (thisSource.Uri.StartsWith("file://")
+                && (thisSource.Uri.Contains("*") || thisSource.Uri.Contains("?")))
+            {
+                string sourceFile = thisSource.Uri.Substring(7); // strip file://
+                context.Logger.Info("Detected wildcards in file name (" + sourceFile + ").");
+                string path = Path.GetDirectoryName(sourceFile);
+                string resolvedPath = context.ResolveFileName(path, false);
+                string fileName = Path.GetFileName(sourceFile);
+                foreach (string sourceFileName in Directory.EnumerateFiles(resolvedPath, fileName))
+                {
+                    if (sourceFiles.Contains(sourceFileName))
+                        continue;
+                    context.Logger.Info("Creating reader for: " + sourceFileName);
+                    sourceList.Add(readerFactory.CreateReader(context, "file://" + sourceFileName, thisSource.Config));
+                    sourceFiles.Add(sourceFileName);
+                }
+            }
+            else
+            {
+                sourceList.Add(readerFactory.CreateReader(context, thisSource.Uri, thisSource.Config));
             }
         }
 
@@ -421,7 +461,7 @@ namespace NoFrillsTransformation
                         int conditionCount = op.Switch.Cases.Length;
                         var conditions = new IExpression[conditionCount];
                         var caseFunctions = new IExpression[conditionCount];
-                        for (int i=0; i<conditionCount; ++i)
+                        for (int i = 0; i < conditionCount; ++i)
                         {
                             var thisCase = op.Switch.Cases[i];
                             conditions[i] = ExpressionParser.ParseExpression(thisCase.Condition, context);
@@ -478,7 +518,7 @@ namespace NoFrillsTransformation
                 if (null != configFile.SourceTransform.Settings)
                 {
                     settings = new ISetting[configFile.SourceTransform.Settings.Length];
-                    for (int i=0; i<configFile.SourceTransform.Settings.Length; ++i)
+                    for (int i = 0; i < configFile.SourceTransform.Settings.Length; ++i)
                     {
                         var xmlSetting = configFile.SourceTransform.Settings[i];
                         settings[i] = new TransformerSetting
@@ -493,7 +533,7 @@ namespace NoFrillsTransformation
                     settings = new ISetting[0];
                 }
 
-                var transformer = transformerFactory.CreateTransformer(context, 
+                var transformer = transformerFactory.CreateTransformer(context,
                     configFile.SourceTransform.Transform.Uri,
                     configFile.SourceTransform.Transform.Config,
                     parameters,
@@ -572,7 +612,7 @@ namespace NoFrillsTransformation
             int includeCount = configFile.Includes != null ? configFile.Includes.Length : 0;
 
             ConfigFileXml[] includes = new ConfigFileXml[includeCount];
-            for (int i=0; i<includeCount; ++i)
+            for (int i = 0; i < includeCount; ++i)
             {
                 string resolvedPath = context.ResolveFileName(configFile.Includes[i].FileName);
                 includes[i] = ReadConfigFile(resolvedPath);
@@ -768,7 +808,7 @@ namespace NoFrillsTransformation
                     var filterXml = configFile.SourceFilters[i];
                     context.Filters[i] = new FilterDef { Expression = ExpressionParser.ParseExpression(filterXml.Expression, context) };
                     if (context.Filters[i].Expression.Operator.ReturnType != ParamType.Bool)
-                        throw new InvalidOperationException("Source filter expression mismatch: Expression '" + 
+                        throw new InvalidOperationException("Source filter expression mismatch: Expression '" +
                             filterXml.Expression + "' does not evaluate to a boolean value.");
                 }
             }
