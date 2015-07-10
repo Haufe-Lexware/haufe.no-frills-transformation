@@ -1,20 +1,34 @@
 # no-frills-transformation
 
-"No frills transformation" (NFT) is intended to be a lightweight transformation engine, with very limited support
-for reading and writing stuff, but having an extensible interface.
+"No frills transformation" (NFT) is intended to be a lightweight transformation engine, having an extensible interface which makes it simple to
+
+* Add Source Readers
+* Add Target Writers
+* Add Operators (if you can't do with the Custom Operators)
 
 Out of the box, NFT will read:
 
-* CSV files
+* CSV files in any encoding
 * Salesforce SOQL queries
+* SQLite Databases
+* MySql Databases
+* Oracle Databases
+* SQL Server Databases
+* From SAP RFCs if they have a TABLE as output value (limited support currently)
 
 and write
 
-* CSV files
+* CSV files in any encoding (including with or without UTF-8 BOMs)
+* Salesforce Objects (including Upserts and using External IDs)
+* Rudimentary XML files
 
-because... that's what I currently need ;-)
+A special "transformation" filter is supported, which currently only has an implementation for
 
-In an ETL scenario, NFT is neither designed to do the "E" nor the "L" part, mostly just "T" tasks. 
+* SAP RFC Transformations: Read the parameters from a source and pass them to the RFC and retrieve the results from that to the output
+
+There may be more to come; and if you have special needs, feel free to reach out and we'll look together what we can do about it.
+
+In an ETL scenario, NFT is not specifically designed to do the "E" nor the "L" part, mostly just "T" tasks. 
 But that quickly and efficiently, supporting the basic transformation stuff you might need (and
  with extensibility support if you need something out of the order). For convenience, the "E" is
  supported better than "L", with e.g. a Salesforce Reader for SOQL queries.

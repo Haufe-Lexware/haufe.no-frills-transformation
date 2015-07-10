@@ -15,7 +15,7 @@ namespace NoFrillsTransformation.Plugins.Xml
             if (string.IsNullOrWhiteSpace(target))
                 return false;
             string temp = target.ToLowerInvariant();
-            if (!temp.StartsWith("xml://"))
+            if (!temp.StartsWith("xml://") && !temp.StartsWith("file://"))
                 return false;
             if (!temp.EndsWith(".xml"))
                 return false;
@@ -24,7 +24,7 @@ namespace NoFrillsTransformation.Plugins.Xml
 
         public ITargetWriter CreateWriter(IContext context, string target, IFieldDefinition[] fieldDefs, string config)
         {
-            context.Logger.Info("XmlWriterFactory: Creating a XmlWriterPlugin.");
+            context.Logger.Info("XmlWriterFactory: Creating an XmlWriterPlugin.");
             return new XmlWriterPlugin(context, target, GetFieldNames(fieldDefs), GetFieldSizes(fieldDefs), config);
         }
 

@@ -20,7 +20,8 @@ namespace NoFrillsTransformation.Plugins.Xml
         public XmlWriterPlugin(IContext context, string target, string[] fieldNames, int[] fieldSizes, string config)
         {
             this._context = context;
-            this._fileName = context.ResolveFileName(target.Substring(6), false); // Strip xml://
+            var tempFileName = target.StartsWith("xml") ? target.Substring(6) : target.Substring(7); // xml:// or file://
+            this._fileName = context.ResolveFileName(tempFileName, false);
             this._fieldNames = fieldNames;
             this._fieldSizes = fieldSizes;
             this._config = config;
