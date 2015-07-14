@@ -17,6 +17,8 @@ namespace NoFrillsTransformation.Engine
                 throw new ArgumentException("The string '" + expressionString + "' is not a valid expression.");
             string t = expressionString.Trim();
 
+            t = ReplaceInfixOperators(t);
+
             int pos = 0;
             char firstChar = t[pos];
             if (firstChar == '$')
@@ -89,6 +91,45 @@ namespace NoFrillsTransformation.Engine
             {
                 throw new ArgumentException("Prematurely reached end of line at position " + pos);
             }
+        }
+
+        private class InfixOperator
+        {
+            public char Infix;
+            public string Operator;
+        }
+
+        private static InfixOperator[] _infixOperators = new InfixOperator[]
+            {
+                new InfixOperator { Infix = '+', Operator = "Concat" },
+                new InfixOperator { Infix = '=', Operator = "Equals" }
+            };
+
+        private static string ReplaceInfixOperators(string exp)
+        {
+            int minPos = Int32.MaxValue;
+            int infixIndex = -1;
+            for (int i = 0; i < _infixOperators.Length; ++i)
+            {
+                int infixPosition = FindDelimiterPosition(exp, 0, _infixOperators[i].Infix, false);
+                if (infixPosition >= 0
+                    && infixPosition < minPos)
+                {
+                    infixIndex = i;
+                    minPos = infixPosition;
+                }
+            }
+
+            if (infixIndex < 0)
+                return exp;
+
+            return string.Format("{0}({1}, {2})", _infixOperators[infixIndex].Operator, exp.Substring(0, minPos), exp.Substring(minPos + 1));
+            //// +
+            //int plusPosition = FindDelimiterPosition(exp, 0, '+', false);
+            //int equalsPosition = FindDelimiterPosition(exp, 0, '=', false);
+            //if (plusPosition < 0)
+            //    return exp;
+            //return string.Format("Concat({0}, {1})", exp.Substring(0, plusPosition), exp.Substring(plusPosition + 1));
         }
 
         private static void SanityCheckExpression(Expression ex)
@@ -328,6 +369,11 @@ namespace NoFrillsTransformation.Engine
 
         private static int FindDelimiterPosition(string expression, int pos, char delimiter)
         {
+            return FindDelimiterPosition(expression, pos, delimiter, true);
+        }
+
+        private static int FindDelimiterPosition(string expression, int pos, char delimiter, bool throwException)
+        {
             int delimPos = pos;
             bool inQuote = false;
             int parCount = 0;
@@ -342,7 +388,11 @@ namespace NoFrillsTransformation.Engine
             while (c != delimiter || inQuote || parCount > 0)
             {
                 if (delimPos >= len)
-                    throw new ArgumentException("End of expression found when looking for delimiter '" + delimiter + "' in expression '" + expression + "'.");
+                {
+                    if (throwException)
+                        throw new ArgumentException("End of expression found when looking for delimiter '" + delimiter + "' in expression '" + expression + "'.");
+                    return -1;
+                }
                 if (!skipNext)
                 {
                     c = expression[delimPos];

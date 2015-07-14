@@ -10,7 +10,7 @@ namespace NoFrillsTransformation.Logging
     {
         public StdOutLogger(LogLevel logLevel)
         {
-            DateFormat = "yyyy-MM-dd hh:mm:ss";
+            DateFormat = "yyyy-MM-dd HH:mm:ss";
             LogLevel = logLevel;
         }
 
