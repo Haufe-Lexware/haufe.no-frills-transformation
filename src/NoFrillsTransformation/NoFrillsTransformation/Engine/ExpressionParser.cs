@@ -182,8 +182,36 @@ namespace NoFrillsTransformation.Engine
 
         private static string ReplaceEscapeChars(string s)
         {
-            s = s.Replace("\\n", "\n");
-            s = s.Replace("\\t", "\t");
+            if (!s.Contains('\\'))
+                return s;
+            var sb = new StringBuilder();
+            int len = s.Length;
+            bool prevWasBackslash = false;
+            for (int i = 0; i < len; ++i)
+            {
+                char c = s[i];
+                if (prevWasBackslash)
+                {
+                    switch (c)
+                    {
+                        case 't': sb.Append('\t'); break;
+                        case 'n': sb.Append('\n'); break;
+                        default: sb.Append(c); break;
+                    }
+                    prevWasBackslash = false;
+                }
+                else
+                {
+                    switch (c)
+                    {
+                        case '\\': prevWasBackslash = true; break;
+                        default: sb.Append(c); break;
+                    }
+                }
+            }
+            if (prevWasBackslash)
+                throw new ArgumentException("String '" + s + "' ends with a backslash, did you mean \\\\?");
+
             return s;
         }
 

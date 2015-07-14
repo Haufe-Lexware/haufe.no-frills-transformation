@@ -407,9 +407,10 @@ namespace NoFrillsTransformation
             {
                 foreach (var opConfig in config.OperatorConfigs)
                 {
-                    if (!context.Operators.ContainsKey(opConfig.Name))
+                    string opName = opConfig.Name.ToLowerInvariant();
+                    if (!context.Operators.ContainsKey(opName))
                         throw new InvalidOperationException("Configuration was passed in config XML for unknown operator '" + opConfig.Name + ". Are your plugins in the same folder as the executable?");
-                    context.Operators[opConfig.Name].Configure(opConfig.Config);
+                    context.Operators[opName].Configure(opConfig.Config);
                 }
             }
 
