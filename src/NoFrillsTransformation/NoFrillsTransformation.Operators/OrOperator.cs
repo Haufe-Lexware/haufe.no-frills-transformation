@@ -22,8 +22,10 @@ namespace NoFrillsTransformation.Operators
         public string Evaluate(IEvaluator eval, IExpression expression, IContext context)
         {
             bool a = StringToBool(eval.Evaluate(eval, expression.Arguments[0], context));
+            if (a)
+                return BoolToString(true);
             bool b = StringToBool(eval.Evaluate(eval, expression.Arguments[1], context));
-            return BoolToString(a || b);
+            return BoolToString(b);
         }
     }
 

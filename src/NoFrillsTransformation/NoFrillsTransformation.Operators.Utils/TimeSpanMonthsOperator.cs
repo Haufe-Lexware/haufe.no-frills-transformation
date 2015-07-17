@@ -33,8 +33,18 @@ namespace NoFrillsTransformation.Operators.Utils
             if (string.IsNullOrWhiteSpace(formatString))
                 throw new ArgumentException("TimeSpanMonthsOperator: A format string must be provided");
 
-            DateTime beginDate = DateTime.ParseExact(beginDateString, formatString, CultureInfo.CurrentCulture);
-            DateTime endDate = DateTime.ParseExact(endDateString, formatString, CultureInfo.CurrentCulture);
+            DateTime beginDate;
+            DateTime endDate;
+            try { beginDate = DateTime.ParseExact(beginDateString, formatString, CultureInfo.CurrentCulture); }
+            catch (Exception ex)
+            {
+                throw new ArgumentException("TimeSpanMonthsOperator: Begin Date ('" + beginDateString + "') could not be parsed. Wrong format? Exception: " + ex.Message);
+            }
+            try { endDate = DateTime.ParseExact(endDateString, formatString, CultureInfo.CurrentCulture); }
+            catch (Exception ex)
+            {
+                throw new ArgumentException("TimeSpanMonthsOperator: End Date ('" + endDateString + "') could not be parsed. Wrong format? Exception: " + ex.Message);
+            }
 
             int beginYear = beginDate.Year;
             int endYear = endDate.Year;
