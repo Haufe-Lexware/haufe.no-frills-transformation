@@ -3,15 +3,19 @@
   <!-- 
   <Logger type="file" level="info">C:\Projects\no-frills-transformation\scratch\log.txt</Logger>
   -->
+  <!--
   <Source config="C:\Projects\no-frills-transformation\config\sfdc_config_martin.xml">soql://Select Id, Name, Phone From Account</Source>
-  <Target config="delim=',' encoding='UTF-16'">file://C:\Projects\no-frills-transformation\scratch\sfdc-accounts.csv</Target>
-  
+  -->
+  <Source config="C:\Projects\no-frills-transformation\config\sfdc_config_martin.xml">soql://Select Id, FirstName, LastName, Title, Email, Phone, Owner from Contact Where Id = '00325000001VGmv'</Source>
+  <!--<Target config="delim=',' encoding='UTF-8'">file://C:\Projects\no-frills-transformation\scratch\martin-contact.csv</Target>-->
+  <Target config="C:\Projects\no-frills-transformation\config\sfdc_config_martin.xml">sfdc://Contact.upsert:SomeExternalId__c</Target>
+  <OutputFields>true</OutputFields>
   <Mappings>
     <Mapping>
       <Fields>
-        <Field name="Id">$ID</Field>
+        <!--<Field name="Id">$ID</Field>
         <Field name="Name">$NAME</Field>
-        <Field name="Phone">$PHONE</Field>
+        <Field name="Phone">$PHONE</Field>-->
       </Fields>
     </Mapping>
   </Mappings>

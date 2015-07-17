@@ -33,6 +33,9 @@ namespace NoFrillsTransformation.Config
         [XmlArray("Mappings")]
         [XmlArrayItem("Mapping")]
         public MappingXml[] Mappings { get; set; }
+        [XmlArray("Fields")]
+        [XmlArrayItem("Field")]
+        public FieldXml[] Fields { get; set; }
         [XmlArray("OperatorConfigs")]
         [XmlArrayItem("OperatorConfig")]
         public OperatorConfigXml[] OperatorConfigs { get; set; }

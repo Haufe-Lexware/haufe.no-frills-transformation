@@ -14,9 +14,9 @@ namespace NoFrillsTransformation.Operators
         public ParamType[] ParamTypes { get; protected set; }
         public ParamType ReturnType { get; protected set; }
 
-        public void Configure(string config)
+        public virtual void Configure(string config)
         {
-            // None of the built-in operators need configuring.
+            // Only a few of the built-in operators support configuring.
         }
 
         internal static bool StringToBool(string s)

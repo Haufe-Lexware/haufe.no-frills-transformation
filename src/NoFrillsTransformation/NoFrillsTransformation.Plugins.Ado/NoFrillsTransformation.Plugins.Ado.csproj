@@ -103,7 +103,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AdoBase.cs" />
     <Compile Include="AdoReader.cs" />
+    <Compile Include="AdoWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

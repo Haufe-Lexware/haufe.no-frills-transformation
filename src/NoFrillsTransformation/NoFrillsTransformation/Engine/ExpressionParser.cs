@@ -99,37 +99,36 @@ namespace NoFrillsTransformation.Engine
             public string Operator;
         }
 
+        // In top-down order of evaluation.
         private static InfixOperator[] _infixOperators = new InfixOperator[]
             {
+                new InfixOperator { Infix = '=', Operator = "Equals" },
                 new InfixOperator { Infix = '+', Operator = "Concat" },
-                new InfixOperator { Infix = '=', Operator = "Equals" }
             };
 
         private static string ReplaceInfixOperators(string exp)
         {
-            int minPos = Int32.MaxValue;
+            return ReplaceInfixOperatorsInternal(exp, _infixOperators);
+        }
+
+        private static string ReplaceInfixOperatorsInternal(string exp, InfixOperator[] operators)
+        {
             int infixIndex = -1;
-            for (int i = 0; i < _infixOperators.Length; ++i)
+            int infixPosition = -1;
+            for (int i = 0; i < operators.Length; ++i)
             {
-                int infixPosition = FindDelimiterPosition(exp, 0, _infixOperators[i].Infix, false);
-                if (infixPosition >= 0
-                    && infixPosition < minPos)
+                infixPosition = FindDelimiterPosition(exp, 0, operators[i].Infix, false);
+                if (infixPosition >= 0)
                 {
                     infixIndex = i;
-                    minPos = infixPosition;
+                    break;
                 }
             }
 
             if (infixIndex < 0)
                 return exp;
 
-            return string.Format("{0}({1}, {2})", _infixOperators[infixIndex].Operator, exp.Substring(0, minPos), exp.Substring(minPos + 1));
-            //// +
-            //int plusPosition = FindDelimiterPosition(exp, 0, '+', false);
-            //int equalsPosition = FindDelimiterPosition(exp, 0, '=', false);
-            //if (plusPosition < 0)
-            //    return exp;
-            //return string.Format("Concat({0}, {1})", exp.Substring(0, plusPosition), exp.Substring(plusPosition + 1));
+            return string.Format("{0}({1}, {2})", operators[infixIndex].Operator, exp.Substring(0, infixPosition), exp.Substring(infixPosition + 1));
         }
 
         private static void SanityCheckExpression(Expression ex)

@@ -79,6 +79,14 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
+  
+        <xs:element name="Fields" minOccurs="0" maxOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="Field" type="FieldType" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         
         <xs:element name="Mappings" minOccurs="0" maxOccurs="1">
           <xs:complexType>

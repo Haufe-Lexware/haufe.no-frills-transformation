@@ -89,6 +89,7 @@ namespace NoFrillsTransformation
                     Console.WriteLine("Duplicate parameter name: '" + paramName + "'.");
                     return null;
                 }
+
                 dict[paramName] = paramValue;
             }
             return dict;
@@ -123,6 +124,7 @@ namespace NoFrillsTransformation
                     var operatorFactory = new OperatorFactory(container);
                     var transformerFactory = new TransformerFactory(container);
 
+                    ResolveParameters(context);
                     InitLogger(configFile, context, loggerFactory);
                     LogParameters(context);
                     ReplaceParameters(configFile, context);
@@ -171,6 +173,20 @@ namespace NoFrillsTransformation
                     Console.Error.WriteLine("Operation failed: " + ex.Message);
                 }
                 return (int)ExitCodes.Failure;
+            }
+        }
+
+        private static void ResolveParameters(Context context)
+        {
+            string[] keys = context.Parameters.Keys.ToArray();
+            foreach (string key in keys)
+            {
+                var value = context.Parameters[key];
+                if (!value.StartsWith("@"))
+                    continue;
+
+                var fileName = context.ResolveFileName(value.Substring(1)); // strip @
+                context.Parameters[key] = File.ReadAllText(fileName);
             }
         }
 
@@ -265,20 +281,16 @@ namespace NoFrillsTransformation
                     }
                 }
 
-                Console.WriteLine("  <Mappings>");
-                Console.WriteLine("    <Mapping>");
-                Console.WriteLine("      <Fields>");
+                Console.WriteLine("  <Fields>");
 
                 for (int i = 0; i < sizes.Length; ++i)
                 {
                     if (!noSizes)
-                        Console.WriteLine("        <Field name=\"{0}\" maxSize=\"{1}\">${0}</Field>", context.SourceReader.FieldNames[i], sizes[i]);
+                        Console.WriteLine("    <Field name=\"{0}\" maxSize=\"{1}\">${0}</Field>", context.SourceReader.FieldNames[i], sizes[i]);
                     else
-                        Console.WriteLine("        <Field name=\"{0}\">${0}</Field>", context.SourceReader.FieldNames[i]);
+                        Console.WriteLine("    <Field name=\"{0}\">${0}</Field>", context.SourceReader.FieldNames[i]);
                 }
-                Console.WriteLine("      </Fields>");
-                Console.WriteLine("    </Mapping>");
-                Console.WriteLine("  </Mappings>");
+                Console.WriteLine("  </Fields>");
 
                 return (int)ExitCodes.Success;
             }
@@ -823,16 +835,26 @@ namespace NoFrillsTransformation
 
         private void ReadMappings(ConfigFileXml configFile, Context context)
         {
-            if (null == configFile.Mappings)
-                throw new ArgumentException("Configuration file misses Mappings section.");
-            if (configFile.Mappings.Length == 0)
-                throw new ArgumentException("Configuration file does not have a valid Mapping (<Mapping> tag missing).");
-            if (configFile.Mappings.Length > 1)
-                throw new ArgumentException("Multiple Mapping tags are not allowed currently.");
-            var map = configFile.Mappings[0]; // Pick first mapping; it might be extended later on.
-            if (null == map.Fields)
-                throw new ArgumentException("Missing field definitions in mapping.");
-            int fieldCount = map.Fields.Length;
+            FieldXml[] fields = null;
+            if (null == configFile.Mappings && null == configFile.Fields)
+                throw new ArgumentException("Configuration file misses Mappings or Fields section.");
+            if (null != configFile.Mappings)
+            {
+                if (configFile.Mappings.Length == 0)
+                    throw new ArgumentException("Configuration file does not have a valid Mapping (<Mapping> tag missing).");
+                if (configFile.Mappings.Length > 1)
+                    throw new ArgumentException("Multiple Mapping tags are not allowed currently.");
+                var map = configFile.Mappings[0]; // Pick first mapping; it might be extended later on.
+                if (null == map.Fields)
+                    throw new ArgumentException("Missing field definitions in mapping.");
+                fields = map.Fields;
+            }
+            else
+            {
+                // Fields directly in Config File
+                fields = configFile.Fields;
+            }
+            int fieldCount = fields.Length;
 
             //context.TargetFieldNames = new string[] { };
             //context.TargetFieldSizes = new int[] { }; 
@@ -840,7 +862,7 @@ namespace NoFrillsTransformation
 
             for (int i = 0; i < fieldCount; ++i)
             {
-                var field = map.Fields[i];
+                var field = fields[i];
                 try
                 {
                     var tfd = new TargetFieldDef();

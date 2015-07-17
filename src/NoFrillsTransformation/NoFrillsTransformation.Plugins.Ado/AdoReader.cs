@@ -3,31 +3,30 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Text;
 using NoFrillsTransformation.Interfaces;
 
 namespace NoFrillsTransformation.Plugins.Ado
 {
-    public class AdoReader : ISourceReader, IRecord
+    public abstract class AdoReader : AdoBase, ISourceReader, IRecord
     {
         public AdoReader(IContext context, string config, string sqlQuery)
         {
             _context = context;
-            _config = config;
-            _sqlQuery = sqlQuery;
+            _config = GetConfig(context, config);
+            // You never know whether they want to use §parameters§ in the SQL...
+            _sqlQuery = context.ReplaceParameters(sqlQuery);
 
             Initialize();
         }
+
 
         private string _config;
         private string _sqlQuery;
         private IContext _context;
         private bool _endOfStream = false;
-
-        //private SqlConnection _sqlConnection;
-        //private SqlCommand _sqlCommand;
-        //private IDataReader _sqlReader;
 
         protected string Config { get { return _config; } }
         protected string SqlQuery { get { return _sqlQuery; } }
@@ -35,13 +34,7 @@ namespace NoFrillsTransformation.Plugins.Ado
 
         protected virtual IDataReader SqlReader { get { return null; } }
 
-        protected virtual void Initialize()
-        {
-            //_sqlConnection = new SqlConnection(_config);
-            //_sqlCommand = new SqlCommand(_sqlQuery, _sqlConnection);
-            //_sqlConnection.Open();
-            //_sqlReader = _sqlCommand.ExecuteReader();
-        }
+        protected abstract void Initialize();
 
         public bool IsEndOfStream
         {
@@ -139,6 +132,7 @@ namespace NoFrillsTransformation.Plugins.Ado
 
         protected virtual void Dispose(bool disposing)
         {
+            // No implementation needed here, we only have managed resources.
         }
         #endregion
     }

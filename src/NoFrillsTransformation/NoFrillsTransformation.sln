@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation", "NoFrillsTransformation\NoFrillsTransformation.csproj", "{6BA46494-CE03-4501-8E16-A0BF1C5A3314}"
 EndProject
@@ -156,7 +156,6 @@ Global
 		{5F8B566C-5F91-4917-B2D5-3C101986C3CD}.Release|x64.ActiveCfg = Release|x64
 		{5F8B566C-5F91-4917-B2D5-3C101986C3CD}.Release|x64.Build.0 = Release|x64
 		{5F8B566C-5F91-4917-B2D5-3C101986C3CD}.Release|x86.ActiveCfg = Release|x86
-		{5F8B566C-5F91-4917-B2D5-3C101986C3CD}.Release|x86.Build.0 = Release|x86
 		{5FA139CB-057F-487E-B720-5E1677323C9F}.Debug|x64.ActiveCfg = Debug|x64
 		{5FA139CB-057F-487E-B720-5E1677323C9F}.Debug|x64.Build.0 = Debug|x64
 		{5FA139CB-057F-487E-B720-5E1677323C9F}.Debug|x86.ActiveCfg = Debug|x86
@@ -164,7 +163,6 @@ Global
 		{5FA139CB-057F-487E-B720-5E1677323C9F}.Release|x64.ActiveCfg = Release|x64
 		{5FA139CB-057F-487E-B720-5E1677323C9F}.Release|x64.Build.0 = Release|x64
 		{5FA139CB-057F-487E-B720-5E1677323C9F}.Release|x86.ActiveCfg = Release|x86
-		{5FA139CB-057F-487E-B720-5E1677323C9F}.Release|x86.Build.0 = Release|x86
 		{D8BE44C9-C322-489D-87BB-BA6C66A58F4E}.Debug|x64.ActiveCfg = Debug|x64
 		{D8BE44C9-C322-489D-87BB-BA6C66A58F4E}.Debug|x64.Build.0 = Debug|x64
 		{D8BE44C9-C322-489D-87BB-BA6C66A58F4E}.Debug|x86.ActiveCfg = Debug|x86
@@ -172,7 +170,6 @@ Global
 		{D8BE44C9-C322-489D-87BB-BA6C66A58F4E}.Release|x64.ActiveCfg = Release|x64
 		{D8BE44C9-C322-489D-87BB-BA6C66A58F4E}.Release|x64.Build.0 = Release|x64
 		{D8BE44C9-C322-489D-87BB-BA6C66A58F4E}.Release|x86.ActiveCfg = Release|x86
-		{D8BE44C9-C322-489D-87BB-BA6C66A58F4E}.Release|x86.Build.0 = Release|x86
 		{55B8E04E-861A-4BCA-A80F-090B26D9EA86}.Debug|x64.ActiveCfg = Debug|x64
 		{55B8E04E-861A-4BCA-A80F-090B26D9EA86}.Debug|x86.ActiveCfg = Debug|x86
 		{55B8E04E-861A-4BCA-A80F-090B26D9EA86}.Debug|x86.Build.0 = Debug|x86

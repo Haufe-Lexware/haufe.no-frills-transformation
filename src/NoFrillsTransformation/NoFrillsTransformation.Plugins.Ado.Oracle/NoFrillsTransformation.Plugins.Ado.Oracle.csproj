@@ -106,6 +106,8 @@
   <ItemGroup>
     <Compile Include="AdoOracleReader.cs" />
     <Compile Include="AdoOracleReaderFactory.cs" />
+    <Compile Include="AdoOracleWriter.cs" />
+    <Compile Include="AdoOracleWriterFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
