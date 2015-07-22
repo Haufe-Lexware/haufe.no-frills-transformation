@@ -28,12 +28,9 @@ A special "transformation" filter is supported, which currently only has an impl
 
 There may be more to come; and if you have special needs, feel free to reach out and we'll look together what we can do about it.
 
-In an ETL scenario, NFT is not specifically designed to do the "E" nor the "L" part, mostly just "T" tasks. 
-But that quickly and efficiently, supporting the basic transformation stuff you might need (and
- with extensibility support if you need something out of the order). For convenience, the "E" is
- supported better than "L", with e.g. a Salesforce Reader for SOQL queries.
+In an ETL scenario, NFT is not specifically designed to do the "E" nor the "L" part, mostly just "T" tasks. But that quickly and efficiently, supporting the basic transformation stuff you might need (and with extensibility support if you need something out of the order). For convenience, the "E" is supported better than "L", with e.g. a Salesforce Reader for SOQL queries.
  
- Among supported transformations are:
+Among supported transformations are:
 
 * Copy (nop transformation, copy source to target)
 * Lookup (in other sources)
@@ -41,26 +38,24 @@ But that quickly and efficiently, supporting the basic transformation stuff you 
 
 Feel free to contribute and create pull requests. I'll check them out and merge them if they make sense.
 
-Head over to the [WIKI](https://github.com/DonMartin76/no-frills-transformation/wiki) for an extensive documentation:
+Head over to the [WIKI](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki) for an extensive documentation:
 
-* https://github.com/DonMartin76/no-frills-transformation/wiki
+* https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki
 
 ## Binary Downloads
 
-Check out the [releases](https://github.com/DonMartin76/no-frills-transformation/releases) section for binary
+Check out the [releases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/releases) section for binary
 packages of NFT.
-
 
 ## Acknowledgements
 
-NFT (the CSV plugin to be more precise) is using parts of the brilliant CSV reader library written by
-Sebastien Lorion. You can find the original project page at CodeProject:
+NFT (the CSV plugin to be more precise) is using parts of the brilliant CSV reader library written by Sebastien Lorion. You can find the original project page at CodeProject:
 
 http://www.codeproject.com/Articles/9258/A-Fast-CSV-Reader
 
 NFT has pulled in the CSV parts in the source code directly. They can be found here:
 
-https://github.com/DonMartin76/no-frills-transformation/tree/master/src/3rdParty/LumenWorks.Framework.IO
+https://github.com/Haufe-Lexware/haufe.no-frills-transformation/tree/master/src/3rdParty/LumenWorks.Framework.IO
 
 ## Introduction
 
@@ -109,7 +104,7 @@ A typical simple XML configuration may look like this:
         <!-- Plain copy of field content -->
         <Field name="SapUserId__c" maxSize="16">LowerCase($SOBID)</Field>
         <!-- Concatenation of two source fields -->
-        <Field name="Whatever" maxSize="50">Concat($OTYPE, $OBJID)</Field>
+        <Field name="Whatever" maxSize="50">$OTYPE + $OBJID</Field>
         <!-- status mapping from lookup "Status" (see definition above) -->
         <Field name="Status" maxSize="40">Status($BOGUSTYPE, $salesforce_status)</Field>
       </Fields>
@@ -130,9 +125,9 @@ So, what does this do?
 * Sets the filter mode to `AND` (all filter criteria must be met)
 * Specifies a filter by using an expression which evaluates to a boolean
 * Specifies a mapping with five output fields, each with a name, max size and an expression
-* Passes on a configuration string to the `Equals` operator (see [Operator Configuration](#opconfig) for more information)
+* Passes on a configuration string to the `Equals` operator (see Wiki for more information)
 
-Please confer with the later sections for a more detailed specification of the options.
+Please confer with the Wiki for a more detailed specification of the options.
 
 
 ### Running the application
@@ -144,13 +139,11 @@ C:\Temp> NoFrillsTransformation.exe sample_config.xml
 Operation completed successfully.
 C:\Temp> 
 ```
-If the operation completes without error, the executable with exit with the exit code 0 (Success).
-Otherwise, an error message will be output to `stderr` and the exit code unequal 0 (for now, 1).
+If the operation completes without error, the executable with exit with the exit code 0 (Success). Otherwise, an error message will be output to `stderr` and the exit code unequal 0 (for now, 1).
 
 ##### Running on Mac OS X and Linux
 
-If you want to run NFT on Mac OS X, you need the Mono framework, which is the .NET implementation
-for non-Windows platforms (such as Linux or Mac OS X).
+If you want to run NFT on Mac OS X, you need the Mono framework, which is the .NET implementation for non-Windows platforms (such as Linux or Mac OS X).
 
 Download and install Mono prior to running `NoFrillsTransformation.exe`, then proceed as follows:
 
@@ -159,3 +152,5 @@ $ mono NoFrillsTransformation.exe configFile.xml
 Operation finished successfully.
 $
 ```
+
+Please note that some of the plugins are currently only available for the Windows platform, such as the Oracle plugin.
