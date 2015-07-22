@@ -6,7 +6,7 @@
 * Add Target Writers
 * Add Operators (if you can't do with the Custom Operators)
 
-Out of the box, NFT will read:
+Out of the box, NFT will read from
 
 * CSV files in any encoding
 * Salesforce SOQL queries
@@ -16,10 +16,11 @@ Out of the box, NFT will read:
 * SQL Server Databases
 * From SAP RFCs if they have a TABLE as output value (limited support currently)
 
-and write
+and write to
 
 * CSV files in any encoding (including with or without UTF-8 BOMs)
 * Salesforce Objects (including Upserts and using External IDs)
+* Oracle Databases
 * Rudimentary XML files
 
 A special "transformation" filter is supported, which currently only has an implementation for
