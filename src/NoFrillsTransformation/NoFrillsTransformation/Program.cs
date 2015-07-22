@@ -139,7 +139,12 @@ namespace NoFrillsTransformation
 
                     ReadFilters(configFile, context);
                     ReadMappings(configFile, context);
+                    ReadFilterMappings(configFile, context);
                     ReadSources(context, configFile, readerFactory);
+
+                    // Do we use "useSource" in the field mappings?
+                    ReadSourceMappings(configFile, context);
+                    ReadSourceFilterMappings(configFile, context);
 
                     if (null != configFile.OutputFields)
                     {
@@ -148,6 +153,15 @@ namespace NoFrillsTransformation
                     }
 
                     context.TargetWriter = writerFactory.CreateWriter(context, configFile.Target.Uri, context.TargetFields, configFile.Target.Config);
+                    if (null != configFile.FilterTarget)
+                    {
+                        if (null == context.FilterTargetFields)
+                        {
+                            context.Logger.Warning("Creating a FilterTarget without explicit FilterField definitions. Using the default fields.");
+                            context.FilterTargetFields = context.TargetFields;
+                        }
+                        context.FilterTargetWriter = writerFactory.CreateWriter(context, configFile.FilterTarget.Uri, context.FilterTargetFields, configFile.FilterTarget.Config);
+                    }
 
                     Process(context);
 
@@ -333,6 +347,7 @@ namespace NoFrillsTransformation
             switch (configFile.Logger.LogLevel.ToLowerInvariant())
             {
                 case "info": logLevel = LogLevel.Info; break;
+                case "warn":
                 case "warning": logLevel = LogLevel.Warning; break;
                 case "error": logLevel = LogLevel.Error; break;
 
@@ -391,6 +406,11 @@ namespace NoFrillsTransformation
                         setting.Setting = context.ReplaceParameters(setting.Setting);
                     }
                 }
+            }
+            if (null != config.FilterTarget)
+            {
+                config.FilterTarget.Uri = context.ReplaceParameters(config.FilterTarget.Uri);
+                config.FilterTarget.Config = context.ReplaceParameters(config.FilterTarget.Config);
             }
 
             if (null != config.LookupMaps)
@@ -667,6 +687,9 @@ namespace NoFrillsTransformation
                 context.Logger.Info("Started processing.");
 
                 string[] outValues = new string[context.TargetFields.Length];
+                string[] filterOutValues = null;
+                if (context.FilterTargetFields != null)
+                    filterOutValues = new string[context.FilterTargetFields.Length];
 
                 var evaluator = new ExpressionParser();
 
@@ -725,20 +748,36 @@ namespace NoFrillsTransformation
                                     context.Logger.Info("Processed " + context.SourceRecordsRead + " records.");
                                 }
 
-                                if (!RecordMatchesFilter(evaluator, context))
+                                // Filter case?
+                                if (RecordMatchesFilter(evaluator, context))
                                 {
+                                    // Normal case
+                                    context.SourceRecordsProcessed++;
+
+                                    for (int i = 0; i < outValues.Length; ++i)
+                                    {
+                                        outValues[i] = evaluator.Evaluate(evaluator, context.TargetFields[i].Expression, context);
+                                    }
+
+                                    context.TargetWriter.WriteRecord(outValues);
+                                    context.TargetRecordsWritten++;
+                                }
+                                else
+                                {
+                                    // Filter case; do we write filtered fields?
                                     context.SourceRecordsFiltered++;
-                                    continue;
-                                }
-                                context.SourceRecordsProcessed++;
 
-                                for (int i = 0; i < outValues.Length; ++i)
-                                {
-                                    outValues[i] = evaluator.Evaluate(evaluator, context.TargetFields[i].Expression, context);
-                                }
+                                    if (null != context.FilterTargetFields
+                                        && null != context.FilterTargetWriter)
+                                    {
+                                        for (int i = 0; i < filterOutValues.Length; ++i)
+                                        {
+                                            filterOutValues[i] = evaluator.Evaluate(evaluator, context.FilterTargetFields[i].Expression, context);
+                                        }
 
-                                context.TargetWriter.WriteRecord(outValues);
-                                context.TargetRecordsWritten++;
+                                        context.FilterTargetWriter.WriteRecord(filterOutValues);
+                                    }
+                                }
 
                                 if (null != context.Transformer)
                                 {
@@ -835,7 +874,26 @@ namespace NoFrillsTransformation
 
         private void ReadMappings(ConfigFileXml configFile, Context context)
         {
-            FieldXml[] fields = null;
+            FieldsXml fields = GetFieldsXml(configFile);
+
+            context.TargetFields = GetFieldDefs(context, fields);
+
+            context.Logger.Info("Initialized field mappings, found " + context.TargetFields.Length + " output fields.");
+        }
+
+        private void ReadSourceMappings(ConfigFileXml configFile, Context context)
+        {
+            FieldsXml fields = GetFieldsXml(configFile);
+            if (!fields.AppendSource)
+                return;
+
+            context.TargetFields = GetSourceFieldDefs(context, context.TargetFields);
+
+            context.Logger.Info("Initialized field mappings, found " + context.TargetFields.Length + " output fields.");
+        }
+
+        private static FieldsXml GetFieldsXml(ConfigFileXml configFile)
+        {
             if (null == configFile.Mappings && null == configFile.Fields)
                 throw new ArgumentException("Configuration file misses Mappings or Fields section.");
             if (null != configFile.Mappings)
@@ -847,22 +905,48 @@ namespace NoFrillsTransformation
                 var map = configFile.Mappings[0]; // Pick first mapping; it might be extended later on.
                 if (null == map.Fields)
                     throw new ArgumentException("Missing field definitions in mapping.");
-                fields = map.Fields;
-            }
-            else
-            {
-                // Fields directly in Config File
-                fields = configFile.Fields;
-            }
-            int fieldCount = fields.Length;
 
-            //context.TargetFieldNames = new string[] { };
-            //context.TargetFieldSizes = new int[] { }; 
-            context.TargetFields = new TargetFieldDef[fieldCount];
+                return map.Fields;
+            }
+
+            // Fields directly in Config File
+            return configFile.Fields;
+        }
+
+        private void ReadFilterMappings(ConfigFileXml configFile, Context context)
+        {
+            FieldsXml fields = null;
+            if (null == configFile.FilterFields)
+                return;
+            fields = configFile.FilterFields;
+
+            context.FilterTargetFields = GetFieldDefs(context, fields);
+
+            context.Logger.Info("Initialized filter field mappings, found " + context.FilterTargetFields.Length + " output fields.");
+        }
+
+        private void ReadSourceFilterMappings(ConfigFileXml configFile, Context context)
+        {
+            FieldsXml fields = null;
+            if (null == configFile.FilterFields)
+                return;
+            fields = configFile.FilterFields;
+            if (!fields.AppendSource)
+                return;
+        
+            context.FilterTargetFields = GetSourceFieldDefs(context, context.FilterTargetFields);
+
+            context.Logger.Info("Initialized filter field mappings, found " + context.FilterTargetFields.Length + " output fields.");
+        }
+
+        private static TargetFieldDef[] GetFieldDefs(Context context, FieldsXml fields)
+        {
+            int fieldCount = fields.Fields != null ? fields.Fields.Length : 0;
+            var targetFields = new TargetFieldDef[fieldCount];
 
             for (int i = 0; i < fieldCount; ++i)
             {
-                var field = fields[i];
+                var field = fields.Fields[i];
                 try
                 {
                     var tfd = new TargetFieldDef();
@@ -871,7 +955,7 @@ namespace NoFrillsTransformation
                     tfd.Config = (null != field.Config) ? context.ReplaceParameters(field.Config) : null;
                     tfd.Expression = ExpressionParser.ParseExpression(field.Expression, context);
 
-                    context.TargetFields[i] = tfd;
+                    targetFields[i] = tfd;
                 }
                 catch (Exception e)
                 {
@@ -879,7 +963,30 @@ namespace NoFrillsTransformation
                 }
             }
 
-            context.Logger.Info("Initialized field mappings, found " + context.TargetFields.Length + " output fields.");
+            return targetFields;
+        }
+
+        private static TargetFieldDef[] GetSourceFieldDefs(Context context, TargetFieldDef[] previousMapping)
+        {
+            var reader = context.SourceReaders[0];
+
+            var targetFields = new List<TargetFieldDef>();
+
+            for (int i=0; i<reader.FieldCount; ++i)
+            {
+                string fieldName = reader.FieldNames[i];
+                var tfd = new TargetFieldDef();
+                tfd.FieldName = fieldName;
+                tfd.FieldSize = 0;
+                tfd.Config = "";
+                tfd.Expression = ExpressionParser.ParseExpression(string.Format("${0}", fieldName), context);
+
+                targetFields.Add(tfd);
+            }
+            if (null != previousMapping)
+                targetFields.AddRange(previousMapping);
+
+            return targetFields.ToArray();
         }
     }
 }

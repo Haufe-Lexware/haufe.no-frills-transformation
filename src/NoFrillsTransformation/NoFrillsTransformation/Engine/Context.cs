@@ -44,6 +44,7 @@ namespace NoFrillsTransformation.Engine
         public ISourceReader[] SourceReaders { get; set; }
         public ISourceTransformer Transformer { get; set; }
         public ITargetWriter TargetWriter { get; set; }
+        public ITargetWriter FilterTargetWriter { get; set; }
         private Dictionary<string, LookupMap> _lookupMaps = new Dictionary<string, LookupMap>();
         public Dictionary<string, LookupMap> LookupMaps
         {
@@ -92,6 +93,7 @@ namespace NoFrillsTransformation.Engine
         public FilterMode FilterMode { get; set; }
         public FilterDef[] Filters { get; set; }
         public TargetFieldDef[] TargetFields { get; set; }
+        public TargetFieldDef[] FilterTargetFields { get; set; }
 
         public int SourceRecordsRead { get; set; }
         public int SourceRecordsFiltered { get; set; }
@@ -148,6 +150,11 @@ namespace NoFrillsTransformation.Engine
                 {
                     TargetWriter.Dispose();
                     TargetWriter = null;
+                }
+                if (null != FilterTargetWriter)
+                {
+                    FilterTargetWriter.Dispose();
+                    FilterTargetWriter = null;
                 }
                 // The logger must be the last thing to go!
                 if (null != Logger)

@@ -15,6 +15,7 @@ namespace NoFrillsTransformation.Interfaces
         ISourceReader SourceReader { get; set; }
         ISourceTransformer Transformer { get; set; }
         ITargetWriter TargetWriter { get; set; }
+        ITargetWriter FilterTargetWriter { get; set; }
 
         bool HasLookupMap(string id);
         ILookupMap GetLookupMap(string id);

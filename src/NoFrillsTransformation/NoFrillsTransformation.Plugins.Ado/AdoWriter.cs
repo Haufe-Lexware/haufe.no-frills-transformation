@@ -73,8 +73,6 @@ namespace NoFrillsTransformation.Plugins.Ado
             return sb.ToString();
         }
 
-        private bool _isFirst = true;
-
         public void WriteRecord(string[] fieldValues)
         {
             Insert(fieldValues);

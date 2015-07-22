@@ -26,6 +26,10 @@ namespace NoFrillsTransformation.Operators.Utils
             {
                 var logString = eval.Evaluate(eval, expression.Arguments[1], context);
                 context.Logger.Info(logString);
+
+                // Fill the FilterLogLastMessage operator with this message; can be used to write the result
+                // of the filtering to a target.
+                FilterLogLastMessageOperator.SetFilterLogMessage(logString, context.SourceRecordsRead);
             }
 
             return filterResult;

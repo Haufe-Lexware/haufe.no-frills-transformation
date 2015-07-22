@@ -34,6 +34,7 @@
         </xs:element>
         <xs:element name="SourceTransform" type="SourceTransformType" minOccurs="0" maxOccurs="1"/>
         <xs:element name="Target" type="SourceTargetType" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="FilterTarget" type="SourceTargetType" minOccurs="0" maxOccurs="1" />
 
         <!--<xs:element name="OutputFields" type="xs:boolean" minOccurs="0" maxOccurs="1"/>-->
 
@@ -80,13 +81,8 @@
           </xs:complexType>
         </xs:element>
   
-        <xs:element name="Fields" minOccurs="0" maxOccurs="1">
-          <xs:complexType>
-            <xs:sequence>
-              <xs:element name="Field" type="FieldType" minOccurs="0" maxOccurs="unbounded"/>
-            </xs:sequence>
-          </xs:complexType>
-        </xs:element>
+        <xs:element name="Fields" minOccurs="0" maxOccurs="1" type="FieldsType" />
+        <xs:element name="FilterFields" minOccurs="0" maxOccurs="1" type="FieldsType" />
         
         <xs:element name="Mappings" minOccurs="0" maxOccurs="1">
           <xs:complexType>
@@ -94,13 +90,7 @@
               <xs:element name="Mapping" minOccurs="1" maxOccurs="1">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:element name="Fields" minOccurs="1" maxOccurs="1">
-                      <xs:complexType>
-                        <xs:sequence>
-                          <xs:element name="Field" type="FieldType" minOccurs="0" maxOccurs="unbounded"/>
-                        </xs:sequence>
-                      </xs:complexType>
-                    </xs:element>
+                    <xs:element name="Fields" minOccurs="1" maxOccurs="1" type="FieldsType" />
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>
@@ -181,6 +171,13 @@
     <xs:attribute name="noFailOnMiss" type="xs:boolean" use="optional"/>
   </xs:complexType>
 
+  <xs:complexType name="FieldsType">
+    <xs:sequence>
+      <xs:element name="Field" type="FieldType" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="appendSource" type="xs:boolean"/>
+  </xs:complexType>
+  
   <xs:complexType name="FieldType">
     <xs:simpleContent>
       <xs:extension base="xs:string">

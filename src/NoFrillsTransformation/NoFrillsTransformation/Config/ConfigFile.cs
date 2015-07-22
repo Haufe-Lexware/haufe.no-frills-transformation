@@ -20,6 +20,7 @@ namespace NoFrillsTransformation.Config
         public SourceTargetXml[] Sources { get; set; }
         public SourceTransformXml SourceTransform { get; set; }
         public SourceTargetXml Target { get; set; }
+        public SourceTargetXml FilterTarget { get; set; }
 
         public OutputFieldsXml OutputFields { get; set; }
 
@@ -33,9 +34,10 @@ namespace NoFrillsTransformation.Config
         [XmlArray("Mappings")]
         [XmlArrayItem("Mapping")]
         public MappingXml[] Mappings { get; set; }
-        [XmlArray("Fields")]
-        [XmlArrayItem("Field")]
-        public FieldXml[] Fields { get; set; }
+
+        public FieldsXml Fields { get; set; }
+        public FieldsXml FilterFields { get; set; }
+
         [XmlArray("OperatorConfigs")]
         [XmlArrayItem("OperatorConfig")]
         public OperatorConfigXml[] OperatorConfigs { get; set; }
@@ -122,8 +124,15 @@ namespace NoFrillsTransformation.Config
 
     public class MappingXml
     {
-        [XmlArray("Fields")]
-        [XmlArrayItem("Field")]
+        public FieldsXml Fields { get; set; }
+    }
+
+    public class FieldsXml
+    {
+        [XmlAttribute("appendSource")]
+        public bool AppendSource { get; set; }
+
+        [XmlElement("Field")]
         public FieldXml[] Fields { get; set; }
     }
 

@@ -110,6 +110,7 @@
     <Compile Include="FileTempNameOperator.cs" />
     <Compile Include="FileWriteTextOperator.cs" />
     <Compile Include="FilterDuplicateOperator.cs" />
+    <Compile Include="FilterLogLastMessageOperator.cs" />
     <Compile Include="FilterOnceOperator.cs" />
     <Compile Include="IsValidEmailOperator.cs" />
     <Compile Include="IsValidUriOperator.cs" />
