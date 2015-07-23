@@ -51,6 +51,8 @@ Head over to the [WIKI](https://github.com/Haufe-Lexware/haufe.no-frills-transfo
 
 Check out the [releases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/releases) section for binary packages of NFT.
 
+See also the [installation guide](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Installation-Guide).
+
 ## Acknowledgements
 
 NFT (the CSV plugin to be more precise) is using parts of the brilliant CSV reader library written by Sebastien Lorion. You can find the original project page at CodeProject:
