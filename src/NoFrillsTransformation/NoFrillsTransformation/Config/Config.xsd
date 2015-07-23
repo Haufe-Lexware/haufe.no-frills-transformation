@@ -33,6 +33,13 @@
           </xs:complexType>
         </xs:element>
         <xs:element name="SourceTransform" type="SourceTransformType" minOccurs="0" maxOccurs="1"/>
+        <xs:element name="SourceTransforms">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="SourceTransform" type="SourceTransformType" minOccurs="1" maxOccurs="unbounded" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="Target" type="SourceTargetType" minOccurs="0" maxOccurs="1"/>
         <xs:element name="FilterTarget" type="SourceTargetType" minOccurs="0" maxOccurs="1" />
 
