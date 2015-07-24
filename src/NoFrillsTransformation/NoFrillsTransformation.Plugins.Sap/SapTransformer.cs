@@ -125,12 +125,12 @@ namespace NoFrillsTransformation.Plugins.Sap
                 switch (metadata.DataType)
                 {
                     case RfcDataType.STRUCTURE:
-                        outputStructures.Structures.Add(metadata.Name, ParseSapStructure(metadata.Name, parameter.GetStructure()));
+                        outputStructures.Structures.Add(metadata.Name, ParseSapStructure(metadata.Name, parameter.GetStructure().Metadata));
                         break;
 
                     case RfcDataType.TABLE:
                         if (!metadata.Name.Equals("CONTROLLER", StringComparison.InvariantCultureIgnoreCase))
-                            outputStructures.Tables.Add(metadata.Name, ParseSapTable(metadata.Name, parameter.GetTable()));
+                            outputStructures.Tables.Add(metadata.Name, ParseSapTable(metadata.Name, parameter.GetTable().Metadata));
                         break;
 
                     default: // treat as string, might be wrong
@@ -141,39 +141,43 @@ namespace NoFrillsTransformation.Plugins.Sap
             return outputStructures;
         }
 
-        private SapStructure ParseSapStructure(string name, IEnumerable<IRfcField> rfcStructure)
+        private SapStructure ParseSapStructure(string name, RfcStructureMetadata rfcStructure)
         {
             var outputStructures = new SapStructure { Name = name };
-            foreach (IRfcField field in rfcStructure)
+            for (int i=0; i<rfcStructure.FieldCount; ++i)
             {
-                var metadata = field.Metadata;
+                var metadata = rfcStructure[i];
 
                 switch (metadata.DataType)
                 {
                     case RfcDataType.STRUCTURE:
-                        outputStructures.Structures.Add(metadata.Name, ParseSapStructure(metadata.Name, field.GetStructure()));
+                        outputStructures.Structures.Add(metadata.Name, ParseSapStructure(metadata.Name, metadata.ValueMetadataAsStructureMetadata));
                         break;
 
                     case RfcDataType.TABLE:
                         if (!metadata.Name.Equals("CONTROLLER", StringComparison.InvariantCultureIgnoreCase))
-                            outputStructures.Tables.Add(metadata.Name, ParseSapTable(metadata.Name, field.GetTable()));
+                            outputStructures.Tables.Add(metadata.Name, ParseSapTable(metadata.Name, metadata.ValueMetadataAsTableMetadata));
                         break;
 
                     default: // treat as string, might be wrong
-                        outputStructures.Fields.Add(metadata.Name.ToUpperInvariant());
+                        outputStructures.Fields.Add(CheckName(metadata.Name));
                         break;
                 }
             }
             return outputStructures;
         }
 
+        //private IEnumerable<IRfcField> MakeDoof(RfcStructureMetadata structure)
+        //{
+        //    return null;
+        //}
 
-        private SapStructure ParseSapTable(string name, IRfcTable rfcTable)
+        private SapStructure ParseSapTable(string name, RfcTableMetadata tableMetadata)
         {
             var outputStructures = new SapStructure { Name = name };
             outputStructures.IsTable = true;
 
-            var lineType = rfcTable.Metadata.LineType;
+            var lineType = tableMetadata.LineType;
             //foreach (IRfcField field in lineType)
             for (int i = 0; i < lineType.FieldCount; ++i)
             {
@@ -182,23 +186,26 @@ namespace NoFrillsTransformation.Plugins.Sap
                 switch (metadata.DataType)
                 {
                     case RfcDataType.STRUCTURE:
-                        var structure = rfcTable.GetStructure(i);
+                        //var structure = rfcTable.GetStructure(i);
+                        var structure = metadata.ValueMetadataAsStructureMetadata;
                         outputStructures.Structures.Add(metadata.Name, ParseSapStructure(metadata.Name, structure));
                         break;
 
                     case RfcDataType.TABLE:
                         if (!metadata.Name.Equals("CONTROLLER", StringComparison.InvariantCultureIgnoreCase))
                         {
-                            var subTable = rfcTable.GetTable(i);
+                            //var subTable = rfcTable.GetTable(i);
+                            var subTable = metadata.ValueMetadataAsTableMetadata;
                             outputStructures.Tables.Add(metadata.Name, ParseSapTable(metadata.Name, subTable));
                         }
                         break;
 
                     default: // treat as string, might be wrong
-                        outputStructures.Fields.Add(metadata.Name.ToUpperInvariant());
+                        outputStructures.Fields.Add(CheckName(metadata.Name));
                         break;
                 }
             }
+
             /*
             // TABLES or STRUCTURES inside TABLES aren't currently supported.
             for (int i = 0; i < lineType.FieldCount; ++i)
@@ -225,6 +232,13 @@ namespace NoFrillsTransformation.Plugins.Sap
             */
 
             return outputStructures;
+        }
+
+        private static string CheckName(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return "_VALUE";
+            return name.ToUpperInvariant();
         }
 
         private static SapStructure GetSapStructure(SapStructure root, string fieldString)
@@ -390,7 +404,34 @@ namespace NoFrillsTransformation.Plugins.Sap
         private void SetParameterRecursive(IRfcStructure structure, string[] fieldHierarchy, int position, string value, SapStructure sap)
         {
             string field = fieldHierarchy[position];
-            if (sap.Fields.Contains(field))
+            int index = -1;
+            if (field.Contains("["))
+            {
+                int open = field.IndexOf('[');
+                int close = field.IndexOf(']');
+                if (open < 0
+                    || close < 0)
+                    throw new ArgumentException("SAP Transformer: SetParameter - Could not find index in expression " + field);
+                index = int.Parse(field.Substring(open + 1, close - open - 1));
+                field = field.Substring(0, open);
+            }
+            if (index >= 0)
+            {
+                // Has to be table
+                if (!sap.Tables.ContainsKey(field))
+                {
+                    throw new ArgumentException("SAP Transformer: SetParameter - Index was passed with field " + field + ", but no TABLE found in current structure.");
+                }
+                var table = structure[field].GetTable();
+                if (table.Count <= index)
+                {
+                    int appendCount = table.Count - index + 1;
+                    if (appendCount > 0)
+                        table.Append(appendCount);
+                }
+                SetParameterRecursive(table, index, fieldHierarchy, position + 1, value, sap.Tables[field]);
+            }
+            else if (sap.Fields.Contains(field))
             {
                 structure[field].SetValue(value);
             }
@@ -398,16 +439,61 @@ namespace NoFrillsTransformation.Plugins.Sap
             {
                 SetParameterRecursive(structure[field].GetStructure(), fieldHierarchy, position + 1, value, sap.Structures[field]);
             }
-            else if (sap.Tables.ContainsKey(field))
-            {
-                throw new ArgumentException("Parameters inside TABLE elements are currently not supported: " + field);
-            }
             else
             {
                 throw new ArgumentException("SapTransformer - Unknown input parameter field: " + field + ".");
             }
         }
         
+        private void SetParameterRecursive(IRfcTable table, int tableIndex, string[] fieldHierarchy, int position, string value, SapStructure sap)
+        {
+            string field = fieldHierarchy[position];
+            int index = -1;
+            if (field.Contains("["))
+            {
+                int open = field.IndexOf('[');
+                int close = field.IndexOf(']');
+                if (open < 0
+                    || close < 0)
+                    throw new ArgumentException("SAP Transformer: SetParameter - Could not find index in expression " + field);
+                index = int.Parse(field.Substring(open + 1, close - open - 1));
+            }
+            if (index >= 0)
+            {
+                // Has to be table
+                if (!sap.Tables.ContainsKey(field))
+                {
+                    throw new ArgumentException("SAP Transformer: SetParameter - Index was passed with field " + field + ", but no TABLE found in current structure.");
+                }
+                var subTable = table[tableIndex][field].GetTable();
+                if (subTable.Count < index)
+                {
+                    int appendCount = subTable.Count - index;
+                    if (appendCount > 0)
+                        subTable.Append(appendCount);
+                }
+                SetParameterRecursive(subTable, index, fieldHierarchy, position + 1, value, sap.Tables[field]);
+            }
+            else if (sap.Fields.Contains(field))
+            {
+                table[tableIndex][CheckNameReverse(field)].SetValue(value);
+            }
+            else if (sap.Structures.ContainsKey(field))
+            {
+                SetParameterRecursive(table[tableIndex][field].GetStructure(), fieldHierarchy, position + 1, value, sap.Structures[field]);
+            }
+            else
+            {
+                throw new ArgumentException("SapTransformer - Unknown input parameter field: " + field + ".");
+            }
+        }
+
+        private static string CheckNameReverse(string name)
+        {
+            if (name.Equals("_VALUE"))
+                return "";
+            return name;
+        }
 
         private Dictionary<string, bool> _fieldCache = new Dictionary<string, bool>();
 
