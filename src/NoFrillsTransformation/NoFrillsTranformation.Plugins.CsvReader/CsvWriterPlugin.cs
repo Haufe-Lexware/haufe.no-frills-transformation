@@ -19,21 +19,25 @@ namespace NoFrillsTransformation.Plugins.Csv
             _fileName = context.ResolveFileName(target.Substring(7), false); // Strip file://
             _fieldNames = fieldNames;
             _fieldSizes = fieldSizes;
-            _writer = new StreamWriter(_fileName, false, _encoding);
-
-            WriteHeaders();
+            _context = context;
+            _writer = new StreamWriter(_fileName, _append, _encoding);
+            if (!_append && _headers)
+                WriteHeaders();
         }
 
         private string _fileName;
         private string[] _fieldNames;
         private int[] _fieldSizes;
         private StreamWriter _writer;
+        private IContext _context;
 
         #region Configuration
         private char _delimiter = ',';
         private string _encodingString = "UTF-8";
         private Encoding _encoding = Encoding.GetEncoding("UTF-8");
         private bool _useUtf8Bom = true;
+        private bool _append = false;
+        private bool _headers = true;
 
         protected override void SetConfig(string parameter, string configuration)
         {
@@ -51,16 +55,20 @@ namespace NoFrillsTransformation.Plugins.Csv
                     break;
 
                 case "utf8bom":
-                    if (configuration.Equals("false", StringComparison.InvariantCultureIgnoreCase)
-                        || configuration.Equals("0", StringComparison.InvariantCultureIgnoreCase)
-                        || configuration.Equals("no", StringComparison.InvariantCultureIgnoreCase))
-                        _useUtf8Bom = false;
-                    else
-                        _useUtf8Bom = true;
+                    _useUtf8Bom = BoolFromString(configuration);
+                    break;
+
+                case "append":
+                    _append = BoolFromString(configuration);
+                    break;
+
+                case "headers":
+                    _headers = BoolFromString(configuration);
                     break;
 
                 default:
                     // Do nothing with unknown parameters
+                    _context.Logger.Warning("CsvWriterPlugin - Unknown parameter: " + parameter);
                     break;
             }
         }

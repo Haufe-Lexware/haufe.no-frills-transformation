@@ -31,5 +31,12 @@ namespace NoFrillsTransformation.Plugins.Csv
         {
             // Empty here.
         }
+
+        protected static bool BoolFromString(string configuration)
+        {
+            return configuration.Equals("false", StringComparison.InvariantCultureIgnoreCase)
+                                    || configuration.Equals("0", StringComparison.InvariantCultureIgnoreCase)
+                                    || configuration.Equals("no", StringComparison.InvariantCultureIgnoreCase);        
+        }
     }
 }
