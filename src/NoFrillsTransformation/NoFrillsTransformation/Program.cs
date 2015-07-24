@@ -113,6 +113,7 @@ namespace NoFrillsTransformation
                     var configFile = ReadConfigFile(configFileName);
                     var includes = ReadIncludes(context, configFile);
                     configFile = MergeConfigFiles(configFile, includes);
+                    InitMiscSettings(configFile, context);
 
                     // Set up MEF
                     var catalog = new DirectoryCatalog(".");
@@ -188,6 +189,14 @@ namespace NoFrillsTransformation
                 }
                 return (int)ExitCodes.Failure;
             }
+        }
+
+        private void InitMiscSettings(ConfigFileXml configFile, Context context)
+        {
+            if (configFile.ProgressTick > 0)
+                context.ProgressTick = configFile.ProgressTick;
+            else
+                context.ProgressTick = int.MaxValue; // Don't tick
         }
 
         private static void ResolveParameters(Context context)
@@ -715,6 +724,12 @@ namespace NoFrillsTransformation
                             bool hasMultipleTransformedRecord = true;
                             bool isFirstRecord = true;
 
+                            if (context.SourceRecordsRead % context.ProgressTick == 0
+                                && context.SourceRecordsRead > 0)
+                            {
+                                context.Logger.Info("Processed " + context.SourceRecordsRead + " records.");
+                            }
+
                             while (hasMultipleTransformedRecord)
                             {
                                 if (null != context.Transformer)
@@ -740,12 +755,6 @@ namespace NoFrillsTransformation
                                 else
                                 {
                                     hasMultipleTransformedRecord = false;
-                                }
-
-                                if (context.SourceRecordsRead % 1000 == 0
-                                    && context.SourceRecordsRead > 0)
-                                {
-                                    context.Logger.Info("Processed " + context.SourceRecordsRead + " records.");
                                 }
 
                                 // Filter case?

@@ -47,6 +47,8 @@
             </xs:simpleContent>
           </xs:complexType>
         </xs:element>
+
+        <xs:element name="ProgressTick" minOccurs="0" maxOccurs="1" type="xs:int"/>
         
         <xs:element name="FilterMode" minOccurs="0" maxOccurs="1">
           <xs:simpleType>

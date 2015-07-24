@@ -23,6 +23,7 @@ namespace NoFrillsTransformation.Config
         public SourceTargetXml FilterTarget { get; set; }
 
         public OutputFieldsXml OutputFields { get; set; }
+        public int ProgressTick { get; set; }
 
         public string FilterMode { get; set; }
         [XmlArray("SourceFilters")]

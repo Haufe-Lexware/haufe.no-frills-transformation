@@ -53,6 +53,7 @@ namespace NoFrillsTransformation.Engine
                 return _lookupMaps;
             }
         }
+        public int ProgressTick { get; set; }
 
         public bool HasLookupMap(string id)
         {
