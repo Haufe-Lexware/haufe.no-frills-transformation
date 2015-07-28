@@ -33,26 +33,11 @@ namespace NoFrillsTransformation
                     return (new Program()).Run(args[0], parameters);
             }
             return (int)ExitCodes.Failure;
-            //try
-            //{
-            //    if (VerifyArguments(args))
-            //        (new Program()).Run(args[0]);
-            //    Console.WriteLine("Operation finished successfully.");
-
-            //    return (int)ExitCodes.Success;
-            //}
-            //catch (Exception e)
-            //{
-            //    Console.Error.WriteLine("Operation failed: " + e.Message);
-            //    return (int)ExitCodes.Failure;
-            //}
         }
 
         private static bool VerifyArguments(string[] args)
         {
-            if (args.Length == 0)
-                throw new ArgumentException("Missing argument. Use -help for instructions.");
-            if (args[0].Equals("-help"))
+            if (args.Length == 0 || args[0].Equals("-help"))
             {
                 Console.WriteLine("Usage:");
                 Console.WriteLine("  NoFrillsTransformation.exe <config file> [param1=setting1 param2=setting2...]");
@@ -458,7 +443,7 @@ namespace NoFrillsTransformation
             context.Logger.Info("Initialized operators.");
         }
 
-        private void InitCustomOperators(ConfigFileXml configFile, Context context)//, OperatorFactory operatorFactory)
+        private void InitCustomOperators(ConfigFileXml configFile, Context context)
         {
             try
             {
