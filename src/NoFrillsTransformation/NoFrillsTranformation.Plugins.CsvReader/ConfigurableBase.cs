@@ -34,9 +34,10 @@ namespace NoFrillsTransformation.Plugins.Csv
 
         protected static bool BoolFromString(string configuration)
         {
-            return configuration.Equals("false", StringComparison.InvariantCultureIgnoreCase)
-                                    || configuration.Equals("0", StringComparison.InvariantCultureIgnoreCase)
-                                    || configuration.Equals("no", StringComparison.InvariantCultureIgnoreCase);        
+            return configuration.Equals("true", StringComparison.InvariantCultureIgnoreCase)
+                                    || configuration.Equals("1", StringComparison.InvariantCultureIgnoreCase)
+                                    || configuration.Equals("x", StringComparison.InvariantCultureIgnoreCase)
+                                    || configuration.Equals("yes", StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }
