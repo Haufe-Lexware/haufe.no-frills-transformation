@@ -1,0 +1,14 @@
+<autoversionator>
+  <service fileextension="cs" assemblyname="AutoVersionator.VersionFileIOServices.AssemblyInfo.dll" />
+  <service fileextension="cpp" assemblyname="AutoVersionator.VersionFileIOServices.AssemblyInfo.dll" />
+  <service fileextension="bat" assemblyname="AutoVersionator.VersionFileIOServices.Bat.dll" />
+  <service fileextension="cmd" assemblyname="AutoVersionator.VersionFileIOServices.Bat.dll" />
+  <service fileextension="conf" assemblyname="AutoVersionator.VersionFileIOServices.Conf.dll" />
+  <service fileextension="CONF" assemblyname="AutoVersionator.VersionFileIOServices.Conf.dll" />
+  <service fileextension="rc2" assemblyname="AutoVersionator.VersionFileIOServices.RC2.dll" />
+  <service fileextension="rc" assemblyname="AutoVersionator.VersionFileIOServices.RC2.dll" />
+  <service fileextension="RC2" assemblyname="AutoVersionator.VersionFileIOServices.RC2.dll" />
+  <service fileextension="RC" assemblyname="AutoVersionator.VersionFileIOServices.RC2.dll" />
+  <service fileextension="vbp" assemblyname="AutoVersionator.VersionFileIOServices.VBP.dll" />
+  <service fileextension="h" assemblyname="AutoVersionator.VersionFileIOServices.VersionH.dll" />
+</autoversionator>

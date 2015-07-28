@@ -1,0 +1,14 @@
+NoFrillsTransformation.exe
+NoFrillsTransformation.exe.config
+EntityFramework*
+LumenWorks*
+MySql*
+NoFrillsTranformation.Plugin*.dll
+NoFrillsTransformation.Interfaces.dll
+NoFrillsTransformation.Logging.dll
+NoFrillsTransformation.Operators*.dll
+NoFrillsTransformation.Plugins*.dll
+NoFrillsTransformation.Plugins*.dll.config
+System.Data.*.dll
+*.xml
+x86/*
