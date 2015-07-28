@@ -20,8 +20,6 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             string temp = source.ToLowerInvariant();
             if (!temp.StartsWith("soql://"))
                 return false;
-            //if (!temp.EndsWith(".csv") && !temp.EndsWith(".txt"))
-            //    return false;
             return true;
         }
 

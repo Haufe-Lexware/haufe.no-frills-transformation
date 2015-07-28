@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -29,6 +30,38 @@ namespace NoFrillsTransformation.Plugins.Salesforce
         protected string _logFile;
         protected string _tempDir;
         private List<string> _tempFiles = new List<string>();
+
+        protected void WaitAndLog(IContext _context, Process process)
+        {
+            bool fullyCompleted = false;
+            string logLine = null;
+            while ((logLine = process.StandardOutput.ReadLine()) != null)
+            {
+                var type = logLine.Length >= 24 ? logLine.Substring(24, 4).Trim().ToLowerInvariant() : "warn";
+                var text = "Data Loader: " + (logLine.Length > 30 ? logLine.Substring(30) : logLine);
+                switch (type)
+                {
+                    case "info": _context.Logger.Info(text); break;
+                    case "warn": _context.Logger.Warning(text); break;
+                    default: _context.Logger.Error(type + " ** " + text); break;
+                }
+
+                fullyCompleted = fullyCompleted | logLine.Contains("The operation has fully completed");
+            }
+
+            string error = process.StandardError.ReadToEnd();
+
+            process.WaitForExit();
+
+            if (!fullyCompleted)
+            {
+                _context.Logger.Error(logLine);
+                _context.Logger.Error(error);
+                throw new InvalidOperationException("SFDC operations via Data Loader failed. See above error message for more information.");
+            }
+
+            //_context.Logger.Info(output);
+        }
 
         protected string GetTempFileName(string suffix)
         {

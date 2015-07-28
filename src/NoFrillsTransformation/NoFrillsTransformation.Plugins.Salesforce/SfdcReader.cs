@@ -67,18 +67,8 @@ namespace NoFrillsTransformation.Plugins.Salesforce
 
             process = Process.Start(processInfo);
             // *** Read the streams ***
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-            process.WaitForExit();
+            WaitAndLog(_context, process);
 
-            if (!output.Contains("The operation has fully completed"))
-            {
-                _context.Logger.Error(output);
-                _context.Logger.Error(error);
-                throw new InvalidOperationException("SFDC extraction via Data Loader failed. See above error message for more information.");
-            }
-
-            _context.Logger.Info(output);
             _context.Logger.Info("SfdcReader: External process Data Loader has finished.");
         }
 

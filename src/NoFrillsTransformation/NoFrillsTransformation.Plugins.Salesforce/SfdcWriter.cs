@@ -90,18 +90,8 @@ namespace NoFrillsTransformation.Plugins.Salesforce
 
             process = Process.Start(processInfo);
             // *** Read the streams ***
-            string output = process.StandardOutput.ReadToEnd();
-            string error = process.StandardError.ReadToEnd();
-            process.WaitForExit();
+            WaitAndLog(_context, process);
 
-            if (!output.Contains("The operation has fully completed"))
-            {
-                _context.Logger.Error(output);
-                _context.Logger.Error(error);
-                throw new InvalidOperationException("SFDC insert/upsert/delete via Data Loader failed. See above error message for more information.");
-            }
-
-            _context.Logger.Info(output);
             _context.Logger.Info("SfdcWriter: External process Data Loader has finished.");
 
             if (_config.FailOnErrors)
@@ -110,6 +100,22 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                 CheckErrorLog();
             }
         }
+
+        //private void WaitAndLog(Process process)
+        //{
+        //    string output = process.StandardOutput.ReadToEnd();
+        //    string error = process.StandardError.ReadToEnd();
+        //    process.WaitForExit();
+
+        //    if (!output.Contains("The operation has fully completed"))
+        //    {
+        //        _context.Logger.Error(output);
+        //        _context.Logger.Error(error);
+        //        throw new InvalidOperationException("SFDC insert/upsert/delete via Data Loader failed. See above error message for more information.");
+        //    }
+
+        //    _context.Logger.Info(output);
+        //}
 
         private void CheckErrorLog()
         {
