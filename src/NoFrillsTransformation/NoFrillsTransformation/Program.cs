@@ -180,6 +180,8 @@ namespace NoFrillsTransformation
         {
             if (configFile.ProgressTick > 0)
                 context.ProgressTick = configFile.ProgressTick;
+            else if (configFile.ProgressTick == 0)
+                context.ProgressTick = 1000; // Default
             else
                 context.ProgressTick = int.MaxValue; // Don't tick
         }
@@ -786,6 +788,11 @@ namespace NoFrillsTransformation
                     }
                 }
 
+                if (context.Transformer != null)
+                {
+                    context.Logger.Info("Finishing Transform Process.");
+                    context.Transformer.FinishTransform();
+                }
                 context.Logger.Info("Finishing Write Process.");
                 context.TargetWriter.FinishWrite();
 

@@ -12,5 +12,6 @@ namespace NoFrillsTransformation.Interfaces
         IRecord CurrentRecord { get; }
         bool HasMoreRecords();
         void NextRecord();
+        void FinishTransform();
     }
 }

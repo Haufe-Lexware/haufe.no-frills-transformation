@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NoFrillsTransformation.Logging")]
+[assembly: AssemblyTitle("NoFrillsTransformation.Plugins.Statistics")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("NoFrillsTransformation.Logging")]
+[assembly: AssemblyProduct("NoFrillsTransformation.Plugins.Statistics")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("90b12321-35a4-4c22-9df7-354c537ab1cb")]
+[assembly: Guid("6c953eb4-3052-4eb5-b4e6-3dc8b52cff37")]
 
 // Version information for an assembly consists of the following four values:
 //

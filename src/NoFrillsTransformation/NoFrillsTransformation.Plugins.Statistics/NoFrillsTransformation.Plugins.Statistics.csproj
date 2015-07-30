@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F532796A-1C34-4D81-B61F-24CD12384EFE}</ProjectGuid>
+    <ProjectGuid>{34F38588-40BE-40C5-9397-28593330D873}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NoFrillsTransformation.Plugins.Inline</RootNamespace>
-    <AssemblyName>NoFrillsTransformation.Plugins.Inline</AssemblyName>
+    <RootNamespace>NoFrillsTransformation.Plugins.Statistics</RootNamespace>
+    <AssemblyName>NoFrillsTransformation.Plugins.Statistics</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -16,7 +16,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\..\bin\Debug\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -24,7 +24,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\bin\Release\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -76,13 +76,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InlineReader.cs" />
-    <Compile Include="InlineReaderFactory.cs" />
-    <Compile Include="NilWriter.cs" />
-    <Compile Include="NilWriterFactory.cs" />
+    <Compile Include="FrequencyTransformer.cs" />
+    <Compile Include="StatisticsTransformerFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NoFrillsTranformation.Plugins.CsvReader\NoFrillsTransformation.Plugins.Csv.csproj">
+      <Project>{94d2e8eb-fe71-4625-b425-f2dc61b3586c}</Project>
+      <Name>NoFrillsTransformation.Plugins.Csv</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NoFrillsTransformation.Interfaces\NoFrillsTransformation.Interfaces.csproj">
       <Project>{bf8f3429-0c30-4398-9c68-c3f4a4602e27}</Project>
       <Name>NoFrillsTransformation.Interfaces</Name>

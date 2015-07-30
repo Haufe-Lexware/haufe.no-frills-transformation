@@ -39,6 +39,8 @@ if errorlevel 1 goto error
 if errorlevel 1 goto error
 %VERSIONIZE% %1 %2 %3 0 NoFrillsTransformation.Plugins.Sap\Properties\AssemblyInfo.cs
 if errorlevel 1 goto error
+%VERSIONIZE% %1 %2 %3 0 NoFrillsTransformation.Plugins.Statistics\Properties\AssemblyInfo.cs
+if errorlevel 1 goto error
 %VERSIONIZE% %1 %2 %3 0 NoFrillsTransformation.Plugins.Xml\Properties\AssemblyInfo.cs
 if errorlevel 1 goto error
 
@@ -51,9 +53,14 @@ if errorlevel 1 goto error
 cd ..\..\bin\x64\Release
 
 set RELTIME=%date:~6,4%%date:~3,2%%date:~0,2%%time:~0,2%%time:~3,2%
+if "%time:~0,1%"==" " (
+	set RELTIME=%date:~6,4%%date:~3,2%%date:~0,2%0%time:~1,1%%time:~3,2%
+)
 set RELNAME=%1_%2_%3_%RELTIME%
 
-%SEVENZ% a ..\..\..\release\nft_x64_v%RELNAME%.zip @..\..\..\release\x64.txt
+%SEVENZ% a ..\..\..\release\nft_x64_v%RELNAME%.zip @..\..\..\release\x64.txt -x!NoFrillsTransformation.Plugins.Sap*.dll
+if errorlevel 1 goto zipError
+%SEVENZ% a ..\..\..\release\nft_x64_SAP_v%RELNAME%.zip NoFrillsTransformation.Plugins.Sap*.dll
 if errorlevel 1 goto zipError
 
 cd ..\..\x86\Release
@@ -95,4 +102,5 @@ cd ..\..\release
 :done
 
 copy /y nft_x64_v%RELNAME%.zip nft_x64_latest.zip
+copy /y nft_x64_SAP_v%RELNAME%.zip nft_x64_SAP_latest.zip
 copy /y nft_x86_v%RELNAME%.zip nft_x86_latest.zip

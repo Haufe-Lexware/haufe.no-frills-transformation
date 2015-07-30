@@ -323,6 +323,11 @@ namespace NoFrillsTransformation.Plugins.Sap
             _rfc.Invoke(_rfcDestination);
         }
 
+        public void FinishTransform()
+        {
+            // No implementation needed for this transform
+        }
+
         private void CleanUpTables()
         {
             var sap = _responseStructure;
