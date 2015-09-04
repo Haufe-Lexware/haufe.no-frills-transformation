@@ -24,6 +24,18 @@ namespace NoFrillsTransformation.Engine
 
         public string ResolveFileName(string fileName, bool hasToExist)
         {
+            if (fileName.StartsWith("\\\\"))
+            {
+                // UNC path require special treatment...
+                // If it does not have to exist, we'll take it as is
+                if (!hasToExist)
+                    return fileName;
+
+                FileInfo fi = new FileInfo(fileName);
+                if (!fi.Exists)
+                    throw new ArgumentException("Cannot resolve UNC file '" + fileName + "'.");
+                return fileName;
+            }
             if (File.Exists(fileName))
                 return Path.GetFullPath(fileName);
             if (hasToExist && Path.IsPathRooted(fileName))
