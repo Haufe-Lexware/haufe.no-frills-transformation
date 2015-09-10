@@ -118,6 +118,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FileResolveOperator.cs" />
     <Compile Include="ReformatDateOperator.cs" />
+    <Compile Include="RegexCaptureOperator.cs" />
     <Compile Include="RegexMatchOperator.cs" />
     <Compile Include="TimeSpanDaysOperator.cs" />
     <Compile Include="TimeSpanMonthsOperator.cs" />

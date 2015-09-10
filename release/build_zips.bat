@@ -99,8 +99,12 @@ echo.
 
 cd ..\..\release
 
+goto reallyDone
+
 :done
 
 copy /y nft_x64_v%RELNAME%.zip nft_x64_latest.zip
 copy /y nft_x64_SAP_v%RELNAME%.zip nft_x64_SAP_latest.zip
 copy /y nft_x86_v%RELNAME%.zip nft_x86_latest.zip
+
+:reallyDone
