@@ -200,6 +200,12 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             {
                 _context.Logger.Info("SfdcWrwiter: Not outputting success CSV.");
             }
+            var timezone = "";
+            if (!string.IsNullOrEmpty(_config.Timezone))
+            {
+                timezone = string.Format("<entry key=\"sfdc.timezone\" value=\"{0}\"/>", _config.Timezone);
+                _context.Logger.Info("SfdcWriter: Using timezone '" + _config.Timezone + "'.");
+            }
             if (_config.LoadBatchSize == 0)
             {
                 if (_context.Parameters.ContainsKey("sfdcloadbatchsize"))
@@ -227,6 +233,10 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             {
                 _context.Logger.Warning("SfdcWriter: Invalid LoadBatchSize " + _config.LoadBatchSize + ". Defaults to 200.");
             }
+            string useBulkApi = "";
+            string bulkApiSerialMode = "";
+            GetBulkApiSettings(ref useBulkApi, ref bulkApiSerialMode);
+
             var replaces = new string[,]
                 { 
                   {"%DEBUGLOGFILE%", _logFile },
@@ -241,7 +251,10 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                   {"%OUTPUTERRORXML%", outputErrorXml },
                   {"%OUTPUTSUCCESSXML%", outputSuccessXml },
                   {"%CSVINFILE%", _tempCsvFileName },
-                  {"%LOADBATCHSIZE%", _config.LoadBatchSize.ToString() }
+                  {"%LOADBATCHSIZE%", _config.LoadBatchSize.ToString() },
+                  {"%OUTPUTTIMEZONE%", timezone },
+                  {"%OUTPUTBULKAPI%", useBulkApi },
+                  {"%OUTPUTBULKAPISERIAL%", bulkApiSerialMode }
                 };
 
             int items = replaces.GetLength(0);

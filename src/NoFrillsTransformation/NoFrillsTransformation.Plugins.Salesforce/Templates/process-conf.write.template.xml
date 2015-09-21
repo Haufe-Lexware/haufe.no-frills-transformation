@@ -31,6 +31,9 @@
         <!-- c:\dataloader\samples\data\extract.csv -->
         <entry key="dataAccess.name" value="%CSVINFILE%"/>
         <entry key="dataAccess.readUTF8" value="true"/>
+        %OUTPUTTIMEZONE%
+        %OUTPUTBULKAPI%
+        %OUTPUTBULKAPISERIAL%
       </map>
     </property>
   </bean>

@@ -29,6 +29,8 @@
         <!-- c:\dataloader\samples\data\extract.csv -->
         <entry key="dataAccess.name" value="%CSVOUTFILE%"/>
         <entry key="dataAccess.writeUTF8" value="true"/>
+        %OUTPUTBULKAPI%
+        %OUTPUTBULKAPISERIAL%
       </map>
     </property>
   </bean>

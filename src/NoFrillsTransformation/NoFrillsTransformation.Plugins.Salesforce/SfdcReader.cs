@@ -102,6 +102,11 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                 _logFile = GetTempFileName(".log");
             else
                 _logFile = Path.Combine(_config.LogFileDir, Path.GetRandomFileName() + ".log");
+
+            string useBulkApi = "";
+            string bulkApiSerialMode = "";
+            GetBulkApiSettings(ref useBulkApi, ref bulkApiSerialMode);
+
             var replaces = new string[,]
                 { 
                   {"%DEBUGLOGFILE%", _logFile },
@@ -111,7 +116,9 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                   {"%ENTITY%", _query.Entity },
                   {"%SOQL%", _query.Soql },
                   {"%SDLFILE%", _sdlFile },
-                  {"%CSVOUTFILE%", _csvOutput }
+                  {"%CSVOUTFILE%", _csvOutput },
+                  {"%OUTPUTBULKAPI%", useBulkApi },
+                  {"%OUTPUTBULKAPISERIAL%", bulkApiSerialMode }
                 };
 
             int items = replaces.GetLength(0);

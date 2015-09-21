@@ -19,6 +19,9 @@ namespace NoFrillsTransformation.Plugins.Salesforce.Config
         public bool KeepTempFiles { get; set; }
         public int LoadBatchSize { get; set; }
         public bool FailOnErrors { get; set; }
+        public string Timezone { get; set; }
+        public bool UseBulkApi { get; set; }
+        public bool BulkApiSerialMode { get; set; }
     }
 
         //public SourceTargetXml Source { get; set; }

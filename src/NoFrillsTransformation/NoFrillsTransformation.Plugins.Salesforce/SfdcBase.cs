@@ -63,6 +63,51 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             //_context.Logger.Info(output);
         }
 
+        protected void GetBulkApiSettings(ref string useBulkApi, ref string bulkApiSerialMode)
+        {
+            if (_context.Parameters.ContainsKey("usebulkapi"))
+            {
+                string bulkApiYesNo = _context.Parameters["usebulkapi"];
+                bool result = false;
+                if (Boolean.TryParse(bulkApiYesNo, out result))
+                {
+                    _context.Logger.Info("SfdcBase: UseBulkApi from parameter: " + result);
+                    _config.UseBulkApi = result;
+                }
+                else
+                {
+                    _context.Logger.Warning("SfdcBase: Invalid parameter for UseBulkApi: '" + bulkApiYesNo + "'. Defaulting to 'false'.");
+                    _config.UseBulkApi = false;
+                }
+            }
+            if (_config.UseBulkApi)
+            {
+                _context.Logger.Info("SfdcBase: Using Bulk API.");
+                useBulkApi = "<entry key=\"sfdc.useBulkApi\" value=\"true\" />";
+
+                if (_context.Parameters.ContainsKey("bulkapiserialmode"))
+                {
+                    string bulkSerial = _context.Parameters["bulkapiserialmode"];
+                    bool result = false;
+                    if (Boolean.TryParse(bulkSerial, out result))
+                    {
+                        _context.Logger.Info("SfdcBase: BulkApiSerialMode from parameter: " + result);
+                        _config.BulkApiSerialMode = result;
+                    }
+                    else
+                    {
+                        _context.Logger.Warning("SfdcBase: Invalid parameter for BulkApiSerialMode: '" + bulkSerial + "'. Defaulting to 'false'.");
+                        _config.BulkApiSerialMode = false;
+                    }
+                }
+
+                if (_config.BulkApiSerialMode)
+                {
+                    bulkApiSerialMode = "<entry key=\"sfdc.bulkApiSerialMode\" value=\"true\" />";
+                }
+            }
+        }
+
         protected string GetTempFileName(string suffix)
         {
             if (null == _tempDir)

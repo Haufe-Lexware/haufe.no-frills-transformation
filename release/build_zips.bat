@@ -58,14 +58,14 @@ if "%time:~0,1%"==" " (
 )
 set RELNAME=%1_%2_%3_%RELTIME%
 
-%SEVENZ% a ..\..\..\release\nft_x64_v%RELNAME%.zip @..\..\..\release\x64.txt -x!NoFrillsTransformation.Plugins.Sap*.dll
+%SEVENZ% a ..\..\..\release\nft_x64_v%RELNAME%.zip @..\..\..\release\x64.txt -x!NoFrillsTransformation.Plugins.Sap*.dll -x!*.Test.dll
 if errorlevel 1 goto zipError
 %SEVENZ% a ..\..\..\release\nft_x64_SAP_v%RELNAME%.zip NoFrillsTransformation.Plugins.Sap*.dll
 if errorlevel 1 goto zipError
 
 cd ..\..\x86\Release
 
-%SEVENZ% a ..\..\..\release\nft_x86_v%RELNAME%.zip @..\..\..\release\x86.txt
+%SEVENZ% a ..\..\..\release\nft_x86_v%RELNAME%.zip @..\..\..\release\x86.txt -x!*.Test.dll
 if errorlevel 1 goto zipError
 
 cd ..\..\..\release
