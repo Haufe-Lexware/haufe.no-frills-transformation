@@ -206,6 +206,15 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                 timezone = string.Format("<entry key=\"sfdc.timezone\" value=\"{0}\"/>", _config.Timezone);
                 _context.Logger.Info("SfdcWriter: Using timezone '" + _config.Timezone + "'.");
             }
+
+            string useBulkApi = "";
+            string bulkApiSerialMode = "";
+            string bulkApiZipContent = "";
+            GetBulkApiSettings(ref useBulkApi, ref bulkApiSerialMode, ref bulkApiZipContent);
+
+            bool bulk = !string.IsNullOrEmpty(useBulkApi);
+            int maxBatchSize = bulk ? 10000 : 200;
+
             if (_config.LoadBatchSize == 0)
             {
                 if (_context.Parameters.ContainsKey("sfdcloadbatchsize"))
@@ -214,8 +223,8 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                     int loadBatchSize = 0;
                     if (!int.TryParse(loadBatchSizeString, out loadBatchSize))
                     {
-                        _context.Logger.Warning("SfdcWriter: Invalid LoadBatchSize from Parameter 'sfdcloadbatchsize': " + loadBatchSizeString + ", defaults to 200");
-                        _config.LoadBatchSize = 200;
+                        _context.Logger.Warning("SfdcWriter: Invalid LoadBatchSize from Parameter 'sfdcloadbatchsize': " + loadBatchSizeString + ", defaults to " + maxBatchSize + ".");
+                        _config.LoadBatchSize = maxBatchSize;
                     }
                     else
                     {
@@ -225,17 +234,14 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                 }
                 else
                 {
-                    _context.Logger.Info("SfdcWriter: LoadBatchSize not specified, defaulting to 200.");
-                    _config.LoadBatchSize = 200;
+                    _context.Logger.Info("SfdcWriter: LoadBatchSize not specified, defaulting to " + maxBatchSize + ".");
+                    _config.LoadBatchSize = maxBatchSize;
                 }
             }
-            if (_config.LoadBatchSize < 1 || _config.LoadBatchSize > 200)
+            if (_config.LoadBatchSize < 1 || _config.LoadBatchSize > maxBatchSize)
             {
-                _context.Logger.Warning("SfdcWriter: Invalid LoadBatchSize " + _config.LoadBatchSize + ". Defaults to 200.");
+                _context.Logger.Warning("SfdcWriter: Invalid LoadBatchSize " + _config.LoadBatchSize + ". Defaults to " + maxBatchSize + ".");
             }
-            string useBulkApi = "";
-            string bulkApiSerialMode = "";
-            GetBulkApiSettings(ref useBulkApi, ref bulkApiSerialMode);
 
             var replaces = new string[,]
                 { 
@@ -254,7 +260,8 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                   {"%LOADBATCHSIZE%", _config.LoadBatchSize.ToString() },
                   {"%OUTPUTTIMEZONE%", timezone },
                   {"%OUTPUTBULKAPI%", useBulkApi },
-                  {"%OUTPUTBULKAPISERIAL%", bulkApiSerialMode }
+                  {"%OUTPUTBULKAPISERIAL%", bulkApiSerialMode },
+                  {"%OUTPUTBULKAPIZIP%", bulkApiZipContent }
                 };
 
             int items = replaces.GetLength(0);

@@ -859,7 +859,7 @@ namespace NoFrillsTransformation
                 for (int i = 0; i < filterCount; ++i)
                 {
                     var filterXml = configFile.SourceFilters[i];
-                    context.Filters[i] = new FilterDef { Expression = ExpressionParser.ParseExpression(filterXml.Expression, context) };
+                    context.Filters[i] = new FilterDef { Expression = ExpressionParser.ParseExpression(context.ReplaceParameters(filterXml.Expression), context) };
                     if (context.Filters[i].Expression.Operator.ReturnType != ParamType.Bool)
                         throw new InvalidOperationException("Source filter expression mismatch: Expression '" +
                             filterXml.Expression + "' does not evaluate to a boolean value.");

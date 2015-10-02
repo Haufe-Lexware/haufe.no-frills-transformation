@@ -22,6 +22,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce.Config
         public string Timezone { get; set; }
         public bool UseBulkApi { get; set; }
         public bool BulkApiSerialMode { get; set; }
+        public bool BulkApiZipContent { get; set; }
     }
 
         //public SourceTargetXml Source { get; set; }

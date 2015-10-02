@@ -63,7 +63,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             //_context.Logger.Info(output);
         }
 
-        protected void GetBulkApiSettings(ref string useBulkApi, ref string bulkApiSerialMode)
+        protected void GetBulkApiSettings(ref string useBulkApi, ref string bulkApiSerialMode, ref string bulkApiZipContent)
         {
             if (_context.Parameters.ContainsKey("usebulkapi"))
             {
@@ -104,6 +104,29 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                 if (_config.BulkApiSerialMode)
                 {
                     bulkApiSerialMode = "<entry key=\"sfdc.bulkApiSerialMode\" value=\"true\" />";
+                }
+            }
+            if (_config.UseBulkApi)
+            {
+                if (_context.Parameters.ContainsKey("bulkapizipcontent"))
+                {
+                    string bulkZip = _context.Parameters["bulkapizipcontent"];
+                    bool result = false;
+                    if (Boolean.TryParse(bulkZip, out result))
+                    {
+                        _context.Logger.Info("SfdcBase: BulkApiZipContent from parameter: " + result);
+                        _config.BulkApiZipContent = result;
+                    }
+                    else
+                    {
+                        _context.Logger.Warning("SfdcBase: Invalid parameter for BulkApiZipContent: '" + bulkZip + "'. Defaulting to 'false'.");
+                        _config.BulkApiZipContent = false;
+                    }
+                }
+
+                if (_config.BulkApiZipContent)
+                {
+                    bulkApiZipContent = "<entry key=\"sfdc.bulkApiZipContent\" value=\"true\" />";
                 }
             }
         }

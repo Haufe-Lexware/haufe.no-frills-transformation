@@ -105,7 +105,8 @@ namespace NoFrillsTransformation.Plugins.Salesforce
 
             string useBulkApi = "";
             string bulkApiSerialMode = "";
-            GetBulkApiSettings(ref useBulkApi, ref bulkApiSerialMode);
+            string bulkApiZipContent = "";
+            GetBulkApiSettings(ref useBulkApi, ref bulkApiSerialMode, ref bulkApiZipContent);
 
             var replaces = new string[,]
                 { 
@@ -118,7 +119,8 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                   {"%SDLFILE%", _sdlFile },
                   {"%CSVOUTFILE%", _csvOutput },
                   {"%OUTPUTBULKAPI%", useBulkApi },
-                  {"%OUTPUTBULKAPISERIAL%", bulkApiSerialMode }
+                  {"%OUTPUTBULKAPISERIAL%", bulkApiSerialMode },
+                  {"%OUTPUTBULKAPIZIP%", bulkApiZipContent }
                 };
 
             int items = replaces.GetLength(0);
