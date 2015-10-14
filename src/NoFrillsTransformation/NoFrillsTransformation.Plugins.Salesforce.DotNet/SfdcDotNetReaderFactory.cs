@@ -8,32 +8,32 @@ using System.Xml.Serialization;
 using NoFrillsTransformation.Interfaces;
 using NoFrillsTransformation.Plugins.Salesforce.Config;
 
-namespace NoFrillsTransformation.Plugins.Salesforce
+namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
 {
     [Export(typeof(NoFrillsTransformation.Interfaces.ISourceReaderFactory))]
-    public class SfdcReaderFactory : SfdcBaseFactory, ISourceReaderFactory
+    public class SfdcDotNetReaderFactory : SfdcBaseFactory, ISourceReaderFactory
     {
         public bool CanReadSource(string source)
         {
             if (string.IsNullOrWhiteSpace(source))
                 return false;
             string temp = source.ToLowerInvariant();
-            if (!temp.StartsWith("soql://"))
+            if (!temp.StartsWith("soql.net://"))
                 return false;
             return true;
         }
 
         public ISourceReader CreateReader(IContext context, string source, string config)
         {
-            string soql = source.Substring(7);
+            string soql = source.Substring(11);
             var soqlQuery = ParseQuery(soql);
             var sfdcConfig = ParseConfig(context, config);
-            SfdcReader sfdcReader = null;
+            SfdcDotNetReader sfdcReader = null;
             try
             {
-                context.Logger.Info("SfdcReaderFactory: Attempting to create an SfdcReader."); 
-                
-                sfdcReader = new SfdcReader(context, soqlQuery, sfdcConfig);
+                context.Logger.Info("SfdcDotNetReaderFactory: Attempting to create an SfdcReader.");
+
+                sfdcReader = new SfdcDotNetReader(context, soqlQuery, sfdcConfig);
                 sfdcReader.Initialize();
             }
             catch (Exception ex)

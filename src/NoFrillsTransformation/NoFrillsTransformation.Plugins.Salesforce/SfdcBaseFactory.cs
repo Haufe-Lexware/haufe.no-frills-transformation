@@ -60,5 +60,53 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             }
             return false;
         }
+
+        public static SoqlQuery ParseQuery(string soql)
+        {
+            string[] parts = soql.Split(' ');
+
+            if (parts.Length == 0)
+                throw new ArgumentException("Invalid SOQL query: " + soql);
+
+            if (!parts[0].Equals("select", StringComparison.InvariantCultureIgnoreCase))
+                throw new ArgumentException("Invalid SOQL query. Must start with 'Select': " + soql);
+
+            var q = new SoqlQuery();
+
+            bool hasFoundFrom = false;
+            bool hasFoundEntity = false;
+            var fields = new List<string>();
+            for (int i = 1; i < parts.Length; ++i)
+            {
+                string f = parts[i].Trim();
+                if (hasFoundFrom)
+                {
+                    q.Entity = f;
+                    hasFoundEntity = true;
+                    break;
+                }
+                else if (f.Equals("from", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    hasFoundFrom = true;
+                    continue;
+                }
+
+                f = f.Replace(",", "");
+                if (string.IsNullOrWhiteSpace(f))
+                    continue;
+
+                fields.Add(f);
+            }
+
+            if (!hasFoundFrom)
+                throw new ArgumentException("Invalid SOQL query, keyword 'From' was not found: " + soql);
+            if (!hasFoundEntity)
+                throw new ArgumentException("Invalid SOQL query; query entity was not found after 'From' keyword: " + soql);
+
+            q.FieldNames = fields.ToArray();
+            q.Soql = soql;
+
+            return q;
+        }
     }
 }

@@ -14,6 +14,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce.Config
         public string SuccessFileName { get; set; }
         public string ErrorFileName { get; set; }
         public string SfdcUsername { get; set; }
+        public string SfdcPassword { get; set; }
         public string SfdcEncryptedPassword { get; set; }
         public string SfdcEndPoint { get; set; }
         public bool KeepTempFiles { get; set; }

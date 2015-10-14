@@ -35,6 +35,8 @@ if errorlevel 1 goto error
 if errorlevel 1 goto error
 %VERSIONIZE% %1 %2 %3 0 NoFrillsTransformation.Plugins.Salesforce\Properties\AssemblyInfo.cs
 if errorlevel 1 goto error
+%VERSIONIZE% %1 %2 %3 0 NoFrillsTransformation.Plugins.Salesforce.DotNet\Properties\AssemblyInfo.cs
+if errorlevel 1 goto error
 %VERSIONIZE% %1 %2 %3 0 NoFrillsTransformation.Plugins.Salesforce.Test\Properties\AssemblyInfo.cs
 if errorlevel 1 goto error
 %VERSIONIZE% %1 %2 %3 0 NoFrillsTransformation.Plugins.Sap\Properties\AssemblyInfo.cs

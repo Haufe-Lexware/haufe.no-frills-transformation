@@ -9,7 +9,7 @@ using NoFrillsTransformation.Plugins.Salesforce.Config;
 
 namespace NoFrillsTransformation.Plugins.Salesforce
 {
-    internal class SfdcBase : IDisposable
+    public class SfdcBase : IDisposable
     {
         internal SfdcBase(IContext context, SfdcConfig config)
         {
