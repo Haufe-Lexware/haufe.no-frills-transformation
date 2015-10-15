@@ -210,38 +210,9 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             string useBulkApi = "";
             string bulkApiSerialMode = "";
             string bulkApiZipContent = "";
-            GetBulkApiSettings(ref useBulkApi, ref bulkApiSerialMode, ref bulkApiZipContent);
+            GetBulkApiSettings(_context, _config, ref useBulkApi, ref bulkApiSerialMode, ref bulkApiZipContent);
 
-            bool bulk = !string.IsNullOrEmpty(useBulkApi);
-            int maxBatchSize = bulk ? 10000 : 200;
-
-            if (_config.LoadBatchSize == 0)
-            {
-                if (_context.Parameters.ContainsKey("sfdcloadbatchsize"))
-                {
-                    string loadBatchSizeString = _context.Parameters["sfdcloadbatchsize"];
-                    int loadBatchSize = 0;
-                    if (!int.TryParse(loadBatchSizeString, out loadBatchSize))
-                    {
-                        _context.Logger.Warning("SfdcWriter: Invalid LoadBatchSize from Parameter 'sfdcloadbatchsize': " + loadBatchSizeString + ", defaults to " + maxBatchSize + ".");
-                        _config.LoadBatchSize = maxBatchSize;
-                    }
-                    else
-                    {
-                        _context.Logger.Info("SfdcWriter: Setting LoadBatchSize from parameter 'sfdcloadbatchsize' to " + loadBatchSize);
-                        _config.LoadBatchSize = loadBatchSize;
-                    }
-                }
-                else
-                {
-                    _context.Logger.Info("SfdcWriter: LoadBatchSize not specified, defaulting to " + maxBatchSize + ".");
-                    _config.LoadBatchSize = maxBatchSize;
-                }
-            }
-            if (_config.LoadBatchSize < 1 || _config.LoadBatchSize > maxBatchSize)
-            {
-                _context.Logger.Warning("SfdcWriter: Invalid LoadBatchSize " + _config.LoadBatchSize + ". Defaults to " + maxBatchSize + ".");
-            }
+            GetBatchSizeSettings(_context, _config, useBulkApi);
 
             var replaces = new string[,]
                 { 
@@ -280,6 +251,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce
 
             return configFile;
         }
+
 
         #region IDisposable
         // Dispose() calls Dispose(true)

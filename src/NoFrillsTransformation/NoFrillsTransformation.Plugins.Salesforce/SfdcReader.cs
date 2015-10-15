@@ -106,7 +106,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             string useBulkApi = "";
             string bulkApiSerialMode = "";
             string bulkApiZipContent = "";
-            GetBulkApiSettings(ref useBulkApi, ref bulkApiSerialMode, ref bulkApiZipContent);
+            GetBulkApiSettings(_context, _config, ref useBulkApi, ref bulkApiSerialMode, ref bulkApiZipContent);
 
             var replaces = new string[,]
                 { 

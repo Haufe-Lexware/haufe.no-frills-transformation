@@ -14,19 +14,9 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
             _query = query;
         }
 
-        //// NOTE: Leave out the finalizer altogether if this class doesn't 
-        //// own unmanaged resources itself, but leave the other methods
-        //// exactly as they are. 
-        //~SfdcReader()
-        //{
-        //    // Finalizer calls Dispose(false)
-        //    Dispose(false);
-        //}
-
         private SoqlQuery _query;
         private Salesforce35.QueryResult _queryResult;
         private int _pointer;
-        //private bool _endOfStream;
 
         public void Initialize()
         {

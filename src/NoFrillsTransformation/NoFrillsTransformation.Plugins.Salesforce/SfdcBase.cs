@@ -63,74 +63,107 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             //_context.Logger.Info(output);
         }
 
-        protected void GetBulkApiSettings(ref string useBulkApi, ref string bulkApiSerialMode, ref string bulkApiZipContent)
+        public static void GetBulkApiSettings(IContext context, SfdcConfig config, ref string useBulkApi, ref string bulkApiSerialMode, ref string bulkApiZipContent)
         {
-            if (_context.Parameters.ContainsKey("usebulkapi"))
+            if (context.Parameters.ContainsKey("usebulkapi"))
             {
-                string bulkApiYesNo = _context.Parameters["usebulkapi"];
+                string bulkApiYesNo = context.Parameters["usebulkapi"];
                 bool result = false;
                 if (Boolean.TryParse(bulkApiYesNo, out result))
                 {
-                    _context.Logger.Info("SfdcBase: UseBulkApi from parameter: " + result);
-                    _config.UseBulkApi = result;
+                    context.Logger.Info("SfdcBase: UseBulkApi from parameter: " + result);
+                    config.UseBulkApi = result;
                 }
                 else
                 {
-                    _context.Logger.Warning("SfdcBase: Invalid parameter for UseBulkApi: '" + bulkApiYesNo + "'. Defaulting to 'false'.");
-                    _config.UseBulkApi = false;
+                    context.Logger.Warning("SfdcBase: Invalid parameter for UseBulkApi: '" + bulkApiYesNo + "'. Defaulting to 'false'.");
+                    config.UseBulkApi = false;
                 }
             }
-            if (_config.UseBulkApi)
+            if (config.UseBulkApi)
             {
-                _context.Logger.Info("SfdcBase: Using Bulk API.");
+                context.Logger.Info("SfdcBase: Using Bulk API.");
                 useBulkApi = "<entry key=\"sfdc.useBulkApi\" value=\"true\" />";
 
-                if (_context.Parameters.ContainsKey("bulkapiserialmode"))
+                if (context.Parameters.ContainsKey("bulkapiserialmode"))
                 {
-                    string bulkSerial = _context.Parameters["bulkapiserialmode"];
+                    string bulkSerial = context.Parameters["bulkapiserialmode"];
                     bool result = false;
                     if (Boolean.TryParse(bulkSerial, out result))
                     {
-                        _context.Logger.Info("SfdcBase: BulkApiSerialMode from parameter: " + result);
-                        _config.BulkApiSerialMode = result;
+                        context.Logger.Info("SfdcBase: BulkApiSerialMode from parameter: " + result);
+                        config.BulkApiSerialMode = result;
                     }
                     else
                     {
-                        _context.Logger.Warning("SfdcBase: Invalid parameter for BulkApiSerialMode: '" + bulkSerial + "'. Defaulting to 'false'.");
-                        _config.BulkApiSerialMode = false;
+                        context.Logger.Warning("SfdcBase: Invalid parameter for BulkApiSerialMode: '" + bulkSerial + "'. Defaulting to 'false'.");
+                        config.BulkApiSerialMode = false;
                     }
                 }
 
-                if (_config.BulkApiSerialMode)
+                if (config.BulkApiSerialMode)
                 {
                     bulkApiSerialMode = "<entry key=\"sfdc.bulkApiSerialMode\" value=\"true\" />";
                 }
             }
-            if (_config.UseBulkApi)
+            if (config.UseBulkApi)
             {
-                if (_context.Parameters.ContainsKey("bulkapizipcontent"))
+                if (context.Parameters.ContainsKey("bulkapizipcontent"))
                 {
-                    string bulkZip = _context.Parameters["bulkapizipcontent"];
+                    string bulkZip = context.Parameters["bulkapizipcontent"];
                     bool result = false;
                     if (Boolean.TryParse(bulkZip, out result))
                     {
-                        _context.Logger.Info("SfdcBase: BulkApiZipContent from parameter: " + result);
-                        _config.BulkApiZipContent = result;
+                        context.Logger.Info("SfdcBase: BulkApiZipContent from parameter: " + result);
+                        config.BulkApiZipContent = result;
                     }
                     else
                     {
-                        _context.Logger.Warning("SfdcBase: Invalid parameter for BulkApiZipContent: '" + bulkZip + "'. Defaulting to 'false'.");
-                        _config.BulkApiZipContent = false;
+                        context.Logger.Warning("SfdcBase: Invalid parameter for BulkApiZipContent: '" + bulkZip + "'. Defaulting to 'false'.");
+                        config.BulkApiZipContent = false;
                     }
                 }
 
-                if (_config.BulkApiZipContent)
+                if (config.BulkApiZipContent)
                 {
                     bulkApiZipContent = "<entry key=\"sfdc.bulkApiZipContent\" value=\"true\" />";
                 }
             }
         }
 
+        public static void GetBatchSizeSettings(IContext context, SfdcConfig config, string useBulkApi)
+        {
+            bool bulk = !string.IsNullOrEmpty(useBulkApi);
+            int maxBatchSize = bulk ? 10000 : 200;
+
+            if (config.LoadBatchSize == 0)
+            {
+                if (context.Parameters.ContainsKey("sfdcloadbatchsize"))
+                {
+                    string loadBatchSizeString = context.Parameters["sfdcloadbatchsize"];
+                    int loadBatchSize = 0;
+                    if (!int.TryParse(loadBatchSizeString, out loadBatchSize))
+                    {
+                        context.Logger.Warning("SfdcBase: Invalid LoadBatchSize from Parameter 'sfdcloadbatchsize': " + loadBatchSizeString + ", defaults to " + maxBatchSize + ".");
+                        config.LoadBatchSize = maxBatchSize;
+                    }
+                    else
+                    {
+                        context.Logger.Info("SfdcBase: Setting LoadBatchSize from parameter 'sfdcloadbatchsize' to " + loadBatchSize);
+                        config.LoadBatchSize = loadBatchSize;
+                    }
+                }
+                else
+                {
+                    context.Logger.Info("SfdcBase: LoadBatchSize not specified, defaulting to " + maxBatchSize + ".");
+                    config.LoadBatchSize = maxBatchSize;
+                }
+            }
+            if (config.LoadBatchSize < 1 || config.LoadBatchSize > maxBatchSize)
+            {
+                context.Logger.Warning("SfdcBase: Invalid LoadBatchSize " + config.LoadBatchSize + ". Defaults to " + maxBatchSize + ".");
+            }
+        }
         protected string GetTempFileName(string suffix)
         {
             if (null == _tempDir)

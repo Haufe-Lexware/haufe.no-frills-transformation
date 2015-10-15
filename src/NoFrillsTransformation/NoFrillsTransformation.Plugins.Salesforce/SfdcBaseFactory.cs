@@ -108,5 +108,51 @@ namespace NoFrillsTransformation.Plugins.Salesforce
 
             return q;
         }
+
+        // Typical target strings:
+        // sfdc://Account.insert
+        // sfdc://User.upsert:ImportedSapGuid__c
+        protected static SfdcTarget ParseTarget(string protocol, string target)
+        {
+            try
+            {
+                // Strip sfdc://
+                string t = target.Substring(protocol.Length);
+                int dotIndex = t.IndexOf('.');
+                if (dotIndex < 0)
+                    throw new ArgumentException();
+                string entity = t.Substring(0, dotIndex);
+                string operation = null;
+                string externalId = null;
+                int parIndex = t.IndexOf(':');
+                if (parIndex > 0)
+                {
+                    operation = t.Substring(dotIndex + 1, parIndex - dotIndex - 1);
+                    externalId = t.Substring(parIndex + 1);
+                }
+                else
+                {
+                    operation = t.Substring(dotIndex + 1);
+                }
+                operation = operation.ToLowerInvariant();
+                if (!operation.Equals("insert", StringComparison.InvariantCultureIgnoreCase)
+                    && !operation.Equals("update", StringComparison.InvariantCultureIgnoreCase)
+                    && !operation.Equals("upsert", StringComparison.InvariantCultureIgnoreCase)
+                    && !operation.Equals("delete", StringComparison.InvariantCultureIgnoreCase)
+                    && !operation.Equals("hard_delete", StringComparison.InvariantCultureIgnoreCase))
+                    throw new ArgumentException();
+
+                return new SfdcTarget
+                {
+                    Entity = entity,
+                    Operation = operation,
+                    ExternalId = externalId
+                };
+            }
+            catch (Exception)
+            {
+                throw new ArgumentException("Malformed SFDC target string. Expected '" + protocol + "<Entity>.<operation>[:<externalId>]', whereas <operation> is 'insert', 'update', 'upsert', 'delete' or 'hard_delete', and the optional <externalId> can be passed for the 'upsert' operation.");
+            }
+        }
     }
 }

@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using NoFrillsTransformation.Interfaces;
 
-namespace NoFrillsTransformation.Plugins.Salesforce
+namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
 {
     [Export(typeof(NoFrillsTransformation.Interfaces.ITargetWriterFactory))]
-    public class SfdcWriterFactory : SfdcBaseFactory, ITargetWriterFactory
+    public class SfdcDotNetWriterFactory : SfdcBaseFactory, ITargetWriterFactory
     {
-        private const string PROTOCOL = "sfdc://";
+        private const string PROTOCOL = "sfdc.net://";
 
         public bool CanWriteTarget(string target)
         {
@@ -26,10 +26,10 @@ namespace NoFrillsTransformation.Plugins.Salesforce
 
         public ITargetWriter CreateWriter(IContext context, string target, IFieldDefinition[] fieldDefs, string config)
         {
-            context.Logger.Info("SfdcWriterFactory: Creating a SfdcWriter.");
+            context.Logger.Info("SfdcDotNetWriterFactory: Creating a SfdcDotNetWriter.");
             var sfdcTarget = ParseTarget(PROTOCOL, target);
             var sfdcConfig = ParseConfig(context, config);
-            return new SfdcWriter(context, sfdcTarget, fieldDefs, sfdcConfig);
+            return new SfdcDotNetWriter(context, sfdcTarget, fieldDefs, sfdcConfig);
         }
     }
 }

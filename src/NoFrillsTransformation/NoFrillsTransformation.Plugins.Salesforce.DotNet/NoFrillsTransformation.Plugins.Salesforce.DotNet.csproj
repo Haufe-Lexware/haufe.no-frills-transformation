@@ -87,6 +87,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="SfdcDotNetWriter.cs" />
+    <Compile Include="SfdcDotNetWriterFactory.cs" />
     <Compile Include="Web References\Salesforce35\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -266,6 +268,10 @@
     </WebReferenceUrl>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NoFrillsTranformation.Plugins.CsvReader\NoFrillsTransformation.Plugins.Csv.csproj">
+      <Project>{94d2e8eb-fe71-4625-b425-f2dc61b3586c}</Project>
+      <Name>NoFrillsTransformation.Plugins.Csv</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NoFrillsTransformation.Interfaces\NoFrillsTransformation.Interfaces.csproj">
       <Project>{bf8f3429-0c30-4398-9c68-c3f4a4602e27}</Project>
       <Name>NoFrillsTransformation.Interfaces</Name>
