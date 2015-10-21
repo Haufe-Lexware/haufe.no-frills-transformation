@@ -286,6 +286,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
             string bulkApiZipContent = "";
             SfdcBase.GetBulkApiSettings(_context, _config, ref useBulkApi, ref bulkApiSerialMode, ref bulkApiZipContent);
             SfdcBase.GetBatchSizeSettings(_context, _config, useBulkApi);
+            SfdcBase.GetInsertNullsSetting(_context, _config);
         }
 
         private string[] GetSuccessFieldNames()

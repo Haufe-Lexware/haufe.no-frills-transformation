@@ -25,6 +25,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce.Config
         public bool UseBulkApi { get; set; }
         public bool BulkApiSerialMode { get; set; }
         public bool BulkApiZipContent { get; set; }
+        public bool InsertNulls { get; set; }
     }
 
         //public SourceTargetXml Source { get; set; }

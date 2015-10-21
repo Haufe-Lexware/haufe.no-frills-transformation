@@ -35,6 +35,7 @@
         %OUTPUTBULKAPI%
         %OUTPUTBULKAPISERIAL%
         %OUTPUTBULKAPIZIP%
+        %INSERTNULLS%
       </map>
     </property>
   </bean>

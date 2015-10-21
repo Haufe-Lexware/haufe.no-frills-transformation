@@ -164,6 +164,25 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                 context.Logger.Warning("SfdcBase: Invalid LoadBatchSize " + config.LoadBatchSize + ". Defaults to " + maxBatchSize + ".");
             }
         }
+
+        public static void GetInsertNullsSetting(IContext context, SfdcConfig config)
+        {
+            bool insertNulls = config.InsertNulls;
+            if (context.Parameters.ContainsKey("sfdcinsertnulls"))
+            {
+                string insertNullsString = context.Parameters["sfdcinsertnulls"];
+                if (bool.TryParse(insertNullsString, out insertNulls))
+                {
+                    context.Logger.Info("SfdcBase: Setting SFDC InsertNulls from parameter 'sfdcinsertnulls' to " + insertNulls);
+                    config.InsertNulls = insertNulls;
+                }
+                else
+                {
+                    context.Logger.Warning("SfdcBase: Invalid 'sfdcinsertnulls' parameter: '" + insertNullsString + "', keeping '" + insertNulls + "'.");
+                }
+            }
+        }
+
         protected string GetTempFileName(string suffix)
         {
             if (null == _tempDir)

@@ -16,7 +16,7 @@ namespace NoFrillsTransformation.Operators
             Name = "sourcerownum";
             ParamCount = 0;
             ParamTypes = new ParamType[] {};
-            ReturnType = ParamType.String;
+            ReturnType = ParamType.Int;
         }
 
         public string Evaluate(IEvaluator eval, IExpression expression, IContext context)

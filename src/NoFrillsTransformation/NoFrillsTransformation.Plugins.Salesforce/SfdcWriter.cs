@@ -213,6 +213,11 @@ namespace NoFrillsTransformation.Plugins.Salesforce
             GetBulkApiSettings(_context, _config, ref useBulkApi, ref bulkApiSerialMode, ref bulkApiZipContent);
 
             GetBatchSizeSettings(_context, _config, useBulkApi);
+            GetInsertNullsSetting(_context, _config);
+
+            string insertNulls = "";
+            if (_config.InsertNulls)
+                insertNulls = "<entry key=\"sfdc.insertNulls\" value=\"true\"/>";
 
             var replaces = new string[,]
                 { 
@@ -232,7 +237,8 @@ namespace NoFrillsTransformation.Plugins.Salesforce
                   {"%OUTPUTTIMEZONE%", timezone },
                   {"%OUTPUTBULKAPI%", useBulkApi },
                   {"%OUTPUTBULKAPISERIAL%", bulkApiSerialMode },
-                  {"%OUTPUTBULKAPIZIP%", bulkApiZipContent }
+                  {"%OUTPUTBULKAPIZIP%", bulkApiZipContent },
+                  {"%INSERTNULLS%", insertNulls }
                 };
 
             int items = replaces.GetLength(0);
