@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -10,6 +11,14 @@ using NoFrillsTransformation.Plugins.Salesforce.DotNet.Salesforce35;
 
 namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
 {
+    internal class TargetField
+    {
+        public string Name { get; set; }
+        public string ExternalId { get; set; }
+        public string FieldType { get; set; }
+        public bool IsBase64 { get; set; }
+    }
+
     class SfdcDotNetWriter : SfdcDotNetBase, ITargetWriter
     {
         public SfdcDotNetWriter(IContext context, SfdcTarget target, IFieldDefinition[] fieldDefs, SfdcConfig config)
@@ -33,9 +42,10 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
         private string[] _fieldNames;
 
         private Dictionary<string, string> _fields;
-        private string[] _targetFieldNames;
-        private string[] _targetExternalId;
-        private string[] _targetFieldTypes;
+        //private string[] _targetFieldNames;
+        //private string[] _targetExternalId;
+        //private string[] _targetFieldTypes;
+        private TargetField[] _targetFields;
         private bool _operationHasId;
         
         private int _pendingWrites = 0;
@@ -56,18 +66,26 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
                 FlushWrite();
         }
 
+        private string ReadFileBase64(string filePath)
+        {
+            var fileName = _context.ResolveFileName(filePath, true);
+            byte[] fileContent = File.ReadAllBytes(fileName);
+            string base64Content = Convert.ToBase64String(fileContent);
+            return base64Content;
+        }
+
         private XmlDocument _xmlDoc = new XmlDocument();
         private sObject CreateSObject(string[] fieldValues)
         {
             var o = new sObject();
             o.type = _target.Entity;
 
-            XmlElement[] xmlElements = null;
-            if (!_operationHasId)
-                xmlElements = new XmlElement[fieldValues.Length];
-            else
-                xmlElements = new XmlElement[fieldValues.Length - 1];
-            int elementPointer = 0;
+            var xmlElements = new List<XmlElement>();
+            //if (!_operationHasId)
+            //    xmlElements = new XmlElement[fieldValues.Length];
+            //else
+            //    xmlElements = new XmlElement[fieldValues.Length - 1];
+            //int elementPointer = 0;
             for (int i=0; i<fieldValues.Length; ++i)
             {
                 if (i == 0 &&
@@ -77,28 +95,38 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
                 }
                 else
                 {
-                    var e = _xmlDoc.CreateElement(_targetFieldNames[i]);
-                    if (string.IsNullOrEmpty(_targetExternalId[i]))
+                    if (!string.IsNullOrEmpty(fieldValues[i]))
                     {
-                        e.InnerText = fieldValues[i];
+                        var e = _xmlDoc.CreateElement(_targetFields[i].Name);
+                        if (string.IsNullOrEmpty(_targetFields[i].ExternalId))
+                        {
+                            if (!_targetFields[i].IsBase64)
+                                e.InnerText = fieldValues[i];
+                            else
+                                e.InnerText = ReadFileBase64(fieldValues[i]);
+                        }
+                        else
+                        {
+                            // Wow. But it seems to be the only way to get this:
+                            // External ID reference on upsert/update.
+                            var typeE = _xmlDoc.CreateElement("type");
+                            typeE.InnerText = _targetFields[i].FieldType;
+                            var idE = _xmlDoc.CreateElement(_targetFields[i].ExternalId);
+                            idE.InnerText = fieldValues[i];
+                            e.AppendChild(typeE);
+                            e.AppendChild(idE);
+                        }
+
+                        xmlElements.Add(e);
                     }
                     else
                     {
-                        // Wow. But it seems to be the only way to get this:
-                        // External ID reference on upsert/update.
-                        var typeE = _xmlDoc.CreateElement("type");
-                        typeE.InnerText = _targetFieldTypes[i];
-                        var idE = _xmlDoc.CreateElement(_targetExternalId[i]);
-                        idE.InnerText = fieldValues[i];
-                        e.AppendChild(typeE);
-                        e.AppendChild(idE);
+                        // TODO: Check for "insertNulls"
                     }
-
-                    xmlElements[elementPointer] = e;
-                    elementPointer++;
+                    //elementPointer++;
                 }
             }
-            o.Any = xmlElements;
+            o.Any = xmlElements.ToArray();
             return o;
         }
 
@@ -244,21 +272,30 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
                     break;
             }
             _fields = new Dictionary<string, string>();
+            var fieldTypes = new Dictionary<string, fieldType>();
             foreach (var field in desc.fields)
             {
                 _fields[field.name.ToLowerInvariant()] = field.name;
+                fieldTypes[field.name.ToLowerInvariant()] = field.type;
             }
-            _targetFieldNames = new string[_fieldNames.Length];
-            _targetExternalId = new string[_fieldNames.Length];
-            _targetFieldTypes = new string[_fieldNames.Length];
+            //_targetFieldNames = new string[_fieldNames.Length];
+            //_targetExternalId = new string[_fieldNames.Length];
+            //_targetFieldTypes = new string[_fieldNames.Length];
+            _targetFields = new TargetField[_fieldNames.Length];
             for (int i = 0; i < _fieldNames.Length; ++i)
             {
+                _targetFields[i] = new TargetField();
                 var lowerName = _fieldNames[i].ToLowerInvariant();
 
                 if (_fields.ContainsKey(lowerName))
-                    _targetFieldNames[i] = _fields[lowerName];
+                {
+                    _targetFields[i].Name = _fields[lowerName];
+                    _targetFields[i].IsBase64 = (fieldTypes[lowerName] == fieldType.base64);
+                }
                 else
-                    _targetFieldNames[i] = _fieldNames[i];
+                {
+                    _targetFields[i].Name = _fieldNames[i];
+                }
 
                 if (!string.IsNullOrEmpty(_fieldDefs[i].Config))
                 {
@@ -267,13 +304,13 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
                     // This was taken from how the DataLoader works (works the same there).
                     if (c.Contains(":"))
                     {
-                        _targetExternalId[i] = c.Substring(c.IndexOf(":") + 1);
-                        _targetFieldTypes[i] = c.Substring(0, c.IndexOf(":"));
+                        _targetFields[i].ExternalId = c.Substring(c.IndexOf(":") + 1);
+                        _targetFields[i].FieldType = c.Substring(0, c.IndexOf(":"));
                     }
                     else
                     {
-                        _targetExternalId[i] = c;
-                        _targetFieldTypes[i] = _targetFieldNames[i];
+                        _targetFields[i].ExternalId = c;
+                        _targetFields[i].FieldType = _targetFields[i].Name;
                     }
                 }
             }
@@ -309,9 +346,19 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
             return fns;
         }
 
+        private void CheckLoggerTargetDir(string targetFile)
+        {
+            string resolvedFile = _context.ResolveFileName(targetFile, false);
+            string directory = Path.GetDirectoryName(resolvedFile);
+            if (!Directory.Exists(directory))
+                Directory.CreateDirectory(directory);
+        }
+
         private void CreateLoggers()
         {
+            CheckLoggerTargetDir(_config.SuccessFileName);
             _successCsv = new CsvWriterPlugin(_context, "file://" + _config.SuccessFileName, GetSuccessFieldNames(), new int[] { }, "delim=',' encoding='UTF-8'");
+            CheckLoggerTargetDir(_config.ErrorFileName);
             _errorCsv = new CsvWriterPlugin(_context, "file://" + _config.ErrorFileName, GetErrorFieldNames(), new int[] { }, "delim=',' encoding='UTF-8'");
         }
 
@@ -341,6 +388,18 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
             _context.Logger.Warning("SfdcDotNetWriter: Failed record, message: '" + message + "'.");
         }
 
+        private string GetElementData(XmlElement[] elements, TargetField field)
+        {
+            if (field.IsBase64)
+                return "(binary data)";
+            var element = elements.FirstOrDefault(e => e.Name == field.Name);
+            if (null == element)
+                return string.Empty;
+            if (!string.IsNullOrEmpty(field.ExternalId))
+                return element.ChildNodes[1].InnerText; // Take second child InnerText, contains external ID
+            return element.InnerText;
+        }
+
         private void TransferValues(int offs, sObject o)
         {
             int elementPointer = 0;
@@ -352,10 +411,11 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(_targetExternalId[i]))
-                        _tempLine[i + offs] = o.Any[elementPointer].InnerText;
-                    else // Take second child InnerText, contains external ID
-                        _tempLine[i + offs] = o.Any[elementPointer].ChildNodes[1].InnerText;
+                    //if (string.IsNullOrEmpty(_targetFields[i].ExternalId))
+                    //    _tempLine[i + offs] = o.Any[elementPointer].InnerText;
+                    //else // Take second child InnerText, contains external ID
+                    //    _tempLine[i + offs] = o.Any[elementPointer].ChildNodes[1].InnerText;
+                    _tempLine[i + offs] = GetElementData(o.Any, _targetFields[i]);
                     elementPointer++;
                 }
             }
