@@ -11,6 +11,7 @@ namespace NoFrillsTransformation.Interfaces
         bool HasField(string fieldName);
         IRecord CurrentRecord { get; }
         bool HasMoreRecords();
+        bool HasResult();
         void NextRecord();
         void FinishTransform();
     }

@@ -375,6 +375,12 @@ namespace NoFrillsTransformation.Plugins.Sap
             return (_flattenIndex + 1 < _flattenCount);
         }
 
+        public bool HasResult()
+        {
+            // We always have some kind of result (if we don't fail)
+            return true;
+        }
+
         public void NextRecord()
         {
             _flattenIndex++;

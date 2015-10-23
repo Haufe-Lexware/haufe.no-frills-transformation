@@ -87,6 +87,8 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="SfdcDotNetTransformer.cs" />
+    <Compile Include="SfdcDotNetTransformerFactory.cs" />
     <Compile Include="SfdcDotNetWriter.cs" />
     <Compile Include="SfdcDotNetWriterFactory.cs" />
     <Compile Include="Web References\Salesforce35\Reference.cs">

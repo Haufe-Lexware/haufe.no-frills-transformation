@@ -123,6 +123,7 @@
     <Compile Include="RegexMatchOperator.cs" />
     <Compile Include="TimeSpanDaysOperator.cs" />
     <Compile Include="TimeSpanMonthsOperator.cs" />
+    <Compile Include="TransformHasResultOperator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NoFrillsTransformation.Interfaces\NoFrillsTransformation.Interfaces.csproj">

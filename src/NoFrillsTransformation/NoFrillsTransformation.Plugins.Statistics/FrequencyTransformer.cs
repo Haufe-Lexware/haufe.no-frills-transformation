@@ -105,6 +105,11 @@ namespace NoFrillsTransformation.Plugins.Statistics
             return false;
         }
 
+        public bool HasResult()
+        {
+            return false;
+        }
+
         public void NextRecord()
         {
             throw new NotImplementedException();
