@@ -25,9 +25,11 @@ and write to
 * [Oracle Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Oracle-Writer)
 * [Rudimentary XML files](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/XML-Writer)
 
-A special "transformation" filter is supported, which currently only has an implementation for
+A special "transformation" filter is supported, which currently implementations for
 
 * [SAP RFC Transformations](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SAP-Transformer): Read the parameters from a source and pass them to the RFC and retrieve the results from that to the output
+* [Frequency Transform](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Frequency-Transformer): Creates basic frequency statistics from a source
+* [Salesforce SOQL Transform](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Salesforce.Net-Transformer): For a set of input parameters read from a source, issue SOQL queries and output the result to a target.
 
 There may be more to come; and if you have special needs, feel free to reach out and we'll look together what we can do about it.
 
