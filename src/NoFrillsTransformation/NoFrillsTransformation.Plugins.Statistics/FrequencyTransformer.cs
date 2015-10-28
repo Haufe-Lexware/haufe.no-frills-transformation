@@ -36,6 +36,10 @@ namespace NoFrillsTransformation.Plugins.Statistics
 
         public void Transform(IContext context, IEvaluator eval)
         {
+            // Special case for the Freq transform: Obey filters already.
+            if (!context.CurrentRecordMatchesFilter(eval))
+                return;
+
             foreach (var param in _parameters)
             {
                 var value = eval.Evaluate(eval, param.Function, context);

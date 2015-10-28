@@ -35,6 +35,8 @@ namespace NoFrillsTransformation.Interfaces
 
         Dictionary<string, string> Parameters { get; }
         string ReplaceParameters(string input);
+
+        bool CurrentRecordMatchesFilter(IEvaluator eval);
     }
 
     public class ParameterContext

@@ -745,7 +745,7 @@ namespace NoFrillsTransformation
                                 }
 
                                 // Filter case?
-                                if (RecordMatchesFilter(evaluator, context))
+                                if (context.CurrentRecordMatchesFilter(evaluator))
                                 {
                                     // Normal case
                                     context.SourceRecordsProcessed++;
@@ -805,23 +805,6 @@ namespace NoFrillsTransformation
             {
                 throw new InvalidOperationException("A processing error occurred in source row " + context.SourceRecordsRead + ": " + e.Message);
             }
-        }
-
-        private bool RecordMatchesFilter(IEvaluator eval, Context context)
-        {
-            if (null == context.Filters)
-                return true;
-            foreach (var filter in context.Filters)
-            {
-                bool val = ExpressionParser.StringToBool(eval.Evaluate(eval, filter.Expression, context));
-                if (FilterMode.And == context.FilterMode
-                    && !val)
-                    return false;
-                if (FilterMode.Or == context.FilterMode
-                    && val)
-                    return true;
-            }
-            return (FilterMode.And == context.FilterMode);
         }
 
         private void InitLookupMaps(ConfigFileXml configFile, Context context, ReaderFactory readerFactory)

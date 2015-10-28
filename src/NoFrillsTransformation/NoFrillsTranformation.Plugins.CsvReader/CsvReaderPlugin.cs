@@ -20,9 +20,9 @@ namespace NoFrillsTransformation.Plugins.Csv
             {
                 ReadConfig(config);
                 if (null == _encoding)
-                    textReader = new StreamReader(new FileStream(_fileName, FileMode.Open, FileAccess.Read, FileShare.Read));
+                    textReader = new StreamReader(new FileStream(_fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
                 else
-                    textReader = new StreamReader(new FileStream(_fileName, FileMode.Open, FileAccess.Read, FileShare.Read), _encoding);
+                    textReader = new StreamReader(new FileStream(_fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite), _encoding);
                 _csvReader = new LumenWorks.Framework.IO.Csv.CsvReader(textReader, true, _delimiter);
                 ConfigureReader();
             }

@@ -137,6 +137,23 @@ namespace NoFrillsTransformation.Engine
 
         }
 
+        public bool CurrentRecordMatchesFilter(IEvaluator eval)
+        {
+            if (null == Filters)
+                return true;
+            foreach (var filter in Filters)
+            {
+                bool val = ExpressionParser.StringToBool(eval.Evaluate(eval, filter.Expression, this));
+                if (FilterMode.And == FilterMode
+                    && !val)
+                    return false;
+                if (FilterMode.Or == FilterMode
+                    && val)
+                    return true;
+            }
+            return (FilterMode.And ==  FilterMode);
+        }
+
         #region IDisposable
         public void Dispose()
         {
