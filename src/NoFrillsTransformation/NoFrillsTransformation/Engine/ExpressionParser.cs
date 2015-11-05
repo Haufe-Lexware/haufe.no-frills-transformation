@@ -236,6 +236,7 @@ namespace NoFrillsTransformation.Engine
                     {
                         case 't': sb.Append('\t'); break;
                         case 'n': sb.Append('\n'); break;
+                        case 'r': sb.Append('\r'); break;
                         default: sb.Append(c); break;
                     }
                     prevWasBackslash = false;
@@ -252,7 +253,7 @@ namespace NoFrillsTransformation.Engine
             if (prevWasBackslash)
                 throw new ArgumentException("String '" + s + "' ends with a backslash, did you mean \\\\?");
 
-            return s;
+            return sb.ToString();
         }
 
         private static string HandleLookup(IEvaluator eval, Expression expression, IContext context)

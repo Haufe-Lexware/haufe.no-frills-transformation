@@ -74,6 +74,12 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
             return base64Content;
         }
 
+        private static string MashXmlString(string s)
+        {
+            return s.Replace("\0", "").Replace("\x1b", "").Replace("\x13", "").Replace("\x01", "").Replace("\x02", "").Replace("\x03", "").Replace("\x04", "").Replace("\x05", "").Replace("\x06", "").Replace("\x0b", "")
+                .Replace("\x10", "").Replace("\x16", "").Replace("\x1a", "").Replace("\x1c", "").Replace("\x1d", "").Replace("\x1e", "");
+        }
+
         private XmlDocument _xmlDoc = new XmlDocument();
         private sObject CreateSObject(string[] fieldValues)
         {
@@ -101,7 +107,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
                         if (string.IsNullOrEmpty(_targetFields[i].ExternalId))
                         {
                             if (!_targetFields[i].IsBase64)
-                                e.InnerText = fieldValues[i];
+                                e.InnerText = MashXmlString(fieldValues[i]);
                             else
                                 e.InnerText = ReadFileBase64(fieldValues[i]);
                         }
@@ -112,7 +118,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
                             var typeE = _xmlDoc.CreateElement("type");
                             typeE.InnerText = _targetFields[i].FieldType;
                             var idE = _xmlDoc.CreateElement(_targetFields[i].ExternalId);
-                            idE.InnerText = fieldValues[i];
+                            idE.InnerText = MashXmlString(fieldValues[i]);
                             e.AppendChild(typeE);
                             e.AppendChild(idE);
                         }

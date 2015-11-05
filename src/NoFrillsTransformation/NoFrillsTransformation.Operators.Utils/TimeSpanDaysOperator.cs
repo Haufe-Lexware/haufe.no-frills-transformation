@@ -46,7 +46,7 @@ namespace NoFrillsTransformation.Operators.Utils
                 throw new ArgumentException("TimeSpanDaysOperator: End Date ('" + endDateString + "') could not be parsed. Wrong format? Exception: " + ex.Message);
             }
 
-            return ((long)Math.Floor((endDate - beginDate).TotalDays)).ToString();
+            return ((long)Math.Ceiling  ((endDate - beginDate).TotalDays)).ToString();
         }
     }
 }
