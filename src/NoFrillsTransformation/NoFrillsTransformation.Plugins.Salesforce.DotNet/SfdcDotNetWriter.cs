@@ -76,8 +76,43 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
 
         private static string MashXmlString(string s)
         {
-            return s.Replace("\0", "").Replace("\x1b", "").Replace("\x13", "").Replace("\x01", "").Replace("\x02", "").Replace("\x03", "").Replace("\x04", "").Replace("\x05", "").Replace("\x06", "").Replace("\x0b", "")
-                .Replace("\x10", "").Replace("\x16", "").Replace("\x1a", "").Replace("\x1c", "").Replace("\x1d", "").Replace("\x1e", "");
+            var sb = new StringBuilder(s.Length);
+            foreach (char c in s)
+            {
+                switch (c)
+                {
+                    case '\0':
+                    case '\x01':
+                    case '\x02':
+                    case '\x03':
+                    case '\x04':
+                    case '\x05':
+                    case '\x06':
+                    case '\x0b':
+                    case '\x10':
+                    case '\x11':
+                    case '\x12':
+                    case '\x13':
+                    case '\x14':
+                    case '\x15':
+                    case '\x16':
+                    case '\x17':
+                    case '\x18':
+                    case '\x19':
+                    case '\x1a':
+                    case '\x1b':
+                    case '\x1c':
+                    case '\x1d':
+                    case '\x1e':
+                        break;
+                    default:
+                        sb.Append(c);
+                        break;
+                }
+            }
+            return sb.ToString();
+            //return s.Replace("\0", "").Replace("\x1b", "").Replace("\x13", "").Replace("\x01", "").Replace("\x02", "").Replace("\x03", "").Replace("\x04", "").Replace("\x05", "").Replace("\x06", "").Replace("\x0b", "")
+            //    .Replace("\x10", "").Replace("\x16", "").Replace("\x1a", "").Replace("\x1c", "").Replace("\x1d", "").Replace("\x1e", "");
         }
 
         private XmlDocument _xmlDoc = new XmlDocument();
