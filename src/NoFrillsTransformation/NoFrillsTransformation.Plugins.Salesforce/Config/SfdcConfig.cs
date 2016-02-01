@@ -26,6 +26,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce.Config
         public bool BulkApiSerialMode { get; set; }
         public bool BulkApiZipContent { get; set; }
         public bool InsertNulls { get; set; }
+        public bool TruncateTrailingNulls { get; set; }
     }
 
         //public SourceTargetXml Source { get; set; }

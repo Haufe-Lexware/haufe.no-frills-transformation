@@ -66,12 +66,42 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
                 FlushWrite();
         }
 
+        private static bool IsOldWordDocument(string fileName)
+        {
+            string fn = fileName.ToLowerInvariant();
+            return fn.EndsWith("doc");
+        }
+
+        private int FindLength(string fileName, byte[] fileContent)
+        {
+            int length = fileContent.Length;
+
+            while (length > 0 && fileContent[length - 1] == 0)
+                length--;
+
+            if (length == 0)
+            {
+                length = fileContent.Length;
+                _context.Logger.Warning("SfdcDotNetWriter: Found all NULL characters file '" + fileName + "'. Leaving it as-is.");
+            }
+            else if (length != fileContent.Length)
+            {
+                _context.Logger.Info("SfdcDotNetWriter: Truncated trailing NULL chars in file '" + fileName + "'.");
+            }
+
+            return length;
+        }
+
         private string ReadFileBase64(string filePath)
         {
             var fileName = _context.ResolveFileName(filePath, true);
             byte[] fileContent = File.ReadAllBytes(fileName);
-            string base64Content = Convert.ToBase64String(fileContent);
-            return base64Content;
+            if (_config.TruncateTrailingNulls && IsOldWordDocument(fileName))
+            {
+                int findLength = FindLength(fileName, fileContent);
+                return Convert.ToBase64String(fileContent, 0, findLength);
+            }
+            return Convert.ToBase64String(fileContent);
         }
 
         private static string MashXmlString(string s)
