@@ -15,7 +15,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
         }
 
         private SoqlQuery _query;
-        private Salesforce35.QueryResult _queryResult;
+        private Salesforce37.QueryResult _queryResult;
         private int _pointer;
 
         public void Initialize()

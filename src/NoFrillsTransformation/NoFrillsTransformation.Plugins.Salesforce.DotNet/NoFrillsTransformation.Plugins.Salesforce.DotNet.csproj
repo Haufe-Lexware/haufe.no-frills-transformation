@@ -91,7 +91,7 @@
     <Compile Include="SfdcDotNetTransformerFactory.cs" />
     <Compile Include="SfdcDotNetWriter.cs" />
     <Compile Include="SfdcDotNetWriterFactory.cs" />
-    <Compile Include="Web References\Salesforce35\Reference.cs">
+    <Compile Include="Web References\Salesforce37\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.map</DependentUpon>
@@ -106,150 +106,156 @@
     <None Include="SalesforceWsdl\Salesforce.wsdl">
       <SubType>Component</SubType>
     </None>
-    <None Include="Web References\Salesforce35\DeleteResult.datasource">
+    <None Include="Web References\Salesforce37\DeleteResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeAppMenuItem.datasource">
+    <None Include="Web References\Salesforce37\DescribeAppMenuItem1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeApprovalLayout.datasource">
+    <None Include="Web References\Salesforce37\DescribeApprovalLayout1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeAvailableQuickActionResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeAvailableQuickActionResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeCompactLayout.datasource">
+    <None Include="Web References\Salesforce37\DescribeCompactLayout1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeCompactLayoutsResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeCompactLayoutsResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeDataCategoryGroupResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeDataCategoryGroupResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeDataCategoryGroupStructureResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeDataCategoryGroupStructureResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeFlexiPageResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeFlexiPageResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeGlobalResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeGlobalResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeGlobalTheme.datasource">
+    <None Include="Web References\Salesforce37\DescribeGlobalTheme1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeLayoutResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeLayoutResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeNounResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeNounResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribePathAssistant.datasource">
+    <None Include="Web References\Salesforce37\DescribePathAssistant1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeQuickActionResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeQuickActionResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeSearchLayoutResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeSearchableEntityResult.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeSearchScopeOrderResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeSearchLayoutResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeSObjectResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeSearchScopeOrderResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeSoftphoneLayoutResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeSObjectResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeSoqlListView.datasource">
+    <None Include="Web References\Salesforce37\DescribeSoftphoneLayoutResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeTab.datasource">
+    <None Include="Web References\Salesforce37\DescribeSoqlListView1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeTabSetResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeTab1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\DescribeThemeItem.datasource">
+    <None Include="Web References\Salesforce37\DescribeTabSetResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\EmptyRecycleBinResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeThemeItem1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\ExecuteListViewResult.datasource">
+    <None Include="Web References\Salesforce37\DescribeVisualForceResult.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\GetDeletedResult.datasource">
+    <None Include="Web References\Salesforce37\EmptyRecycleBinResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\GetServerTimestampResult.datasource">
+    <None Include="Web References\Salesforce37\ExecuteListViewResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\GetUpdatedResult.datasource">
+    <None Include="Web References\Salesforce37\GetDeletedResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\GetUserInfoResult.datasource">
+    <None Include="Web References\Salesforce37\GetServerTimestampResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\InvalidateSessionsResult.datasource">
+    <None Include="Web References\Salesforce37\GetUpdatedResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\KnowledgeSettings.datasource">
+    <None Include="Web References\Salesforce37\GetUserInfoResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\LeadConvertResult.datasource">
+    <None Include="Web References\Salesforce37\InvalidateSessionsResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\LoginResult.datasource">
+    <None Include="Web References\Salesforce37\KnowledgeSettings1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\MergeResult.datasource">
+    <None Include="Web References\Salesforce37\LeadConvertResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\PerformQuickActionResult.datasource">
+    <None Include="Web References\Salesforce37\LoginResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\ProcessResult.datasource">
+    <None Include="Web References\Salesforce37\MergeResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\QueryResult.datasource">
+    <None Include="Web References\Salesforce37\PerformQuickActionResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\QuickActionTemplateResult.datasource">
+    <None Include="Web References\Salesforce37\ProcessResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\Reference.map">
+    <None Include="Web References\Salesforce37\QueryResult1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\Salesforce37\QuickActionTemplateResult1.datasource">
+      <DependentUpon>Reference.map</DependentUpon>
+    </None>
+    <None Include="Web References\Salesforce37\Reference.map">
       <Generator>MSDiscoCodeGenerator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>
-    <None Include="Web References\Salesforce35\RenderEmailTemplateResult.datasource">
+    <None Include="Web References\Salesforce37\RenderEmailTemplateResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\ResetPasswordResult.datasource">
+    <None Include="Web References\Salesforce37\ResetPasswordResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\Salesforce.wsdl" />
-    <None Include="Web References\Salesforce35\SaveResult.datasource">
+    <None Include="Web References\Salesforce37\Salesforce.wsdl" />
+    <None Include="Web References\Salesforce37\SaveResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\SearchResult.datasource">
+    <None Include="Web References\Salesforce37\SearchResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\SendEmailResult.datasource">
+    <None Include="Web References\Salesforce37\SendEmailResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\SetPasswordResult.datasource">
+    <None Include="Web References\Salesforce37\SetPasswordResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\sObject.datasource">
+    <None Include="Web References\Salesforce37\sObject1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\UndeleteResult.datasource">
+    <None Include="Web References\Salesforce37\UndeleteResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
-    <None Include="Web References\Salesforce35\UpsertResult.datasource">
+    <None Include="Web References\Salesforce37\UpsertResult1.datasource">
       <DependentUpon>Reference.map</DependentUpon>
     </None>
   </ItemGroup>
@@ -257,16 +263,16 @@
     <WebReferences Include="Web References\" />
   </ItemGroup>
   <ItemGroup>
-    <WebReferenceUrl Include="C:\Projects\haufe.no-frills-transformation\src\NoFrillsTransformation\NoFrillsTransformation.Plugins.Salesforce.DotNet\SalesforceWsdl\Salesforce.wsdl">
+    <WebReferenceUrl Include="D:\Projects\haufe.no-frills-transformation\src\NoFrillsTransformation\NoFrillsTransformation.Plugins.Salesforce.DotNet\SalesforceWsdl\Salesforce.wsdl">
       <UrlBehavior>Dynamic</UrlBehavior>
-      <RelPath>Web References\Salesforce35\</RelPath>
-      <UpdateFromURL>C:\Projects\haufe.no-frills-transformation\src\NoFrillsTransformation\NoFrillsTransformation.Plugins.Salesforce.DotNet\SalesforceWsdl\Salesforce.wsdl</UpdateFromURL>
+      <RelPath>Web References\Salesforce37\</RelPath>
+      <UpdateFromURL>D:\Projects\haufe.no-frills-transformation\src\NoFrillsTransformation\NoFrillsTransformation.Plugins.Salesforce.DotNet\SalesforceWsdl\Salesforce.wsdl</UpdateFromURL>
       <ServiceLocationURL>
       </ServiceLocationURL>
       <CachedDynamicPropName>
       </CachedDynamicPropName>
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
-      <CachedSettingsPropName>NoFrillsTransformation_Plugins_Salesforce_DotNet_Salesforce35_SforceService</CachedSettingsPropName>
+      <CachedSettingsPropName>NoFrillsTransformation_Plugins_Salesforce_DotNet_Salesforce37_SforceService</CachedSettingsPropName>
     </WebReferenceUrl>
   </ItemGroup>
   <ItemGroup>

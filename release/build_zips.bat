@@ -81,7 +81,7 @@ echo Usage:
 echo   build_zips.bat ^<major^> ^<minor^> ^<build^>
 echo.
 
-goto done
+goto reallyDone
 
 :zipError
 
@@ -91,7 +91,7 @@ echo.
 
 cd ..\..\..\release
 
-goto done
+goto reallyDone
 
 :error
 

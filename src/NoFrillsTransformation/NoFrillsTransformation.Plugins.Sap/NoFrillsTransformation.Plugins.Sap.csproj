@@ -97,15 +97,15 @@
   <ItemGroup>
     <Reference Include="rscp4n, Version=1.0.5540.7148, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Program Files (x86)\SAP\SAP_DotNetConnector3_Net40_x64\rscp4n.dll</HintPath>
+      <HintPath>SAP\x64\rscp4n.dll</HintPath>
     </Reference>
     <Reference Include="sapnco, Version=3.0.0.42, Culture=neutral, PublicKeyToken=50436dca5c7f7d23, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Program Files (x86)\SAP\SAP_DotNetConnector3_Net40_x64\sapnco.dll</HintPath>
+      <HintPath>SAP\x64\sapnco.dll</HintPath>
     </Reference>
     <Reference Include="sapnco_utils, Version=3.0.0.42, Culture=neutral, PublicKeyToken=50436dca5c7f7d23, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Program Files (x86)\SAP\SAP_DotNetConnector3_Net40_x64\sapnco_utils.dll</HintPath>
+      <HintPath>SAP\x64\sapnco_utils.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />

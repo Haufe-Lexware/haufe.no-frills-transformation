@@ -158,3 +158,5 @@ $RECYCLE.BIN/
 
 #scratch data
 scratch
+/src/NoFrillsTransformation/NoFrillsTransformation.Plugins.Salesforce.DotNet/SalesforceWsdl/Salesforce_35.wsdl
+/src/NoFrillsTransformation/NoFrillsTransformation.Plugins.Salesforce.DotNet/SalesforceWsdl/Salesforce_37.wsdl

@@ -7,7 +7,7 @@ using System.Xml;
 using NoFrillsTransformation.Interfaces;
 using NoFrillsTransformation.Plugins.Csv;
 using NoFrillsTransformation.Plugins.Salesforce.Config;
-using NoFrillsTransformation.Plugins.Salesforce.DotNet.Salesforce35;
+using NoFrillsTransformation.Plugins.Salesforce.DotNet.Salesforce37;
 
 namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
 {

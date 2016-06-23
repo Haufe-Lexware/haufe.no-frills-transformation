@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation", "NoFrillsTransformation\NoFrillsTransformation.csproj", "{6BA46494-CE03-4501-8E16-A0BF1C5A3314}"
 EndProject
@@ -62,16 +62,14 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{6BA46494-CE03-4501-8E16-A0BF1C5A3314}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6BA46494-CE03-4501-8E16-A0BF1C5A3314}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BA46494-CE03-4501-8E16-A0BF1C5A3314}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{6BA46494-CE03-4501-8E16-A0BF1C5A3314}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
 		{6BA46494-CE03-4501-8E16-A0BF1C5A3314}.Debug|Mixed Platforms.Build.0 = Debug|x86
 		{6BA46494-CE03-4501-8E16-A0BF1C5A3314}.Debug|x64.ActiveCfg = Debug|x64
 		{6BA46494-CE03-4501-8E16-A0BF1C5A3314}.Debug|x64.Build.0 = Debug|x64
 		{6BA46494-CE03-4501-8E16-A0BF1C5A3314}.Debug|x86.ActiveCfg = Debug|x86
 		{6BA46494-CE03-4501-8E16-A0BF1C5A3314}.Debug|x86.Build.0 = Debug|x86
-		{6BA46494-CE03-4501-8E16-A0BF1C5A3314}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6BA46494-CE03-4501-8E16-A0BF1C5A3314}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BA46494-CE03-4501-8E16-A0BF1C5A3314}.Release|Any CPU.ActiveCfg = Release|x86
 		{6BA46494-CE03-4501-8E16-A0BF1C5A3314}.Release|Mixed Platforms.ActiveCfg = Release|x86
 		{6BA46494-CE03-4501-8E16-A0BF1C5A3314}.Release|Mixed Platforms.Build.0 = Release|x86
 		{6BA46494-CE03-4501-8E16-A0BF1C5A3314}.Release|x64.ActiveCfg = Release|x64

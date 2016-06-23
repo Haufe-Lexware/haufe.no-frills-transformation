@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using NoFrillsTransformation.Interfaces;
 using NoFrillsTransformation.Plugins.Salesforce.Config;
-using NoFrillsTransformation.Plugins.Salesforce.DotNet.Salesforce35;
+using NoFrillsTransformation.Plugins.Salesforce.DotNet.Salesforce37;
 
 namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
 {
     public class SfdcDotNetBase : IDisposable
     {
-        protected const string SFDC_VERSION = "35.0";
+        protected const string SFDC_VERSION = "37.0";
 
         internal SfdcDotNetBase(IContext context, SfdcConfig config)
         {
