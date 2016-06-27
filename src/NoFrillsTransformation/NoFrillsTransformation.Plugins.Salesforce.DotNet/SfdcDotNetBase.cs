@@ -5,6 +5,7 @@ using System.Text;
 using NoFrillsTransformation.Interfaces;
 using NoFrillsTransformation.Plugins.Salesforce.Config;
 using NoFrillsTransformation.Plugins.Salesforce.DotNet.Salesforce37;
+using System.Net;
 
 namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
 {
@@ -47,6 +48,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
             LoginResult loginResult = null;
             try
             {
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
                 loginResult = _sfdc.login(_config.SfdcUsername, _config.SfdcPassword);
                 _context.Logger.Info("SfdcDotNetBase: Successfully logged in as '" + _config.SfdcUsername + "'.");
             }
