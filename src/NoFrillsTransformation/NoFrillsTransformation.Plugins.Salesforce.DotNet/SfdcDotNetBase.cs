@@ -77,6 +77,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
                 // free managed resources
                 if (null != _sfdc)
                 {
+                    /*
                     try 
                     { 
                         _sfdc.logout();
@@ -86,6 +87,7 @@ namespace NoFrillsTransformation.Plugins.Salesforce.DotNet
                     {
                         _context.Logger.Warning("SfdcDotNetBase: logout() was not successful: " + ex.Message);
                     }
+                    */
 
                     _sfdc.Dispose();
                     _sfdc = null;
