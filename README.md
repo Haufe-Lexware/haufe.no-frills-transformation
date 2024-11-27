@@ -11,25 +11,26 @@
 Out of the box, NFT will read from
 
 * [CSV files in any encoding](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/CSV-Reader)
-* [Salesforce SOQL queries](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Salesforce-Reader)
-* [SQLite Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQLite-Reader)
-* [MySql Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/MySql-Reader)
-* [Oracle Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Oracle-Reader)
+* [Salesforce SOQL queries](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Salesforce-Reader) (**NOT YET PORTED TO NET8.0**)
+* [SQLite Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQLite-Reader) (**NOT YET PORTED TO NET8.0**)
+* [MySql Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/MySql-Reader) (**NOT YET PORTED TO NET8.0**)
+* [Oracle Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Oracle-Reader) (**NOT YET PORTED TO NET8.0**)
 * [SQL Server Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQL-Server-Reader)
 * [From SAP RFCs if they have a TABLE as output value (limited support currently)](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SAP-Reader)
 
 and write to
 
 * [CSV files in any encoding](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/CSV-Writer) (including with or without UTF-8 BOMs)
-* [Salesforce Objects](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Salesforce-Writer) (including Upserts and using External IDs)
-* [Oracle Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Oracle-Writer)
+* [Salesforce Objects](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Salesforce-Writer) (including Upserts and using External IDs) (**NOT YET PORTED TO NET8.0**)
+* [Oracle Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Oracle-Writer) (**NOT YET PORTED TO NET8.0**)
 * [Rudimentary XML files](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/XML-Writer)
+* [SQL Server Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQL-Server-Update-Writer) (**NEW!**)
 
 A special "transformation" filter is supported, which currently implementations for
 
-* [SAP RFC Transformations](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SAP-Transformer): Read the parameters from a source and pass them to the RFC and retrieve the results from that to the output
+* [SAP RFC Transformations](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SAP-Transformer): Read the parameters from a source and pass them to the RFC and retrieve the results from that to the output  (**NOT YET PORTED TO NET8.0**)
 * [Frequency Transform](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Frequency-Transformer): Creates basic frequency statistics from a source
-* [Salesforce SOQL Transform](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Salesforce.Net-Transformer): For a set of input parameters read from a source, issue SOQL queries and output the result to a target.
+* [Salesforce SOQL Transform](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Salesforce.Net-Transformer): For a set of input parameters read from a source, issue SOQL queries and output the result to a target.  (**NOT YET PORTED TO NET8.0**)
 
 There may be more to come; and if you have special needs, feel free to reach out and we'll look together what we can do about it.
 
@@ -139,10 +140,10 @@ See also:
 
 ### Running the application
 
-Just call the executable with the full path to the XML configuration file.
+Just call the main DLL using `dotnet` with the full path to the XML configuration file.
 
 ```
-C:\Temp> NoFrillsTransformation.exe sample_config.xml
+C:\Temp> dotnet NoFrillsTransformation.dll sample_config.xml
 Operation completed successfully.
 C:\Temp> 
 ```
@@ -150,14 +151,4 @@ If the operation completes without error, the executable with exit with the exit
 
 ##### Running on Mac OS X and Linux
 
-If you want to run NFT on Mac OS X, you need the Mono framework, which is the .NET implementation for non-Windows platforms (such as Linux or Mac OS X).
-
-Download and install Mono prior to running `NoFrillsTransformation.exe`, then proceed as follows:
-
-```bash
-$ mono NoFrillsTransformation.exe configFile.xml
-Operation finished successfully.
-$
-```
-
-Please note that some of the plugins are currently only available for the Windows platform, such as the Oracle plugin.
+Same as for Windows, simply use the `dotnet` command line. Make sure you download the correct version of the published DLLs, as there are changes in some of the platform dependant libraries (such as SQL Server).

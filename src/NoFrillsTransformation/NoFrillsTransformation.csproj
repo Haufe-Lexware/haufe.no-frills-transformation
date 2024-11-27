@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Config/Config.xsd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../NoFrillsTransformation.Interfaces/NoFrillsTransformation.Interfaces.csproj" />
+    <ProjectReference Include="../LumenWorks.Framework.IO/LumenWorks.Framework.IO.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Composition" Version="9.0.0" />
+    <PackageReference Include="System.Composition.Hosting" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>
