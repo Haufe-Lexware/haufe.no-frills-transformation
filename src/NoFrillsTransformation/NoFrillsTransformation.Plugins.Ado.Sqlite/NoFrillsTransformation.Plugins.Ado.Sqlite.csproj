@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NoFrillsTransformation.Plugins.Ado.Sqlite</RootNamespace>
     <AssemblyName>NoFrillsTransformation.Plugins.Ado.Sqlite</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>5a3697c4</NuGetPackageImportStamp>
     <TargetFrameworkProfile />

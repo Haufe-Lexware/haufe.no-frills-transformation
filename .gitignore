@@ -139,6 +139,10 @@ GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
 
+# project-cache folders
+**/project-cache/*
+**/.vs/*
+
 # =========================
 # Windows detritus
 # =========================
