@@ -5,7 +5,7 @@ name: .NET
 
 on:
   push:
-    branches: [ "feat/net80" ]
+    branches: [ "master", "feat/net80" ]
   pull_request:
     branches: [ "master" ]
 
