@@ -21,6 +21,7 @@
     <ProjectReference Include="../NoFrillsTransformation.Operators/NoFrillsTransformation.Operators.csproj" />
     <ProjectReference Include="../NoFrillsTransformation.Operators.Utils/NoFrillsTransformation.Operators.Utils.csproj" />
     <ProjectReference Include="../NoFrillsTransformation.Plugins.Ado/NoFrillsTransformation.Plugins.Ado.csproj" />
+    <ProjectReference Include="../NoFrillsTransformation.Plugins.Ado.Postgres/NoFrillsTransformation.Plugins.Ado.Postgres.csproj" />
     <ProjectReference Include="../NoFrillsTransformation.Plugins.Ado.SqlServer/NoFrillsTransformation.Plugins.Ado.SqlServer.csproj" />
     <ProjectReference Include="../NoFrillsTransformation.Plugins.CsvReader/NoFrillsTransformation.Plugins.CsvReader.csproj" />
     <ProjectReference Include="../NoFrillsTransformation.Plugins.Inline/NoFrillsTransformation.Plugins.Inline.csproj" />

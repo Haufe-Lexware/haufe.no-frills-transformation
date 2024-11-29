@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Plug
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Plugins.Xml", "NoFrillsTransformation.Plugins.Xml\NoFrillsTransformation.Plugins.Xml.csproj", "{91AA64FD-1BF3-4A1C-944E-89C00B6FBFB0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Plugins.Ado.Postgres", "NoFrillsTransformation.Plugins.Ado.Postgres\NoFrillsTransformation.Plugins.Ado.Postgres.csproj", "{B03A8475-C76F-42A2-B6DF-825E51DDE84B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -84,5 +86,9 @@ Global
 		{91AA64FD-1BF3-4A1C-944E-89C00B6FBFB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91AA64FD-1BF3-4A1C-944E-89C00B6FBFB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91AA64FD-1BF3-4A1C-944E-89C00B6FBFB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B03A8475-C76F-42A2-B6DF-825E51DDE84B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B03A8475-C76F-42A2-B6DF-825E51DDE84B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B03A8475-C76F-42A2-B6DF-825E51DDE84B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B03A8475-C76F-42A2-B6DF-825E51DDE84B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using NoFrillsTransformation.Interfaces;
 
-namespace NoFrillsTransformation.Plugins.Ado.SqlServer
+namespace NoFrillsTransformation.Plugins.Ado.Postgres
 {
     [Export(typeof(NoFrillsTransformation.Interfaces.ITargetWriterFactory))]
-    public class AdoSqlServerUpdateWriterFactory : ITargetWriterFactory
+    public class CsvWriterFactory : ITargetWriterFactory
     {
-        private const string PREFIX = "sqlserver.update://";
+        private const string PREFIX = "postgres.update://";
 
         public bool CanWriteTarget(string target)
         {
@@ -25,7 +25,7 @@ namespace NoFrillsTransformation.Plugins.Ado.SqlServer
         public ITargetWriter CreateWriter(IContext context, string target, IFieldDefinition[] fieldDefs, string? config)
         {
             string table = target.Substring(PREFIX.Length);
-            return new AdoSqlServerUpdateWriter(context, config, table, fieldDefs);
+            return new AdoPostgresUpdateWriter(context, config, table, fieldDefs);
         }
 
         private static string[] GetFieldNames(IFieldDefinition[] fieldDefs)
