@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation", "N
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Interfaces", "NoFrillsTransformation.Interfaces\NoFrillsTransformation.Interfaces.csproj", "{BA2D4268-0521-4A6B-A470-9A2A8BB5AA90}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LumenWorks.Framework.IO", "LumenWorks.Framework.IO\LumenWorks.Framework.IO.csproj", "{3A36E084-2BFD-45F7-BE1F-545064DAFD06}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.LumenWorks.Framework.IO", "NoFrillsTransformation.LumenWorks.Framework.IO\NoFrillsTransformation.LumenWorks.Framework.IO.csproj", "{3A36E084-2BFD-45F7-BE1F-545064DAFD06}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Logging", "NoFrillsTransformation.Logging\NoFrillsTransformation.Logging.csproj", "{3367C8D6-EC6E-4E24-8458-DB469A4F555D}"
 EndProject

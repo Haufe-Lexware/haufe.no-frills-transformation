@@ -974,17 +974,16 @@ namespace NoFrillsTransformation
             context.Logger.Info("Initialized filter field mappings, found " + context.FilterTargetFields.Length + " output fields.");
         }
 
-        private static TargetFieldDef[] GetFieldDefs(Context context, FieldsXml fields)
+        private static TargetFieldDef[] GetFieldDefs(Context context, FieldsXml fieldsXml)
         {
-            int fieldCount = fields.Fields != null ? fields.Fields.Length : 0;
+            int fieldCount = fieldsXml.Fields != null ? fieldsXml.Fields.Length : 0;
             var targetFields = new TargetFieldDef[fieldCount];
 
-            if (null == fields.Fields)
-                throw new ArgumentException("No field definitions found.");
+            FieldXml[] fields = fieldsXml.Fields ?? [];
 
             for (int i = 0; i < fieldCount; ++i)
             {
-                var field = fields.Fields[i];
+                var field = fields[i];
                 if (null == field.Name)
                     throw new ArgumentException("Field definition misses name.");
                 if (null == field.Expression)

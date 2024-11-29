@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../NoFrillsTransformation.Interfaces/NoFrillsTransformation.Interfaces.csproj" />
-    <ProjectReference Include="../LumenWorks.Framework.IO/LumenWorks.Framework.IO.csproj"/>
+    <ProjectReference Include="../NoFrillsTransformation.LumenWorks.Framework.IO/NoFrillsTransformation.LumenWorks.Framework.IO.csproj"/>
   </ItemGroup>
 
   <ItemGroup>

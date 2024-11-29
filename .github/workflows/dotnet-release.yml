@@ -58,5 +58,16 @@ jobs:
       with:
         artifacts: "./src/release/*.zip"
 
+    # - name: Package Nuget Packages
+    #   working-directory: ./src
+    #   run: dotnet pack --no-build --configuration Release
+
+    # - name: Publish Nuget Packages
+    #   uses: nuget/publish@1
+    #   with:
+    #     nuget-api-key: ${{ secrets.NUGET_API_KEY }}
+    #     nuget-version: ${{ github.ref }}
+    #     nuget-packages: ./src/bin/Release/*.nupkg
+
 #    - name: Test
 #      run: dotnet test --no-build --verbosity normal

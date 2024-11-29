@@ -1,4 +1,12 @@
 <Project>
+    <PropertyGroup>
+        <Version>4.0.0-beta.4</Version>
+        <Authors>Martin Danielsson</Authors>
+        <Company>Haufe-Lexware GmbH &amp; Co. KG</Company>
+        <Description>Extensible, simple and fast ETL Tool</Description>
+        <PackageOutputPath>$(SolutionDir)..\nupkg\</PackageOutputPath>
+    </PropertyGroup>
+
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
         <OutputPath>$(SolutionDir)bin\Debug\</OutputPath>
     </PropertyGroup>
