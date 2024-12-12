@@ -5,7 +5,7 @@
             "request": "launch",
             "name": "Launch NoFrillsTransformation",
             "program": "${workspaceFolder}/bin/Debug/net8.0/NoFrillsTransformation.dll",
-            "args": ["/path/to/transformation.xml"],
+            "args": ["-v"],
             "cwd": "${workspaceFolder}/bin/Debug/net8.0/",
             "stopAtEntry": false,
             "console": "internalConsole",

@@ -25,6 +25,7 @@
     <ProjectReference Include="../NoFrillsTransformation.Plugins.Ado.SqlServer/NoFrillsTransformation.Plugins.Ado.SqlServer.csproj" />
     <ProjectReference Include="../NoFrillsTransformation.Plugins.CsvReader/NoFrillsTransformation.Plugins.CsvReader.csproj" />
     <ProjectReference Include="../NoFrillsTransformation.Plugins.Inline/NoFrillsTransformation.Plugins.Inline.csproj" />
+    <ProjectReference Include="../NoFrillsTransformation.Plugins.Salesforce.DotNet/NoFrillsTransformation.Plugins.Salesforce.DotNet.csproj" />
     <ProjectReference Include="../NoFrillsTransformation.Plugins.Statistics/NoFrillsTransformation.Plugins.Statistics.csproj" />
     <ProjectReference Include="../NoFrillsTransformation.Plugins.Xml/NoFrillsTransformation.Plugins.Xml.csproj" />
   </ItemGroup>

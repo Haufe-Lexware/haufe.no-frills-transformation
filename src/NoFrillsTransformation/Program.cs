@@ -41,11 +41,49 @@ namespace NoFrillsTransformation
         {
             if (args.Length == 0 || args[0].Equals("-help"))
             {
-                Console.WriteLine("Usage:");
-                Console.WriteLine("  NoFrillsTransformation.exe <config file> [param1=setting1 param2=setting2...]");
+                OutputUsageInfo();
+                return false;
+            }
+            if (args.Length == 1 &&
+                (args[0].Equals("-version") || args[0].Equals("--version")) || args[0].Equals("-v"))
+            {
+                OutputVersionInfo();
                 return false;
             }
             return true;
+        }
+
+        private static void OutputUsageInfo()
+        {
+            Console.WriteLine("Usage:");
+            Console.WriteLine("  nft <config file> [param1=setting1 param2=setting2...]");
+        }
+
+        private static void OutputVersionInfo()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            // Get the informational version attribute
+            var informationalVersionAttribute = assembly
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+            if (null != informationalVersionAttribute)
+            {
+                // Does it contain a +?
+                int plusIndex = informationalVersionAttribute.InformationalVersion.IndexOf('+');
+                if (plusIndex >= 0)
+                {
+                    string[] parts = informationalVersionAttribute.InformationalVersion.Split('+');
+                    Console.WriteLine($"NoFrillsTransformation (nft) v{parts[0]} ({parts[1]})");
+                }
+                else
+                {
+                    Console.WriteLine("NoFrillsTransformation (nft) v" + informationalVersionAttribute.InformationalVersion);
+                }
+            }
+            else
+            {
+                Console.WriteLine("Warning: Could not retrieve version information.");
+                Console.WriteLine("NoFrillsTransformation v<unknown>");
+            }
         }
 
         private static Dictionary<string, string>? ExtractParameters(string[] args)
