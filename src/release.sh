@@ -16,15 +16,34 @@ if [ -z "$LEXBIZZ_PAT" ]; then
     exit 1
 fi
 
+# Check the first parameter, if it's not set, output a usage and exit
+if [ -z "$1" ]; then
+    echo "Usage: $0 <version>"
+    exit 1
+fi
+
+# Remember the version
+version=$1
+
 # Make sure our cwd is the directory of the script
 pushd "$(dirname "$0")"
+
+# Replace the Version in the Directory.Build.props file
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    sed -i '' "s|<Version>.*</Version>|<Version>$version</Version>|" Directory.Build.props
+else
+    # Linux
+    sed -i "s|<Version>.*</Version>|<Version>$version</Version>|" Directory.Build.props
+fi
 
 dotnet clean
 dotnet build
 
 rm -rf ../nupkg
 
-dotnet pack
-dotnet nuget push -s lexbizz -k $LEXBIZZ_PAT ../nupkg/*.nupkg
+# Bump the version to the version given in the parameter
+dotnet pack -c Release -p:PackageVersion=$version
+#dotnet nuget push -s lexbizz -k $LEXBIZZ_PAT ../nupkg/*.nupkg
 
 popd
