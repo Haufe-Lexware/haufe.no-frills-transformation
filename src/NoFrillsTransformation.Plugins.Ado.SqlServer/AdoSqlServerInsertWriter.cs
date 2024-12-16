@@ -8,15 +8,12 @@ using System.Data;
 
 namespace NoFrillsTransformation.Plugins.Ado.SqlServer
 {
-    class AdoSqlServerUpdateWriter : AdoSqlServerWriterBase
+    class AdoSqlServerInsertWriter : AdoSqlServerWriterBase
     {
-        public AdoSqlServerUpdateWriter(IContext context, string? config, string tableDef, IFieldDefinition[] fieldDefs)
+        public AdoSqlServerInsertWriter(IContext context, string? config, string tableDef, IFieldDefinition[] fieldDefs)
             : base(context, config, tableDef, fieldDefs)
         {
         }
-
-        private string? _updateTable;
-        private string[]? _updateWhereFields;
 
         private SqlConnection? _sqlConnection;
         private SqlCommand? _sqlCommand;
@@ -31,35 +28,16 @@ namespace NoFrillsTransformation.Plugins.Ado.SqlServer
             _sqlConnection = new SqlConnection(Config);
             _sqlConnection.Open();
 
-            var tempTableDef = Table;
-            // Expected format: "table_name(field1, field2)" whereas field1, field2 are the fields to use in the WHERE clause
-            var parts = tempTableDef.Split('(');
-            if (parts.Length != 2)
-                throw new ArgumentException("Invalid table definition: " + Table);
-            _updateTable = parts[0];
-            _updateWhereFields = parts[1].TrimEnd(')').Split(',');
-            // Trim any whitespace from the whereFields
-            for (int i = 0; i < _updateWhereFields.Length; ++i)
-            {
-                _updateWhereFields[i] = _updateWhereFields[i].Trim();
-            }
-
             RetrieveRemoteFields(_sqlConnection);
-            // Check that all fields in the WHERE clause are present in the table
-            foreach (var whereField in _updateWhereFields)
-            {
-                if (!RemoteFields.ContainsKey(whereField))
-                    throw new ArgumentException("Field '" + whereField + "' in WHERE clause not found in table '" + _updateTable + "'.");
-            }
 
             // Check all the target fields as well
             foreach (var fieldDef in FieldDefs)
             {
                 if (!RemoteFields.ContainsKey(fieldDef.FieldName))
-                    throw new ArgumentException("Field '" + fieldDef.FieldName + "' not found in table '" + _updateTable + "'.");
+                    throw new ArgumentException("Field '" + fieldDef.FieldName + "' not found in table '" + Table + "'.");
             }
 
-            _sqlCommand = new SqlCommand(GetUpdateStatement(), _sqlConnection);
+            _sqlCommand = new SqlCommand(GetInsertStatement(), _sqlConnection);
             _transaction = _sqlConnection.BeginTransaction();
             _sqlCommand.Transaction = _transaction;
 
@@ -81,43 +59,34 @@ namespace NoFrillsTransformation.Plugins.Ado.SqlServer
                 _sqlCommand.Prepare();
             }
 
-            Context.Logger.Info("AdoSqlServerUpdateWriter initialized.");
+            Context.Logger.Info("AdoSqlServerInsertWriter initialized.");
         }
 
-        protected string GetUpdateStatement()
+        protected override string GetInsertStatement()
         {
-            if (null == _updateTable)
-                throw new InvalidOperationException("Update table not set.");
-            if (null == _updateWhereFields)
-                throw new InvalidOperationException("Update where fields not set.");
             var sb = new StringBuilder();
-            sb.Append("update ");
-            sb.Append(_updateTable);
-            sb.Append(" set ");
+            sb.Append("insert into ");
+            sb.Append(Table);
+            sb.Append(" (");
             bool first = true;
             foreach (var field in FieldDefs)
             {
-                // Don't add the where fields
-                if (_updateWhereFields.Contains(field.FieldName))
-                    continue;
                 if (!first)
                     sb.Append(", ");
                 sb.Append(field.FieldName);
-                sb.Append(" = @");
+                first = false;
+            }
+            sb.Append(") values (");
+            first = true;
+            foreach (var field in FieldDefs)
+            {
+                if (!first)
+                    sb.Append(", ");
+                sb.Append("@");
                 sb.Append(field.FieldName);
                 first = false;
             }
-            sb.Append(" where ");
-            first = true;
-            foreach (var whereField in _updateWhereFields)
-            {
-                if (!first)
-                    sb.Append(" and ");
-                sb.Append(whereField);
-                sb.Append(" = @");
-                sb.Append(whereField);
-                first = false;
-            }
+            sb.Append(")");
             return sb.ToString();
         }
 

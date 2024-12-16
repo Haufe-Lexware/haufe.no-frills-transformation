@@ -16,6 +16,7 @@ Out of the box, NFT will read from
 * [MySql Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/MySql-Reader) (**NOT YET PORTED TO NET8.0**)
 * [Oracle Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Oracle-Reader) (**NOT YET PORTED TO NET8.0**)
 * [SQL Server Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQL-Server-Reader)
+* [PostgreSQL Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQL-Server-Reader)
 * [From SAP RFCs if they have a TABLE as output value (limited support currently)](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SAP-Reader)
 
 and write to
@@ -25,6 +26,7 @@ and write to
 * [Oracle Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Oracle-Writer) (**NOT YET PORTED TO NET8.0**)
 * [Rudimentary XML files](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/XML-Writer)
 * [SQL Server Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQL-Server-Update-Writer) (**NEW!**)
+* [PostgreSQL Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQL-Server-Update-Writer) (**NEW!**)
 
 A special "transformation" filter is supported, which currently implementations for
 
