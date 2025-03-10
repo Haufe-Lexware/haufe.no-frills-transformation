@@ -24,7 +24,7 @@ namespace NoFrillsTransformation.Plugins.Acumatica
 
         public ITargetWriter CreateWriter(IContext context, string target, IFieldDefinition[] fieldDefs, string? config)
         {
-            context.Logger.Info("AcumaticaWriterFactory: Creating an XmlWriterPlugin.");
+            context.Logger.Info("AcumaticaWriterFactory: Creating an AcumaticaWriter.");
             return new AcumaticaWriter(context, target, GetFieldNames(fieldDefs), GetFieldSizes(fieldDefs), config);
         }
 
