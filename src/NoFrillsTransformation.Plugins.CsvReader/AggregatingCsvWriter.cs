@@ -27,6 +27,7 @@ namespace NoFrillsTransformation.Plugins.Csv
             this._config = config ?? string.Empty;
 
             // There has to exist exactly two fields: Key and Aggregate
+            // In the future this could be extended to enable multiple aggregate fields
             if (this._fieldNames.Length != 2)
             {
                 throw new ArgumentException("AggregatingCsvWriter: Exactly two fields are expected: Key and Aggregate.");

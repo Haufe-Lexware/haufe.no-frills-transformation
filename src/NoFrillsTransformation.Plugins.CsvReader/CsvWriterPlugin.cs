@@ -69,7 +69,10 @@ namespace NoFrillsTransformation.Plugins.Csv
 
                 default:
                     // Do nothing with unknown parameters
-                    _context.Logger.Warning("CsvWriterPlugin - Unknown parameter: " + parameter);
+                    if (parameter != "sort")
+                    {
+                        _context.Logger.Warning("CsvWriterPlugin - Unknown parameter: " + parameter);
+                    }
                     break;
             }
         }
@@ -91,7 +94,7 @@ namespace NoFrillsTransformation.Plugins.Csv
         {
             var sb = new StringBuilder();
             bool first = true;
-            foreach(string value in fieldValues)
+            foreach (string value in fieldValues)
             {
                 if (!first)
                 {
