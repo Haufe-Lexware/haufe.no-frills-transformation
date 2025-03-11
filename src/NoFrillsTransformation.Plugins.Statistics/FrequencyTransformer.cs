@@ -12,6 +12,7 @@ namespace NoFrillsTransformation.Plugins.Statistics
         private IContext _context;
         private string _target;
         private string _targetConfig;
+        private bool _omitParameters = false;
         private IParameter[] _parameters;
         private Dictionary<string, Dictionary<string, int>> _freqs;
 
@@ -20,6 +21,8 @@ namespace NoFrillsTransformation.Plugins.Statistics
             _context = context;
             _target = target;
             _targetConfig = targetConfig ?? string.Empty;
+            if (_targetConfig.ToLowerInvariant().Contains("omitparameters=true"))
+                _omitParameters = true;
             _parameters = parameters;
             _freqs = new Dictionary<string, Dictionary<string, int>>();
 
@@ -68,7 +71,10 @@ namespace NoFrillsTransformation.Plugins.Statistics
                             csv.WriteRecord(new string[] { }); // New line
 
                         header[0] = param.Name;
-                        csv.WriteRecord(header);
+                        if (!_omitParameters)
+                        {
+                            csv.WriteRecord(header);
+                        }
                         line[0] = "Value";
                         line[1] = "Frequency";
                         csv.WriteRecord(line);

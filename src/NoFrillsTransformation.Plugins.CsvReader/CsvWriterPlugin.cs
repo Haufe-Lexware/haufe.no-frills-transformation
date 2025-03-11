@@ -67,12 +67,14 @@ namespace NoFrillsTransformation.Plugins.Csv
                     _headers = BoolFromString(configuration);
                     break;
 
+                case "sort":
+                case "omitparameters":
+                    // Do nothing with these parameters
+                    break;
+
                 default:
                     // Do nothing with unknown parameters
-                    if (parameter != "sort")
-                    {
-                        _context.Logger.Warning("CsvWriterPlugin - Unknown parameter: " + parameter);
-                    }
+                    _context.Logger.Warning("CsvWriterPlugin - Unknown parameter: " + parameter);
                     break;
             }
         }

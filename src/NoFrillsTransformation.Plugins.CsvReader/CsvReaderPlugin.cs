@@ -13,7 +13,7 @@ namespace NoFrillsTransformation.Plugins.Csv
     {
         public CsvReaderPlugin(IContext context, string source, string? config)
         {
-            _fileName = context.ResolveFileName(source.Substring(7)); // Strip file://
+            _fileName = context.ResolveFileName(source.Substring(source.IndexOf("//") + 2)); // Strip file://
 
             TextReader? textReader = null;
             try
