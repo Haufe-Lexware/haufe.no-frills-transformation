@@ -101,7 +101,7 @@ namespace NoFrillsTransformation.Plugins.Csv
             if (_currentExplodeRecord == null || _currentExplodeIndex >= _currentExplodeRecord.Length - 1)
             {
                 // Read the next record from the CSV reader
-
+                do
                 {
                     _csvReader.NextRecord();
                     if (_csvReader.IsEndOfStream)
