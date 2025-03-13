@@ -40,6 +40,14 @@ namespace NoFrillsTransformation.Plugins.Acumatica.Operators
             if (string.IsNullOrWhiteSpace(input))
                 return string.Empty;
 
+            // Check whether DateTime is something DateTime can parse
+            if (DateTime.TryParse(input, out DateTime tempDate))
+            {
+                // Yes, it is. Then format Acumatica way.
+                return tempDate.ToString("yyyy-MM-dd HH:mm:ss.fff");
+            }
+
+            // We have something else here, let's do some string manipulation
             string pattern = @"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\.(\d+)";
             var match = Regex.Match(input, pattern);
             if (match.Success)
