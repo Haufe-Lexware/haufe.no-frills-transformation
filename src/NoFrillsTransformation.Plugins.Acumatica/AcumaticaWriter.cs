@@ -29,7 +29,7 @@ namespace NoFrillsTransformation.Plugins.Acumatica
             this._config = config ?? string.Empty;
             this._entityConfig = ReadConfig(this._config);
 
-            _xmlWriter = new XmlTextWriter(_fileName, Encoding.UTF8)
+            _xmlWriter = new XmlTextWriter($"{_fileName}.tmp", Encoding.UTF8)
             {
                 Formatting = Formatting.Indented,
                 Indentation = 1,
@@ -127,6 +127,7 @@ namespace NoFrillsTransformation.Plugins.Acumatica
                 }
                 return 0;
             };
+            _context.Logger.Info("Sorting records...");
             // Now sort the _records
             _records.Sort(comparison);
 
@@ -167,6 +168,41 @@ namespace NoFrillsTransformation.Plugins.Acumatica
             _xmlWriter.WriteEndElement(); // rows
             _xmlWriter.WriteEndElement(); // data
             _xmlWriter.Close();
+
+            // Now clean up the file and do the required Acumatica quirks...
+            _context.Logger.Info("Postprocessing file...");
+            PostProcess();
+        }
+
+        private void PostProcess() 
+        {
+            // Acumatica requires all occurrences of tabs inside XML content to be encoded
+            // as &#x9; instead of the tab character. This is a bit of a pain, but we have to do it.
+            // Read the file, replace all tabs with &#x9; and write it back.
+            string fileName = _fileName + ".tmp";
+            string fileNameTarget = _fileName;
+            System.IO.File.Delete(fileNameTarget);
+            // The files are large, so we need to read and write them line by line.
+            using (var reader = new System.IO.StreamReader(fileName))
+            {
+                using (var writer = new System.IO.StreamWriter(fileNameTarget, false, Encoding.UTF8))
+                {
+                    string? line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        // Replace all tabs AFTER the first ones on each line (indentations) with &#x9;
+                        int firstNonTab = 0;
+                        while (firstNonTab < line.Length && line[firstNonTab] == '\t')
+                        {
+                            firstNonTab++;
+                        }
+                        line = line.Substring(0, firstNonTab) + line.Substring(firstNonTab).Replace("\t", "&#x9;");
+                        writer.WriteLine(line);
+                    }
+                }
+            }
+            // Delete the temporary file
+            System.IO.File.Delete(fileName);
         }
 
         public void Dispose()
