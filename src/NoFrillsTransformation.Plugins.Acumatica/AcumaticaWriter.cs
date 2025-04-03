@@ -164,7 +164,7 @@ namespace NoFrillsTransformation.Plugins.Acumatica
                 }
                 _xmlWriter.WriteEndElement(); // row
             }
-            
+
             _xmlWriter.WriteEndElement(); // rows
             _xmlWriter.WriteEndElement(); // data
             _xmlWriter.Close();
@@ -174,7 +174,7 @@ namespace NoFrillsTransformation.Plugins.Acumatica
             PostProcess();
         }
 
-        private void PostProcess() 
+        private void PostProcess()
         {
             // Acumatica requires all occurrences of tabs inside XML content to be encoded
             // as &#x9; instead of the tab character. This is a bit of a pain, but we have to do it.
@@ -188,6 +188,7 @@ namespace NoFrillsTransformation.Plugins.Acumatica
                 using (var writer = new System.IO.StreamWriter(fileNameTarget, false, Encoding.UTF8))
                 {
                     string? line;
+                    bool inCData = false;
                     while ((line = reader.ReadLine()) != null)
                     {
                         // Replace all tabs AFTER the first ones on each line (indentations) with &#x9;
@@ -196,7 +197,37 @@ namespace NoFrillsTransformation.Plugins.Acumatica
                         {
                             firstNonTab++;
                         }
-                        line = line.Substring(0, firstNonTab) + line.Substring(firstNonTab).Replace("\t", "&#x9;");
+                        // Check for CDATA sections
+                        if (line.Contains("<![CDATA["))
+                        {
+                            // Inside CDATA sections, tabs must NOT be replaced
+                            // Two cases: CDATA ends on the same line, or on a different line
+                            int cdataEnd = line.IndexOf("]]>");
+                            if (cdataEnd > 0)
+                            {
+                                // CDATA ends on the same line
+                                line = line.Substring(0, cdataEnd + 3) + line.Substring(cdataEnd + 3).Replace("\t", "&#x9;");
+                            }
+                            else
+                            {
+                                inCData = true;
+                            }
+                        }
+                        else if (inCData)
+                        {
+                            // We are inside a CDATA section, so we need to check for the end
+                            int cdataEnd = line.IndexOf("]]>");
+                            if (cdataEnd > 0)
+                            {
+                                // CDATA ends on this line
+                                inCData = false;
+                                line = line.Substring(0, cdataEnd + 3) + line.Substring(cdataEnd + 3).Replace("\t", "&#x9;");
+                            }
+                        }
+                        else
+                        {
+                            line = line.Substring(0, firstNonTab) + line.Substring(firstNonTab).Replace("\t", "&#x9;");
+                        }
                         writer.WriteLine(line);
                     }
                 }
