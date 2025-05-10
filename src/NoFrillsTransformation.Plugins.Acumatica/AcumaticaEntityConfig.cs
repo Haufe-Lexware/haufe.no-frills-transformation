@@ -19,6 +19,8 @@ namespace NoFrillsTransformation.Plugins.Acumatica
     {
         [XmlAttribute("name")]
         public string? Name { get; set; }
+        [XmlAttribute("status")]
+        public string? Status { get; set; }
 
         [XmlElement("col")]
         public AcumaticaEntityColumnConfig[]? Columns { get; set; }
@@ -34,5 +36,7 @@ namespace NoFrillsTransformation.Plugins.Acumatica
         public string? Default { get; set; }
         [XmlAttribute("raw-default")]
         public string? RawDefault { get; set; }
+        [XmlAttribute("nullable")]
+        public string? Nullable { get; set; }
     }
 }

@@ -41,6 +41,10 @@ namespace NoFrillsTransformation.Plugins.Acumatica
             // Write <table name="TableName>">
             _xmlWriter.WriteStartElement("table");
             _xmlWriter.WriteAttributeString("name", _entityConfig.Table?.Name ?? "Unknown");
+            if (_entityConfig.Table?.Status != null)
+            {
+                _xmlWriter.WriteAttributeString("status", _entityConfig.Table.Status);
+            }
             // Copy the column names from the config file
             foreach (var col in _entityConfig.Table?.Columns ?? new AcumaticaEntityColumnConfig[0])
             {
@@ -54,6 +58,10 @@ namespace NoFrillsTransformation.Plugins.Acumatica
                 if (col.RawDefault != null)
                 {
                     _xmlWriter.WriteAttributeString("raw-default", col.RawDefault);
+                }
+                if (col.Nullable != null)
+                {
+                    _xmlWriter.WriteAttributeString("nullable", col.Nullable);
                 }
                 _xmlWriter.WriteEndElement();
             }
@@ -76,9 +84,14 @@ namespace NoFrillsTransformation.Plugins.Acumatica
             {
                 entityConfig = (AcumaticaEntityConfig?)xmlSerializer.Deserialize(fs);
             }
-            if (null == entityConfig)
+            if (entityConfig == null)
             {
                 throw new ArgumentException("Could not read Acumatica configuration file: " + _config);
+            }
+            // Resolve some fields using the context
+            if (entityConfig.Table?.Name != null)
+            {
+                entityConfig.Table.Name = _context.ReplaceParameters(entityConfig.Table.Name);
             }
             return entityConfig;
         }
@@ -109,6 +122,12 @@ namespace NoFrillsTransformation.Plugins.Acumatica
             int[] sortFieldIndexes = _entityConfig?.SortFields?
                 .Select(sortField => Array.IndexOf(_fieldNames, sortField))
                 .ToArray() ?? Array.Empty<int>();
+            // Build an array which contains whether a field is nullable or not
+            bool[] isNullable = new bool[_fieldNames.Length];
+            for (int i = 0; i < _fieldNames.Length; ++i)
+            {
+                isNullable[i] = _entityConfig?.Table?.Columns?[i].Nullable == "true";
+            }
 
             Comparison<string[]> comparison = (a, b) =>
             {
@@ -135,26 +154,32 @@ namespace NoFrillsTransformation.Plugins.Acumatica
             foreach (var record in _records)
             {
                 _xmlWriter.WriteStartElement("row");
-                List<int>? cdateFields = null;
+                List<int>? cdataFields = null;
                 for (int i = 0; i < _fieldNames.Length; ++i)
                 {
                     // If the length of the field is >1000, use a CData section
                     if (record[i].Length > 1000)
                     {
-                        if (null == cdateFields)
+                        if (null == cdataFields)
                         {
-                            cdateFields = new List<int>();
+                            cdataFields = new List<int>();
                         }
-                        cdateFields.Add(i);
+                        cdataFields.Add(i);
                     }
                     else
                     {
-                        _xmlWriter.WriteAttributeString(_fieldNames[i], record[i]);
+                        // Check if the field is not nullable or the value is not empty
+                        bool shouldBeNull = isNullable[i] && string.IsNullOrEmpty(record[i]);
+                        bool shouldBeNullBecauseOfCompany = _fieldNames[i] == "CompanyID" && string.IsNullOrEmpty(record[i]);
+                        if (!(shouldBeNull || shouldBeNullBecauseOfCompany))
+                        {
+                            _xmlWriter.WriteAttributeString(_fieldNames[i], record[i]);
+                        }
                     }
                 }
-                if (null != cdateFields)
+                if (null != cdataFields)
                 {
-                    foreach (int i in cdateFields)
+                    foreach (int i in cdataFields)
                     {
                         _xmlWriter.WriteStartElement("column");
                         _xmlWriter.WriteAttributeString("name", _fieldNames[i]);
