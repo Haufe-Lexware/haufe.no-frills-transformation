@@ -6,7 +6,7 @@ namespace NoFrillsTransformation.Plugins.Acumatica
     public class AcumaticaEntityConfig
     {
         // Multiple entries of <col name="FieldName" type="FieldType" default="DefaultValue"/>
-        // The surrounding <table> also has a name attribute: <table name="TableName">
+        // The surrounding <table> also has a name attribute and an optional status attribute: <table name="TableName" status="...">
         [XmlElement("table")]
         public AcumaticaTableConfig? Table { get; set; }
 

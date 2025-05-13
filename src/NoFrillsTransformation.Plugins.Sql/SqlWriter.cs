@@ -81,6 +81,10 @@ namespace NoFrillsTransformation.Plugins.Sql
             {
                 throw new ArgumentException("Could not read SQL entity configuration file: " + _config);
             }
+            if (null != entityConfig.Table?.Name)
+            {
+                entityConfig.Table.Name = _context.ReplaceParameters(entityConfig.Table.Name);
+            }
             return entityConfig;
         }
 
