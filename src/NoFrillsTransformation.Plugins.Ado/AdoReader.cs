@@ -120,12 +120,18 @@ namespace NoFrillsTransformation.Plugins.Ado
             {
                 switch (GetFieldType(index)) {
                     case "System.DateTime":
+                        if (SqlReader.IsDBNull(index))
+                            return string.Empty;
                         return SqlReader.GetDateTime(index).ToString("o");
                     case "System.Byte[]":
+                        if (SqlReader.IsDBNull(index))
+                            return string.Empty;
                         byte[] bytes = new byte[SqlReader.GetBytes(index, 0, null, 0, 0)];
                         SqlReader.GetBytes(index, 0, bytes, 0, bytes.Length);
                         return "0x" + Convert.ToHexString(bytes);
                 }
+                if (SqlReader.IsDBNull(index))
+                    return string.Empty;
                 return SqlReader.GetValue(index).ToString() ?? string.Empty;
             }
         }
