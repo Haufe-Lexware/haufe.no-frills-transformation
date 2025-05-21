@@ -126,7 +126,18 @@ namespace NoFrillsTransformation.Plugins.Acumatica
             bool[] isNullable = new bool[_fieldNames.Length];
             for (int i = 0; i < _fieldNames.Length; ++i)
             {
-                isNullable[i] = _entityConfig?.Table?.Columns?[i].Nullable == "true";
+                // Find the field by name in the config file
+                // and check if it is nullable
+                // If the field is not found, it is not nullable
+                isNullable[i] = false;
+                for (int j = 0; j < _entityConfig?.Table?.Columns?.Length; ++j)
+                {
+                    if (_fieldNames[i] == _entityConfig.Table.Columns[j].Name)
+                    {
+                        isNullable[i] = _entityConfig.Table.Columns[j].Nullable == "true";
+                        break;
+                    }
+                }
             }
 
             Comparison<string[]> comparison = (a, b) =>
