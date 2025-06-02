@@ -17,6 +17,9 @@ namespace NoFrillsTransformation.Plugins.Csv
         private int[] _fieldSizes;
         private string _config;
         private int _recordsWritten = 0;
+        private bool _unique = false;
+        private Dictionary<string, string> _records = new Dictionary<string, string>();
+        private Dictionary<string, HashSet<string>> _uniqueRecords = new Dictionary<string, HashSet<string>>();
 
         public AggregatingCsvWriter(IContext context, string target, string[] fieldNames, int[] fieldSizes, string? config)
         {
@@ -32,28 +35,38 @@ namespace NoFrillsTransformation.Plugins.Csv
             {
                 throw new ArgumentException("AggregatingCsvWriter: Exactly two fields are expected: Key and Aggregate.");
             }
+            // Check for unique=true in config
+            if (!string.IsNullOrEmpty(this._config) && this._config.ToLowerInvariant().Contains("unique=true"))
+            {
+                _unique = true;
+            }
         }
-
-        private Dictionary<string, string> _records = new Dictionary<string, string>();
 
         public void WriteRecord(string[] fieldValues)
         {
-            // If the field value 0 is not in the dictionary, add it, with the value of the field value 1.
-            // If the field value 0 is in the dictionary, add the value of the field value 1 to the existing value, with a comma separating them.
-            // Skip the record if the field value 0 is empty.
             if (string.IsNullOrEmpty(fieldValues[0]))
             {
                 return;
             }
-            if (!_records.ContainsKey(fieldValues[0]))
+            if (_unique)
             {
-                _records.Add(fieldValues[0], fieldValues[1]);
+                if (!_uniqueRecords.ContainsKey(fieldValues[0]))
+                {
+                    _uniqueRecords[fieldValues[0]] = new HashSet<string>();
+                }
+                _uniqueRecords[fieldValues[0]].Add(fieldValues[1]);
             }
             else
             {
-                _records[fieldValues[0]] += $", {fieldValues[1]}";
+                if (!_records.ContainsKey(fieldValues[0]))
+                {
+                    _records.Add(fieldValues[0], fieldValues[1]);
+                }
+                else
+                {
+                    _records[fieldValues[0]] += $", {fieldValues[1]}";
+                }
             }
-
             _recordsWritten++;
         }
 
@@ -73,9 +86,20 @@ namespace NoFrillsTransformation.Plugins.Csv
             // Write everything into the file, using a CSV Writer
             using (var csvWriter = new CsvWriterPlugin(_context, _target, _fieldNames, _fieldSizes, _config))
             {
-                foreach (var record in _records.OrderBy(record => record.Key))
+                if (_unique)
                 {
-                    csvWriter.WriteRecord(new string[] { record.Key, record.Value });
+                    foreach (var record in _uniqueRecords.OrderBy(record => record.Key))
+                    {
+                        var agg = string.Join(", ", record.Value.OrderBy(x => x));
+                        csvWriter.WriteRecord(new string[] { record.Key, agg });
+                    }
+                }
+                else
+                {
+                    foreach (var record in _records.OrderBy(record => record.Key))
+                    {
+                        csvWriter.WriteRecord(new string[] { record.Key, record.Value });
+                    }
                 }
             }
         }
