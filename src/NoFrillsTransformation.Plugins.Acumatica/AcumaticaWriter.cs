@@ -51,6 +51,10 @@ namespace NoFrillsTransformation.Plugins.Acumatica
                 _xmlWriter.WriteStartElement("col");
                 _xmlWriter.WriteAttributeString("name", col.Name ?? "Unknown");
                 _xmlWriter.WriteAttributeString("type", col.Type ?? "Unknown");
+                if (col.Nullable != null)
+                {
+                    _xmlWriter.WriteAttributeString("nullable", col.Nullable);
+                }
                 if (col.Default != null)
                 {
                     _xmlWriter.WriteAttributeString("default", col.Default);
@@ -59,9 +63,9 @@ namespace NoFrillsTransformation.Plugins.Acumatica
                 {
                     _xmlWriter.WriteAttributeString("raw-default", col.RawDefault);
                 }
-                if (col.Nullable != null)
+                if (col.Identity != null)
                 {
-                    _xmlWriter.WriteAttributeString("nullable", col.Nullable);
+                    _xmlWriter.WriteAttributeString("identity", col.Identity);
                 }
                 _xmlWriter.WriteEndElement();
             }

@@ -32,11 +32,13 @@ namespace NoFrillsTransformation.Plugins.Acumatica
         public string? Name { get; set; }
         [XmlAttribute("type")]
         public string? Type { get; set; }
+        [XmlAttribute("nullable")]
+        public string? Nullable { get; set; }
         [XmlAttribute("default")]
         public string? Default { get; set; }
         [XmlAttribute("raw-default")]
         public string? RawDefault { get; set; }
-        [XmlAttribute("nullable")]
-        public string? Nullable { get; set; }
+        [XmlAttribute("identity")]
+        public string? Identity { get; set; }
     }
 }
