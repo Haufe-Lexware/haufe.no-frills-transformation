@@ -190,7 +190,7 @@ namespace NoFrillsTransformation.Plugins.Acumatica
                     {
                         // Check if the field is not nullable or the value is not empty
                         bool shouldBeNull = isNullable[i] && string.IsNullOrEmpty(record[i]);
-                        bool shouldBeNullBecauseOfCompany = _fieldNames[i] == "CompanyID" && string.IsNullOrEmpty(record[i]);
+                        bool shouldBeNullBecauseOfCompany = (_fieldNames[i] == "CompanyID" || _fieldNames[i] == "CompanyMask") && string.IsNullOrEmpty(record[i]);
                         if (!(shouldBeNull || shouldBeNullBecauseOfCompany))
                         {
                             _xmlWriter.WriteAttributeString(_fieldNames[i], record[i]);
