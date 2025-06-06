@@ -157,9 +157,18 @@ namespace NoFrillsTransformation.Plugins.Acumatica
                 }
                 return 0;
             };
-            _context.Logger.Info("Sorting records...");
-            // Now sort the _records
-            _records.Sort(comparison);
+
+            // If there are no sort fields, we will not sort the records
+            if (sortFieldIndexes.Length == 0)
+            {
+                _context.Logger.Info("No sort fields defined, skipping sorting.");
+            }
+            else
+            {
+                _context.Logger.Info("Sorting records...");
+                // Now sort the _records
+                _records.Sort(comparison);
+            }
 
             // And output them
             foreach (var record in _records)

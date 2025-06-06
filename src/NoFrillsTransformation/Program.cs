@@ -178,7 +178,7 @@ namespace NoFrillsTransformation
                         ReadFilterMappings(configFile, context);
                         ReadSources(context, configFile, readerFactory);
 
-                        // Do we use "useSource" in the field mappings?
+                        // Do we use "appendSource" in the field mappings?
                         ReadSourceMappings(configFile, context);
                         ReadSourceFilterMappings(configFile, context);
 
@@ -1064,7 +1064,37 @@ namespace NoFrillsTransformation
                 targetFields.Add(tfd);
             }
             if (null != previousMapping)
-                targetFields.AddRange(previousMapping);
+            {
+                // Add the mappings which were directly in the config file; in case we have an overlap
+                // in target field names, the previous mapping will take precedence.
+
+                // This is a change from the previous behavior, where the previous mapping was appended
+                // to the end of the target fields. This way, we ensure that the fields defined in the
+                // config file take precedence over the source fields.
+
+                for (int i = 0; i < previousMapping.Length; ++i)
+                {
+                    var fieldName = previousMapping[i].FieldName;
+                    if (!targetFields.Any(f => f.FieldName.Equals(fieldName, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        targetFields.Add(previousMapping[i]);
+                    }
+                    else
+                    {
+                        context.Logger.Warning($"Field '{fieldName}' is defined in both the source and the config file (and appendSource is set to true). The config file definition will take precedence.");
+                        // Get the index of the existing field and replace it with the new one
+                        int index = targetFields.FindIndex(f => f.FieldName.Equals(fieldName, StringComparison.OrdinalIgnoreCase));
+                        if (index >= 0)
+                        {
+                            targetFields[index] = previousMapping[i];
+                        }
+                        else
+                        {
+                            context.Logger.Warning($"Field '{fieldName}' not found in target fields, but defined in previous mapping. This should not happen.");
+                        }
+                    }
+                }
+            }
 
             return targetFields.ToArray();
         }
