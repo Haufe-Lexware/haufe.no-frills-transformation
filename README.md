@@ -18,6 +18,8 @@ Out of the box, NFT will read from
 * [SQL Server Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQL-Server-Reader)
 * [PostgreSQL Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQL-Server-Reader)
 * [From SAP RFCs if they have a TABLE as output value (limited support currently)](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SAP-Reader)
+* [Acumatica](https://www.acumatica.com) Snapshots/Database templates
+* JSON
 
 and write to
 
@@ -27,6 +29,8 @@ and write to
 * [Rudimentary XML files](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/XML-Writer)
 * [SQL Server Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQL-Server-Update-Writer) (**NEW!**)
 * [PostgreSQL Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQL-Server-Update-Writer) (**NEW!**)
+* Acumatica Snapshots/Database templates
+* JSON
 
 A special "transformation" filter is supported, which currently implementations for
 
