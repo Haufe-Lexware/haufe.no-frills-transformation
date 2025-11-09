@@ -27,9 +27,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Plug
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Plugins.Xml", "NoFrillsTransformation.Plugins.Xml\NoFrillsTransformation.Plugins.Xml.csproj", "{91AA64FD-1BF3-4A1C-944E-89C00B6FBFB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Plugins.Ado.Postgres", "NoFrillsTransformation.Plugins.Ado.Postgres\NoFrillsTransformation.Plugins.Ado.Postgres.csproj", "{B03A8475-C76F-42A2-B6DF-825E51DDE84B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Plugins.Json", "NoFrillsTransformation.Plugins.Json\NoFrillsTransformation.Plugins.Json.csproj", "{4BB646AC-E8B5-467C-8111-DBC596F67775}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Plugins.Salesforce.DotNet", "NoFrillsTransformation.Plugins.Salesforce.DotNet\NoFrillsTransformation.Plugins.Salesforce.DotNet.csproj", "{967AFDFE-ADDF-4341-9FB7-C4549929EC8B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Plugins.Ado.Postgres", "NoFrillsTransformation.Plugins.Ado.Postgres\NoFrillsTransformation.Plugins.Ado.Postgres.csproj", "{B03A8475-C76F-42A2-B6DF-825E51DDE84B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoFrillsTransformation.Plugins.Acumatica", "NoFrillsTransformation.Plugins.Acumatica\NoFrillsTransformation.Plugins.Acumatica.csproj", "{32C87CC4-939A-4C55-A100-15E153C5B33C}"
 EndProject
@@ -92,6 +92,10 @@ Global
 		{91AA64FD-1BF3-4A1C-944E-89C00B6FBFB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{91AA64FD-1BF3-4A1C-944E-89C00B6FBFB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{91AA64FD-1BF3-4A1C-944E-89C00B6FBFB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BB646AC-E8B5-467C-8111-DBC596F67775}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BB646AC-E8B5-467C-8111-DBC596F67775}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BB646AC-E8B5-467C-8111-DBC596F67775}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BB646AC-E8B5-467C-8111-DBC596F67775}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B03A8475-C76F-42A2-B6DF-825E51DDE84B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B03A8475-C76F-42A2-B6DF-825E51DDE84B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B03A8475-C76F-42A2-B6DF-825E51DDE84B}.Release|Any CPU.ActiveCfg = Release|Any CPU

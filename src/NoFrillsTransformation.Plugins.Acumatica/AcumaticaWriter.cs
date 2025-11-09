@@ -236,8 +236,12 @@ namespace NoFrillsTransformation.Plugins.Acumatica
             {
                 using (var writer = new System.IO.StreamWriter(fileNameTarget, false, Encoding.UTF8))
                 {
+                    writer.NewLine = "\r\n"; // Force Windows line endings (CR+LF)
                     string? line;
                     bool inCData = false;
+                    var lines = new List<string>();
+                    
+                    // Read all lines first
                     while ((line = reader.ReadLine()) != null)
                     {
                         // Replace all tabs AFTER the first ones on each line (indentations) with &#x9;
@@ -277,7 +281,20 @@ namespace NoFrillsTransformation.Plugins.Acumatica
                         {
                             line = line.Substring(0, firstNonTab) + line.Substring(firstNonTab).Replace("\t", "&#x9;");
                         }
-                        writer.WriteLine(line);
+                        lines.Add(line);
+                    }
+                    
+                    // Write all lines except add no newline after the last line
+                    for (int i = 0; i < lines.Count; i++)
+                    {
+                        if (i < lines.Count - 1)
+                        {
+                            writer.WriteLine(lines[i]);
+                        }
+                        else
+                        {
+                            writer.Write(lines[i]); // No newline for the last line
+                        }
                     }
                 }
             }
