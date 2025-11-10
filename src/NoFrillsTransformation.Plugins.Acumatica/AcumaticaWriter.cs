@@ -181,8 +181,8 @@ namespace NoFrillsTransformation.Plugins.Acumatica
                 List<int>? cdataFields = null;
                 for (int i = 0; i < _fieldNames.Length; ++i)
                 {
-                    // If the length of the field is >1000, use a CData section
-                    if (record[i].Length > 1000)
+                    // If the length of the field is >1000 AND the field name is NOT "Data" AND there isn't CDATA inside, use a CData section
+                    if (record[i].Length > 1000 && _fieldNames[i] != "Data" && record[i].IndexOf("]]>") < 0)
                     {
                         if (null == cdataFields)
                         {
