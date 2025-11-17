@@ -9,7 +9,7 @@ using NpgsqlTypes;
 
 namespace NoFrillsTransformation.Plugins.Ado.Postgres
 {
-    class AdoPostgresUpdateWriter : AdoWriter
+    class AdoPostgresUpdateWriter : AdoPostgresWriterBase
     {
         public AdoPostgresUpdateWriter(IContext context, string? config, string tableDef, IFieldDefinition[] fieldDefs)
             : base(context, config, tableDef, fieldDefs)
@@ -55,7 +55,7 @@ namespace NoFrillsTransformation.Plugins.Ado.Postgres
                 _updateWhereFields[i] = _updateWhereFields[i].Trim();
             }
 
-            RetrieveRemoteFields();
+            RetrieveRemoteFields(_psqlConnection, _updateSchema, _updateTable);
             // Check that all fields in the WHERE clause are present in the table
             foreach (var whereField in _updateWhereFields)
             {
@@ -95,98 +95,7 @@ namespace NoFrillsTransformation.Plugins.Ado.Postgres
             Context.Logger.Info("AdoSqlServerUpdateWriter initialized.");
         }
 
-        private class RemoteFieldDef
-        {
-            public string? FieldName { get; set; }
-            public string? DataType { get; set; }
-            public int? CharacterMaximumLength { get; set; }
-            public bool IsNullable { get; set; }
-        }
-
-        private Dictionary<string, RemoteFieldDef> _remoteFields = new Dictionary<string, RemoteFieldDef>();
-        private Dictionary<string, RemoteFieldDef> RemoteFields { get { return _remoteFields; } }
-
-        private void RetrieveRemoteFields()
-        {
-            // Run a query to get the field names and types
-            var sb = new StringBuilder();
-            sb.Append("SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE ");
-            sb.Append("FROM INFORMATION_SCHEMA.COLUMNS ");
-            sb.Append("WHERE TABLE_NAME = '");
-            sb.Append(_updateTable);
-            sb.Append("' AND TABLE_SCHEMA = '");
-            sb.Append(_updateSchema);
-            sb.Append("';");
-            var query = sb.ToString();
-
-            using (var command = new NpgsqlCommand(query, _psqlConnection))
-            {
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        var columnName = reader.GetString(0);
-                        var dataType = reader.GetString(1);
-                        var characterMaximumLength = reader.IsDBNull(2) ? 0 : reader.GetInt32(2);
-                        var isNullable = reader.GetString(3);
-                        _remoteFields[columnName] = new RemoteFieldDef
-                        {
-                            FieldName = columnName,
-                            DataType = dataType,
-                            CharacterMaximumLength = characterMaximumLength,
-                            IsNullable = (isNullable == "YES")
-                        };
-                    }
-                    reader.Close();
-                }
-            }
-        }
-
-        private NpgsqlDbType GetSqlDbType(IFieldDefinition fieldDef)
-        {
-            if (!RemoteFields.ContainsKey(fieldDef.FieldName))
-                throw new ArgumentException("Field '" + fieldDef.FieldName + "' not found in table '" + _updateTable + "'.");
-            var remoteField = RemoteFields[fieldDef.FieldName];
-            switch (remoteField.DataType)
-            {
-                case "integer":
-                    return NpgsqlDbType.Integer;
-
-                case "date":
-                    return NpgsqlDbType.Date;
-
-                case "timestamp":
-                    return NpgsqlDbType.Timestamp;
-
-                case "real":
-                    return NpgsqlDbType.Real;
-
-                case "numeric":
-                case "decimal":
-                    return NpgsqlDbType.Numeric;
-
-                case "money":
-                    return NpgsqlDbType.Money;
-
-                case "varchar":
-                case "character varying":
-                    return NpgsqlDbType.Varchar;
-
-                case "char":
-                    return NpgsqlDbType.Char;
-
-                case "text":
-                    return NpgsqlDbType.Text;
-
-                case "bit":
-                    return NpgsqlDbType.Bit;
-
-                default:
-                    throw new ArgumentException("Unknown data type '" + remoteField.DataType + "' for field '" + fieldDef.FieldName + "'.");
-            }
-        }
-
-        protected string GetUpdateStatement()
+        private string GetUpdateStatement()
         {
             if (null == _updateTable)
                 throw new InvalidOperationException("Update table not set.");
@@ -251,99 +160,6 @@ namespace NoFrillsTransformation.Plugins.Ado.Postgres
                 _psqlCommand.Parameters[FieldDefs[i].FieldName].Value = GetFieldValue(FieldDefs[i], fieldValues[i]);
             }
             _psqlCommand.ExecuteNonQuery();
-        }
-
-        private object GetFieldValue(IFieldDefinition fieldDef, string fieldValue)
-        {
-            // Cast according to the type of the remote field
-            var remoteField = RemoteFields[fieldDef.FieldName];
-            if (string.IsNullOrEmpty(fieldValue))
-            {
-                if (remoteField.IsNullable)
-                    return DBNull.Value;
-                else
-                    return GetDefaultValue(fieldDef);
-            }
-            switch (remoteField.DataType)
-            {
-                case "integer":
-                    return int.Parse(fieldValue);
-
-                case "date":
-                    return DateTime.Parse(fieldValue);
-
-                case "timestamp":
-                    return DateTime.Parse(fieldValue);
-
-                case "real":
-                    return float.Parse(fieldValue);
-
-                case "decimal":
-                case "double":
-                    return decimal.Parse(fieldValue);
-
-                case "money":
-                    return decimal.Parse(fieldValue);
-
-                case "character varying":
-                    return fieldValue;
-
-                case "varchar":
-                    return fieldValue;
-
-                case "char":
-                    return fieldValue;
-
-                case "nchar":
-                    return fieldValue;
-
-                case "text":
-                    return fieldValue;
-
-                case "ntext":
-                    return fieldValue;
-
-                case "bit":
-                    return bool.Parse(fieldValue);
-
-                default:
-                    throw new ArgumentException("Unknown data type '" + remoteField.DataType + "' for field '" + fieldDef.FieldName + "'.");
-            }
-        }
-
-        private object GetDefaultValue(IFieldDefinition fieldDef)
-        {
-            var remoteField = RemoteFields[fieldDef.FieldName];
-            switch (remoteField.DataType)
-            {
-                case "int":
-                    return 0;
-
-                case "date":
-                case "datetime":
-                    return DateTime.MinValue;
-
-                case "float":
-                    return 0.0f;
-
-                case "decimal":
-                case "money":
-                    return 0.0m;
-
-                case "nvarchar":
-                case "varchar":
-                case "char":
-                case "nchar":
-                case "text":
-                case "ntext":
-                    return string.Empty;
-
-                case "bit":
-                    return false;
-
-                default:
-                    throw new ArgumentException("Unknown data type '" + remoteField.DataType + "' for field '" + fieldDef.FieldName + "'.");
-            }
         }
 
         #region IDisposable
