@@ -283,11 +283,18 @@ namespace NoFrillsTransformation
 
         private static void AddSources(Context context, ReaderFactory readerFactory, List<ISourceReader> sourceList, HashSet<string> sourceFiles, SourceTargetXml thisSource)
         {
-            // Wildcards in Source?
-            if (thisSource.Uri.StartsWith("file://")
+            // Wildcards in Source? Heuristic to determine if we have a file-based source with wildcards.
+            if ((thisSource.Uri.Contains("file") || thisSource.Uri.Contains("xml") || thisSource.Uri.Contains("json"))
                 && (thisSource.Uri.Contains("*") || thisSource.Uri.Contains("?")))
             {
-                string sourceFile = thisSource.Uri.Substring(7); // strip file://
+                // Extract protocol (everything up to and including "://")
+                int protocolEndIndex = thisSource.Uri.IndexOf("://");
+                if (protocolEndIndex < 0)
+                    throw new InvalidOperationException("No protocol found in URI with wildcards: " + thisSource.Uri);
+                
+                string protocol = thisSource.Uri.Substring(0, protocolEndIndex + 3); // Include "://"
+                string sourceFile = thisSource.Uri.Substring(protocolEndIndex + 3); // Strip protocol
+                
                 context.Logger.Info("Detected wildcards in file name (" + sourceFile + ").");
                 string? path = Path.GetDirectoryName(sourceFile);
                 if (string.IsNullOrWhiteSpace(path))
@@ -299,7 +306,7 @@ namespace NoFrillsTransformation
                     if (sourceFiles.Contains(sourceFileName))
                         continue;
                     context.Logger.Info("Creating reader for: " + sourceFileName);
-                    sourceList.Add(readerFactory.CreateReader(context, "file://" + sourceFileName, thisSource.Config));
+                    sourceList.Add(readerFactory.CreateReader(context, protocol + sourceFileName, thisSource.Config));
                     sourceFiles.Add(sourceFileName);
                 }
             }
