@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>nft</ToolCommandName>
+    <PackageId>NoFrillsTransformation</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Config/Config.xsd" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../NoFrillsTransformation.Interfaces/NoFrillsTransformation.Interfaces.csproj" />
+    <ProjectReference Include="../NoFrillsTransformation.Logging/NoFrillsTransformation.Logging.csproj" />
+    <ProjectReference Include="../NoFrillsTransformation.LumenWorks.Framework.IO/NoFrillsTransformation.LumenWorks.Framework.IO.csproj" />
+    <ProjectReference Include="../NoFrillsTransformation.Operators/NoFrillsTransformation.Operators.csproj" />
+    <ProjectReference Include="../NoFrillsTransformation.Operators.Utils/NoFrillsTransformation.Operators.Utils.csproj" />
+    <ProjectReference Include="../NoFrillsTransformation.Plugins.Acumatica/NoFrillsTransformation.Plugins.Acumatica.csproj" />
+    <ProjectReference Include="../NoFrillsTransformation.Plugins.Ado/NoFrillsTransformation.Plugins.Ado.csproj" />
+    <ProjectReference Include="../NoFrillsTransformation.Plugins.Ado.Postgres/NoFrillsTransformation.Plugins.Ado.Postgres.csproj" />
+    <ProjectReference Include="../NoFrillsTransformation.Plugins.Ado.SqlServer/NoFrillsTransformation.Plugins.Ado.SqlServer.csproj" />
+    <ProjectReference Include="../NoFrillsTransformation.Plugins.CsvReader/NoFrillsTransformation.Plugins.CsvReader.csproj" />
+    <ProjectReference Include="../NoFrillsTransformation.Plugins.Inline/NoFrillsTransformation.Plugins.Inline.csproj" />
+    <!-- <ProjectReference Include="../NoFrillsTransformation.Plugins.Salesforce.DotNet/NoFrillsTransformation.Plugins.Salesforce.DotNet.csproj" /> -->
+    <ProjectReference Include="../NoFrillsTransformation.Plugins.Statistics/NoFrillsTransformation.Plugins.Statistics.csproj" />
+    <ProjectReference Include="../NoFrillsTransformation.Plugins.Xml/NoFrillsTransformation.Plugins.Xml.csproj" />
+    <ProjectReference Include="../NoFrillsTransformation.Plugins.Json/NoFrillsTransformation.Plugins.Json.csproj" />
+    <ProjectReference Include="../NoFrillsTransformation.Plugins.Sql/NoFrillsTransformation.Plugins.Sql.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Composition" Version="9.0.0" />
+    <PackageReference Include="System.Composition.Hosting" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

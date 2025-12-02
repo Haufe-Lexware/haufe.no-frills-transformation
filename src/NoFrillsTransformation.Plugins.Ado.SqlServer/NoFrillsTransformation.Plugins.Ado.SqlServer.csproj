@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference
+      Include="../NoFrillsTransformation.Interfaces/NoFrillsTransformation.Interfaces.csproj" />
+    <ProjectReference
+      Include="../NoFrillsTransformation.Plugins.Ado/NoFrillsTransformation.Plugins.Ado.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageReference Include="System.Composition" Version="9.0.0" />
+    <PackageReference Include="System.Composition.Hosting" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>

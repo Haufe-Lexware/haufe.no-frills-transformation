@@ -1,0 +1,73 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: .NET Release Tag
+
+on:
+  push:
+    tags:
+      - 'v*'  # This triggers the workflow on version tags
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+    - name: Restore dependencies
+      working-directory: ./src
+      run: dotnet restore
+    - name: Build
+      working-directory: ./src
+      run: dotnet build --no-restore --configuration Release
+    - name: Publish Windows
+      working-directory: ./src
+      run: |
+        TAG_NAME=${GITHUB_REF#refs/tags/}
+        rm -rf release && mkdir release
+        dotnet publish --runtime win-x64 --no-self-contained --configuration Release
+        pushd bin/Release/net8.0/win-x64/publish && zip -r ../../../../../release/nft-${TAG_NAME}-win-x64.zip * && popd
+        dotnet publish --runtime win-arm64 --no-self-contained --configuration Release
+        pushd bin/Release/net8.0/win-arm64/publish && zip -r ../../../../../release/nft-${TAG_NAME}-win-arm64.zip * && popd
+    - name: Publish Linux
+      working-directory: ./src
+      run: |
+        TAG_NAME=${GITHUB_REF#refs/tags/}
+        dotnet publish --runtime linux-x64 --no-self-contained --configuration Release
+        pushd bin/Release/net8.0/linux-x64/publish && zip -r ../../../../../release/nft-${TAG_NAME}-linux-x64.zip * && popd
+        dotnet publish --runtime linux-arm64 --no-self-contained --configuration Release
+        pushd bin/Release/net8.0/linux-arm64/publish && zip -r ../../../../../release/nft-${TAG_NAME}-linux-arm64.zip * && popd
+    - name: Publish OSX
+      working-directory: ./src
+      run: |
+        TAG_NAME=${GITHUB_REF#refs/tags/}
+        dotnet publish --runtime osx-x64 --no-self-contained --configuration Release
+        pushd bin/Release/net8.0/osx-x64/publish && zip -r ../../../../../release/nft-${TAG_NAME}-osx-x64.zip * && popd
+        dotnet publish --runtime osx-arm64 --no-self-contained --configuration Release
+        pushd bin/Release/net8.0/osx-arm64/publish && zip -r ../../../../../release/nft-${TAG_NAME}-osx-arm64.zip * && popd
+
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "./src/release/*.zip"
+
+    # - name: Package Nuget Packages
+    #   working-directory: ./src
+    #   run: dotnet pack --no-build --configuration Release
+
+    # - name: Publish Nuget Packages
+    #   uses: nuget/publish@1
+    #   with:
+    #     nuget-api-key: ${{ secrets.NUGET_API_KEY }}
+    #     nuget-version: ${{ github.ref }}
+    #     nuget-packages: ./src/bin/Release/*.nupkg
+
+#    - name: Test
+#      run: dotnet test --no-build --verbosity normal

@@ -11,25 +11,32 @@
 Out of the box, NFT will read from
 
 * [CSV files in any encoding](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/CSV-Reader)
-* [Salesforce SOQL queries](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Salesforce-Reader)
-* [SQLite Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQLite-Reader)
-* [MySql Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/MySql-Reader)
-* [Oracle Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Oracle-Reader)
+* [Salesforce SOQL queries](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Salesforce-Reader) (*NOT YET PORTED TO NET8.0*)
+* [SQLite Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQLite-Reader) (*NOT YET PORTED TO NET8.0*)
+* [MySql Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/MySql-Reader) (*NOT YET PORTED TO NET8.0*)
+* [Oracle Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Oracle-Reader) (*NOT YET PORTED TO NET8.0*)
 * [SQL Server Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQL-Server-Reader)
-* [From SAP RFCs if they have a TABLE as output value (limited support currently)](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SAP-Reader)
+* [PostgreSQL Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/PostgreSQL-Reader) (**NEW!**)
+* [From SAP RFCs if they have a TABLE as output value (limited support currently)](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SAP-Reader) (**NOT YET PORTED TO NET8.0**)
+* [Acumatica](https://www.acumatica.com) [Snapshots/Database templates](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Acumatica-Reader)
+* [JSON](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/JSON-Reader) (also flattening) (**NEW!!**)
 
 and write to
 
 * [CSV files in any encoding](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/CSV-Writer) (including with or without UTF-8 BOMs)
-* [Salesforce Objects](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Salesforce-Writer) (including Upserts and using External IDs)
-* [Oracle Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Oracle-Writer)
+* [Salesforce Objects](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Salesforce-Writer) (including Upserts and using External IDs) (*NOT YET PORTED TO NET8.0*)
+* [Oracle Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Oracle-Writer) (*NOT YET PORTED TO NET8.0*)
 * [Rudimentary XML files](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/XML-Writer)
+* [SQL Server Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQL-Server-Update-Writer) (or: [Insert Writer](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SQL-Server-Insert-Writer)) (**NEW!**)
+* [PostgreSQL Databases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/PostgreSQL-Update-Writer) (or: [Insert Writer](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/PostgreSQL-Insert-Writer)) (**NEW!**)
+* [Acumatica Snapshots/Database templates](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Acumatica-Writer)
+* [JSON](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/JSON-Writer) (also including sub-documents) (**NEW!**)
 
 A special "transformation" filter is supported, which currently implementations for
 
-* [SAP RFC Transformations](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SAP-Transformer): Read the parameters from a source and pass them to the RFC and retrieve the results from that to the output
+* [SAP RFC Transformations](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/SAP-Transformer): Read the parameters from a source and pass them to the RFC and retrieve the results from that to the output  (*NOT YET PORTED TO NET8.0*)
 * [Frequency Transform](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Frequency-Transformer): Creates basic frequency statistics from a source
-* [Salesforce SOQL Transform](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Salesforce.Net-Transformer): For a set of input parameters read from a source, issue SOQL queries and output the result to a target.
+* [Salesforce SOQL Transform](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki/Salesforce.Net-Transformer): For a set of input parameters read from a source, issue SOQL queries and output the result to a target.  (*NOT YET PORTED TO NET8.0*)
 
 There may be more to come; and if you have special needs, feel free to reach out and we'll look together what we can do about it.
 
@@ -45,11 +52,13 @@ Among supported transformations are:
 
 Feel free to contribute and create pull requests. I'll check them out and merge them if they make sense.
 
-Head over to the [WIKI](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki) for an extensive documentation:
+Head over to the [WIKI](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki) for a comprehensive documentation:
 
 * https://github.com/Haufe-Lexware/haufe.no-frills-transformation/wiki
 
 ## Binary Downloads
+
+*Currently, there are no binary downloads - compiling with `dotnet` is simple enough right now*
 
 Check out the [releases](https://github.com/Haufe-Lexware/haufe.no-frills-transformation/releases) section for binary packages of NFT.
 
@@ -139,10 +148,10 @@ See also:
 
 ### Running the application
 
-Just call the executable with the full path to the XML configuration file.
+Just call the main DLL using `dotnet` with the full path to the XML configuration file.
 
 ```
-C:\Temp> NoFrillsTransformation.exe sample_config.xml
+C:\Temp> dotnet NoFrillsTransformation.dll sample_config.xml
 Operation completed successfully.
 C:\Temp> 
 ```
@@ -150,14 +159,49 @@ If the operation completes without error, the executable with exit with the exit
 
 ##### Running on Mac OS X and Linux
 
-If you want to run NFT on Mac OS X, you need the Mono framework, which is the .NET implementation for non-Windows platforms (such as Linux or Mac OS X).
+Same as for Windows, simply use the `dotnet` command line. Make sure you download the correct version of the published DLLs, as there are changes in some of the platform dependant libraries (such as SQL Server).
 
-Download and install Mono prior to running `NoFrillsTransformation.exe`, then proceed as follows:
+Alternatively, just clone the repository and run it using `dotnet run`:
 
-```bash
-$ mono NoFrillsTransformation.exe configFile.xml
-Operation finished successfully.
-$
+```powershell
+dotnet restore
+dotnet build
+dotnet run <transformation.xml>
 ```
 
-Please note that some of the plugins are currently only available for the Windows platform, such as the Oracle plugin.
+#### Packing as a tool
+
+The configuration of `NoFrillsTransformation.csproj` contains the information on how to package the tool as a `dotnet tool`, which is probably the best way to distribute `nft`. It can create an `nft` command line tool which can be pushed e.g. to a private NuGet repository, and subsequently pulled from there.
+
+Sample scripts (PowerShell), expecting the version as `$version`:
+
+```powershell
+# Usage: ./release.ps1 <version>
+param(
+    [Parameter(Mandatory = $true)]
+    [string]$version
+)
+
+Push-Location src
+
+# Replace the Version in the Directory.Build.props file
+$propsPath = Join-Path $PSScriptRoot 'Directory.Build.props'
+$propsContent = Get-Content $propsPath -Raw
+$propsContent = $propsContent -replace '<Version>.*?</Version>', "<Version>$version</Version>"
+Set-Content $propsPath $propsContent
+
+# Clean and build
+& dotnet clean
+& dotnet build
+
+# Remove old nupkg directory
+Remove-Item ../nupkg -Recurse -Force -ErrorAction SilentlyContinue
+
+# Pack and push into ../nupkg
+& dotnet pack -c Release -p:PackageVersion=$version
+& dotnet nuget push -s lexbizz -k <some PAT> ../nupkg/*.nupkg
+
+Pop-Location
+```
+
+This assumes you have a suitable `nuget.config` in the [`src`](src) folder.
