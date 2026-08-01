@@ -619,15 +619,50 @@ namespace NoFrillsTransformation
                 for (int i = 0; i < parameters.Length; ++i)
                 {
                     var xmlParam = configFile.SourceTransform.Parameters[i];
-                    if (null == xmlParam.FunctionString)
-                        throw new ArgumentException("Parameter without function string found.");
+                    
+                    // Validate parameter configuration
+                    bool hasInnerText = !string.IsNullOrEmpty(xmlParam.FunctionString);
+                    bool hasKey = !string.IsNullOrEmpty(xmlParam.Key);
+                    bool hasValue = !string.IsNullOrEmpty(xmlParam.Value);
+                    
+                    if (hasInnerText && hasKey)
+                        throw new ArgumentException($"Parameter '{xmlParam.Name}': Cannot have both inner text and Key element.");
+                    
+                    if (hasKey && !hasValue)
+                        throw new ArgumentException($"Parameter '{xmlParam.Name}': If Key is defined, Value must also be defined.");
+                    
+                    if (!hasKey && hasValue)
+                        throw new ArgumentException($"Parameter '{xmlParam.Name}': If Value is defined, Key must also be defined.");
+                    
+                    if (!hasInnerText && !hasKey)
+                        throw new ArgumentException($"Parameter '{xmlParam.Name}': Must have either inner text or Key/Value elements.");
+                    
                     if (null == xmlParam.Name)
                         throw new ArgumentException("Parameter without name found.");
-                    parameters[i] = new TransformerParameter(
-                        xmlParam.Name,
-                        xmlParam.FunctionString,
-                        ExpressionParser.ParseExpression(context.ReplaceParameters(xmlParam.FunctionString), context)
-                    );
+                    
+                    // Create parameter based on mode
+                    if (hasInnerText)
+                    {
+                        // Simple mode: just function string
+                        parameters[i] = new TransformerParameter(
+                            xmlParam.Name,
+                            xmlParam.FunctionString!,
+                            ExpressionParser.ParseExpression(context.ReplaceParameters(xmlParam.FunctionString!), context)
+                        );
+                    }
+                    else
+                    {
+                        // Key/Value mode
+                        parameters[i] = new TransformerParameter(
+                            xmlParam.Name,
+                            xmlParam.Key!, // Use Key as the function string for backward compatibility
+                            ExpressionParser.ParseExpression(context.ReplaceParameters(xmlParam.Key!), context),
+                            xmlParam.Key,
+                            ExpressionParser.ParseExpression(context.ReplaceParameters(xmlParam.Key!), context),
+                            xmlParam.Value,
+                            ExpressionParser.ParseExpression(context.ReplaceParameters(xmlParam.Value!), context)
+                        );
+                    }
                 }
                 ISetting[]? settings = null;
                 if (null != configFile.SourceTransform.Settings)
@@ -673,7 +708,7 @@ namespace NoFrillsTransformation
                     throw new ArgumentException("XML config file could not be validated successfully.");
 
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(ConfigFileXml));
-                using (var fs = new FileStream(configFileName, FileMode.Open))
+                using (var fs = new FileStream(configFileName, FileMode.Open, FileAccess.Read, FileShare.Read))
                 {
                     configFile = xmlSerializer.Deserialize(fs) as ConfigFileXml;
                 }

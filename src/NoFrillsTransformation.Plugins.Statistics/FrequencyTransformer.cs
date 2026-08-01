@@ -7,23 +7,13 @@ using NoFrillsTransformation.Plugins.Csv;
 
 namespace NoFrillsTransformation.Plugins.Statistics
 {
-    class FrequencyTransformer : ISourceTransformer
+    class FrequencyTransformer : BaseTransformer
     {
-        private IContext _context;
-        private string _target;
-        private string _targetConfig;
-        private bool _omitParameters = false;
-        private IParameter[] _parameters;
         private Dictionary<string, Dictionary<string, int>> _freqs;
 
         public FrequencyTransformer(IContext context, string target, string? targetConfig, IParameter[] parameters)
+            : base(context, target, targetConfig, parameters)
         {
-            _context = context;
-            _target = target;
-            _targetConfig = targetConfig ?? string.Empty;
-            if (_targetConfig.ToLowerInvariant().Contains("omitparameters=true"))
-                _omitParameters = true;
-            _parameters = parameters;
             _freqs = new Dictionary<string, Dictionary<string, int>>();
 
             InitFreqs(parameters);
@@ -37,7 +27,7 @@ namespace NoFrillsTransformation.Plugins.Statistics
             }
         }
 
-        public void Transform(IContext context, IEvaluator eval)
+        public override void Transform(IContext context, IEvaluator eval)
         {
             // Special case for the Freq transform: Obey filters already.
             if (!context.CurrentRecordMatchesFilter(eval))
@@ -55,26 +45,18 @@ namespace NoFrillsTransformation.Plugins.Statistics
             }
         }
 
-        public void FinishTransform()
+        public override void FinishTransform()
         {
             try
             {
-                using (var csv = new CsvWriterPlugin(_context, _target, new string[] { }, new int[] { }, _targetConfig + " headers='false'"))
+                foreach (var param in _parameters)
                 {
-
-                    bool first = true;
-                    var header = new string[] { "" };
-                    var line = new string[] { "", "" };
-                    foreach (var param in _parameters)
+                    // Generate filename with parameter name injected before file extension
+                    string targetFileName = GetFileNameWithParameter(_target, param.Name);
+                    
+                    using (var csv = new CsvWriterPlugin(_context, targetFileName, new string[] { }, new int[] { }, _targetConfig + " headers='false'"))
                     {
-                        if (!first)
-                            csv.WriteRecord(new string[] { }); // New line
-
-                        header[0] = param.Name;
-                        if (!_omitParameters)
-                        {
-                            csv.WriteRecord(header);
-                        }
+                        var line = new string[] { "", "" };
                         line[0] = "Value";
                         line[1] = "Frequency";
                         csv.WriteRecord(line);
@@ -85,8 +67,6 @@ namespace NoFrillsTransformation.Plugins.Statistics
                             line[1] = f[key].ToString();
                             csv.WriteRecord(line);
                         }
-
-                        first = false;
                     }
                 }
             }
@@ -94,39 +74,6 @@ namespace NoFrillsTransformation.Plugins.Statistics
             {
                 throw new InvalidOperationException("FrequencyTransform: An error occurred while writing the frequency analysis results: " + ex.Message);
             }
-        }
-
-        public bool HasField(string fieldName)
-        {
-            // We ain't got no fields. We just take stuff.
-            return false;
-        }
-
-        public IRecord CurrentRecord
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        public bool HasMoreRecords()
-        {
-            return false;
-        }
-
-        public bool HasResult()
-        {
-            return false;
-        }
-
-        public void NextRecord()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Dispose()
-        {
         }
     }
 }

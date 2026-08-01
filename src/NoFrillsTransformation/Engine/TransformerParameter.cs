@@ -8,11 +8,17 @@ namespace NoFrillsTransformation
 {
     class TransformerParameter : IParameter
     {
-        public TransformerParameter(string name, string functionString, IExpression function)
+        public TransformerParameter(string name, string functionString, IExpression function, 
+            string? keyString = null, IExpression? key = null, 
+            string? valueString = null, IExpression? value = null)
         {
             Name = name;
             FunctionString = functionString;
             Function = function;
+            KeyString = keyString;
+            Key = key;
+            ValueString = valueString;
+            Value = value;
         }
 
         public string Name { get; set; }
@@ -20,5 +26,13 @@ namespace NoFrillsTransformation
         public string FunctionString { get; set; }
  
         public IExpression Function { get; set; }
+
+        public string? KeyString { get; set; }
+
+        public IExpression? Key { get; set; }
+
+        public string? ValueString { get; set; }
+
+        public IExpression? Value { get; set; }
     }
 }

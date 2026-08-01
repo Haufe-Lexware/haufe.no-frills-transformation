@@ -96,6 +96,10 @@ namespace NoFrillsTransformation.Config
         public string? FunctionString { get; set; }
         [XmlAttribute("name")]
         public string? Name { get; set; }
+        [XmlElement("Key")]
+        public string? Key { get; set; }
+        [XmlElement("Value")]
+        public string? Value { get; set; }
     }
 
     public class TransformSettingXml

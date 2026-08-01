@@ -29,6 +29,8 @@ namespace NoFrillsTransformation.Plugins.Statistics
             {
                 case "frequency":
                     return CreateFrequencyTransformer(context, t, config, parameters, settings);
+                case "sum":
+                    return CreateSumTransformer(context, t, config, parameters, settings);
             }
             throw new ArgumentException("Plugin.Statistics: Could not find transform for source '" + t + "'.");
         }
@@ -37,6 +39,12 @@ namespace NoFrillsTransformation.Plugins.Statistics
         {
             string target = FindTarget(context, settings);
             return new FrequencyTransformer(context, target, config, parameters);
+        }
+
+        private ISourceTransformer CreateSumTransformer(IContext context, string t, string? config, IParameter[] parameters, ISetting[] settings)
+        {
+            string target = FindTarget(context, settings);
+            return new SumTransformer(context, target, config, parameters);
         }
 
         private string FindTarget(IContext context, ISetting[] settings)
