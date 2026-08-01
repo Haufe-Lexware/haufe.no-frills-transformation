@@ -84,7 +84,7 @@ namespace NoFrillsTransformation.Plugins.Acumatica
             string fileName = _context.ResolveFileName(configFileName);
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(AcumaticaEntityConfig));
             AcumaticaEntityConfig? entityConfig;
-            using (var fs = new System.IO.FileStream(fileName, System.IO.FileMode.Open))
+            using (var fs = new System.IO.FileStream(fileName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read))
             {
                 entityConfig = (AcumaticaEntityConfig?)xmlSerializer.Deserialize(fs);
             }

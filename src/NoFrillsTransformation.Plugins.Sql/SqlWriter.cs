@@ -73,7 +73,7 @@ namespace NoFrillsTransformation.Plugins.Sql
             string fileName = _context.ResolveFileName(configFileName);
             XmlSerializer xmlSerializer = new XmlSerializer(typeof(SqlEntityConfig));
             SqlEntityConfig? entityConfig;
-            using (var fs = new System.IO.FileStream(fileName, System.IO.FileMode.Open))
+            using (var fs = new System.IO.FileStream(fileName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.Read))
             {
                 entityConfig = (SqlEntityConfig?)xmlSerializer.Deserialize(fs);
             }
