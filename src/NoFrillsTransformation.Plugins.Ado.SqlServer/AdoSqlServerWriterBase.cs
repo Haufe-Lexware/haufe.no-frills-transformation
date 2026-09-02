@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
-using System.Linq;
-using System.Text;
 using NoFrillsTransformation.Interfaces;
 using System.Data;
+using System.Globalization;
 
 namespace NoFrillsTransformation.Plugins.Ado.SqlServer
 {
@@ -15,47 +14,54 @@ namespace NoFrillsTransformation.Plugins.Ado.SqlServer
         {
         }
 
-        protected class RemoteFieldDef
-        {
-            public string? FieldName { get; set; }
-            public string? DataType { get; set; }
-            public int? CharacterMaximumLength { get; set; }
-            public bool IsNullable { get; set; }
-        }
+        private Dictionary<string, SqlServerColumnDefinition> _remoteFields = new Dictionary<string, SqlServerColumnDefinition>();
+        protected Dictionary<string, SqlServerColumnDefinition> RemoteFields { get { return _remoteFields; } }
 
-        private Dictionary<string, RemoteFieldDef> _remoteFields = new Dictionary<string, RemoteFieldDef>();
-        protected Dictionary<string, RemoteFieldDef> RemoteFields { get { return _remoteFields; } }
-
-        protected void RetrieveRemoteFields(SqlConnection sqlConnection)
+        protected string RetrieveRemoteFields(SqlConnection sqlConnection, string? tableName = null)
         {
-            // Run a query to get the field names and types
-            var sb = new StringBuilder();
-            sb.Append("SELECT COLUMN_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, IS_NULLABLE ");
-            sb.Append("FROM INFORMATION_SCHEMA.COLUMNS ");
-            sb.Append("WHERE TABLE_NAME = '");
-            sb.Append(Table);
-            sb.Append("';");
-            var query = sb.ToString();
+            var target = SqlServerTypeSupport.ParseTableName(tableName ?? Table);
+            const string query = "WITH ResolvedTable AS (" +
+                "SELECT TOP (1) TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES " +
+                "WHERE TABLE_NAME = @table AND ((@schema IS NOT NULL AND TABLE_SCHEMA = @schema) " +
+                "OR (@schema IS NULL AND TABLE_SCHEMA IN (SCHEMA_NAME(), 'dbo'))) " +
+                "ORDER BY CASE WHEN @schema IS NOT NULL OR TABLE_SCHEMA = SCHEMA_NAME() THEN 0 ELSE 1 END) " +
+                "SELECT c.COLUMN_NAME, c.DATA_TYPE, c.CHARACTER_MAXIMUM_LENGTH, c.IS_NULLABLE, c.NUMERIC_PRECISION, c.NUMERIC_SCALE, c.TABLE_SCHEMA " +
+                "FROM INFORMATION_SCHEMA.COLUMNS c INNER JOIN ResolvedTable t " +
+                "ON c.TABLE_SCHEMA = t.TABLE_SCHEMA AND c.TABLE_NAME = t.TABLE_NAME;";
 
             using (var command = new SqlCommand(query, sqlConnection))
             {
+                command.Parameters.Add("@schema", SqlDbType.NVarChar, 128).Value = (object?)target.Schema ?? DBNull.Value;
+                command.Parameters.Add("@table", SqlDbType.NVarChar, 128).Value = target.Table;
                 using (var reader = command.ExecuteReader())
                 {
+                    _remoteFields.Clear();
+                    string? resolvedSchema = null;
                     while (reader.Read())
                     {
                         var columnName = reader.GetString(0);
                         var dataType = reader.GetString(1);
-                        var characterMaximumLength = reader.IsDBNull(2) ? 0 : reader.GetInt32(2);
+                        var characterMaximumLength = reader.IsDBNull(2) ? (int?)null : reader.GetInt32(2);
                         var isNullable = reader.GetString(3);
-                        _remoteFields[columnName] = new RemoteFieldDef
+                        var numericPrecision = reader.IsDBNull(4) ? (byte?)null : Convert.ToByte(reader.GetValue(4), CultureInfo.InvariantCulture);
+                        var numericScale = reader.IsDBNull(5) ? (byte?)null : Convert.ToByte(reader.GetValue(5), CultureInfo.InvariantCulture);
+                        resolvedSchema = reader.GetString(6);
+                        _remoteFields[columnName] = new SqlServerColumnDefinition
                         {
                             FieldName = columnName,
                             DataType = dataType,
                             CharacterMaximumLength = characterMaximumLength,
+                            NumericPrecision = numericPrecision,
+                            NumericScale = numericScale,
                             IsNullable = (isNullable == "YES")
                         };
                     }
                     reader.Close();
+
+                    if (resolvedSchema == null)
+                        throw new ArgumentException("Table '" + (tableName ?? Table) + "' not found.");
+
+                    return SqlServerTypeSupport.FormatTableName(resolvedSchema, target.Table);
                 }
             }
         }
@@ -64,143 +70,21 @@ namespace NoFrillsTransformation.Plugins.Ado.SqlServer
         {
             if (!RemoteFields.ContainsKey(fieldDef.FieldName))
                 throw new ArgumentException("Field '" + fieldDef.FieldName + "' not found in table '" + Table + "'.");
-            var remoteField = RemoteFields[fieldDef.FieldName];
-            switch (remoteField.DataType)
-            {
-                case "int":
-                    return SqlDbType.Int;
-
-                case "date":
-                    return SqlDbType.DateTime;
-
-                case "datetime":
-                    return SqlDbType.DateTime;
-
-                case "float":
-                    return SqlDbType.Float;
-
-                case "decimal":
-                    return SqlDbType.Decimal;
-
-                case "money":
-                    return SqlDbType.Money;
-
-                case "nvarchar":
-                    return SqlDbType.NVarChar;
-
-                case "varchar":
-                    return SqlDbType.VarChar;
-
-                case "char":
-                    return SqlDbType.Char;
-
-                case "nchar":
-                    return SqlDbType.NChar;
-
-                case "text":
-                    return SqlDbType.Text;
-
-                case "ntext":
-                    return SqlDbType.NText;
-
-                case "bit":
-                    return SqlDbType.Bit;
-
-                default:
-                    throw new ArgumentException("Unknown data type '" + remoteField.DataType + "' for field '" + fieldDef.FieldName + "'.");
-            }
+            return SqlServerTypeSupport.GetSqlDbType(RemoteFields[fieldDef.FieldName]);
         }
 
         protected object GetFieldValue(IFieldDefinition fieldDef, string fieldValue)
         {
-            // Cast according to the type of the remote field
-            var remoteField = RemoteFields[fieldDef.FieldName];
-            if (string.IsNullOrEmpty(fieldValue))
-            {
-                if (remoteField.IsNullable)
-                    return DBNull.Value;
-                else
-                    return GetDefaultValue(fieldDef);
-            }
-            switch (remoteField.DataType)
-            {
-                case "int":
-                    return int.Parse(fieldValue);
-
-                case "date":
-                    return DateTime.Parse(fieldValue);
-
-                case "datetime":
-                    return DateTime.Parse(fieldValue);
-
-                case "float":
-                    return float.Parse(fieldValue);
-
-                case "decimal":
-                    return decimal.Parse(fieldValue);
-
-                case "money":
-                    return decimal.Parse(fieldValue);
-
-                case "nvarchar":
-                    return fieldValue;
-
-                case "varchar":
-                    return fieldValue;
-
-                case "char":
-                    return fieldValue;
-
-                case "nchar":
-                    return fieldValue;
-
-                case "text":
-                    return fieldValue;
-
-                case "ntext":
-                    return fieldValue;
-
-                case "bit":
-                    return bool.Parse(fieldValue);
-
-                default:
-                    throw new ArgumentException("Unknown data type '" + remoteField.DataType + "' for field '" + fieldDef.FieldName + "'.");
-            }
+            if (!RemoteFields.ContainsKey(fieldDef.FieldName))
+                throw new ArgumentException("Field '" + fieldDef.FieldName + "' not found in table '" + Table + "'.");
+            return SqlServerTypeSupport.ConvertValue(RemoteFields[fieldDef.FieldName], fieldValue);
         }
 
-        private object GetDefaultValue(IFieldDefinition fieldDef)
+        protected SqlParameter CreateParameter(IFieldDefinition fieldDef)
         {
-            var remoteField = RemoteFields[fieldDef.FieldName];
-            switch (remoteField.DataType)
-            {
-                case "int":
-                    return 0;
-
-                case "date":
-                case "datetime":
-                    return DateTime.MinValue;
-
-                case "float":
-                    return 0.0f;
-
-                case "decimal":
-                case "money":
-                    return 0.0m;
-
-                case "nvarchar":
-                case "varchar":
-                case "char":
-                case "nchar":
-                case "text":
-                case "ntext":
-                    return string.Empty;
-
-                case "bit":
-                    return false;
-
-                default:
-                    throw new ArgumentException("Unknown data type '" + remoteField.DataType + "' for field '" + fieldDef.FieldName + "'.");
-            }
+            if (!RemoteFields.ContainsKey(fieldDef.FieldName))
+                throw new ArgumentException("Field '" + fieldDef.FieldName + "' not found in table '" + Table + "'.");
+            return SqlServerTypeSupport.CreateParameter(RemoteFields[fieldDef.FieldName]);
         }
     }
 }

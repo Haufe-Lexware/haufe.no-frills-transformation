@@ -44,7 +44,7 @@ namespace NoFrillsTransformation.Plugins.Ado.SqlServer
                 _updateWhereFields[i] = _updateWhereFields[i].Trim();
             }
 
-            RetrieveRemoteFields(_sqlConnection);
+            _updateTable = RetrieveRemoteFields(_sqlConnection, _updateTable);
             // Check that all fields in the WHERE clause are present in the table
             foreach (var whereField in _updateWhereFields)
             {
@@ -57,6 +57,7 @@ namespace NoFrillsTransformation.Plugins.Ado.SqlServer
             {
                 if (!RemoteFields.ContainsKey(fieldDef.FieldName))
                     throw new ArgumentException("Field '" + fieldDef.FieldName + "' not found in table '" + _updateTable + "'.");
+                GetSqlDbType(fieldDef);
             }
 
             _sqlCommand = new SqlCommand(GetUpdateStatement(), _sqlConnection);
@@ -66,15 +67,7 @@ namespace NoFrillsTransformation.Plugins.Ado.SqlServer
             // Add the parameters to the command
             foreach (var fieldDef in FieldDefs)
             {
-                var remoteField = RemoteFields[fieldDef.FieldName];
-                if (remoteField.CharacterMaximumLength != null && remoteField.CharacterMaximumLength.Value != 0)
-                {
-                    _sqlCommand.Parameters.Add(new SqlParameter("@" + fieldDef.FieldName, GetSqlDbType(fieldDef), remoteField.CharacterMaximumLength.Value));
-                }
-                else
-                {
-                    _sqlCommand.Parameters.Add(new SqlParameter("@" + fieldDef.FieldName, GetSqlDbType(fieldDef)));
-                }
+                _sqlCommand.Parameters.Add(CreateParameter(fieldDef));
             }
             if (_sqlCommand.Parameters.Count > 0)
             {

@@ -21,4 +21,8 @@
     <PackageReference Include="System.Composition.Hosting" Version="9.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="NoFrillsTransformation.Plugins.Ado.SqlServer.Tests" />
+  </ItemGroup>
+
 </Project>

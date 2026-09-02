@@ -18,6 +18,7 @@ namespace NoFrillsTransformation.Plugins.Ado.SqlServer
         private SqlConnection? _sqlConnection;
         private SqlCommand? _sqlCommand;
         private SqlTransaction? _transaction;
+        private string? _targetTable;
 
         private bool _finished = false;
 
@@ -28,13 +29,14 @@ namespace NoFrillsTransformation.Plugins.Ado.SqlServer
             _sqlConnection = new SqlConnection(Config);
             _sqlConnection.Open();
 
-            RetrieveRemoteFields(_sqlConnection);
+            _targetTable = RetrieveRemoteFields(_sqlConnection);
 
             // Check all the target fields as well
             foreach (var fieldDef in FieldDefs)
             {
                 if (!RemoteFields.ContainsKey(fieldDef.FieldName))
                     throw new ArgumentException("Field '" + fieldDef.FieldName + "' not found in table '" + Table + "'.");
+                GetSqlDbType(fieldDef);
             }
 
             _sqlCommand = new SqlCommand(GetInsertStatement(), _sqlConnection);
@@ -44,15 +46,7 @@ namespace NoFrillsTransformation.Plugins.Ado.SqlServer
             // Add the parameters to the command
             foreach (var fieldDef in FieldDefs)
             {
-                var remoteField = RemoteFields[fieldDef.FieldName];
-                if (remoteField.CharacterMaximumLength != null && remoteField.CharacterMaximumLength.Value != 0)
-                {
-                    _sqlCommand.Parameters.Add(new SqlParameter("@" + fieldDef.FieldName, GetSqlDbType(fieldDef), remoteField.CharacterMaximumLength.Value));
-                }
-                else
-                {
-                    _sqlCommand.Parameters.Add(new SqlParameter("@" + fieldDef.FieldName, GetSqlDbType(fieldDef)));
-                }
+                _sqlCommand.Parameters.Add(CreateParameter(fieldDef));
             }
             if (_sqlCommand.Parameters.Count > 0)
             {
@@ -64,9 +58,11 @@ namespace NoFrillsTransformation.Plugins.Ado.SqlServer
 
         protected override string GetInsertStatement()
         {
+            if (null == _targetTable)
+                throw new InvalidOperationException("Target table not set.");
             var sb = new StringBuilder();
             sb.Append("insert into ");
-            sb.Append(Table);
+            sb.Append(_targetTable);
             sb.Append(" (");
             bool first = true;
             foreach (var field in FieldDefs)
